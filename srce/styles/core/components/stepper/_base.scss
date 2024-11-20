@@ -1,0 +1,82 @@
+//
+// Stepper
+//
+
+// Base
+.stepper {
+	// Content
+	[data-xgn-stepper-element="info"],
+	[data-xgn-stepper-element="content"] {
+		display: none;
+
+		&.current {
+			display: flex;
+		}
+	}
+
+	// Enable cursor pointer on clickable steppers
+	.stepper-item[data-xgn-stepper-action="step"] {
+		cursor: pointer;
+	}
+
+	// States
+	& {
+		[data-xgn-stepper-action="previous"] {
+			display: none;
+		}
+
+		[data-xgn-stepper-action="next"] {
+			display: inline-block;
+		}
+
+		[data-xgn-stepper-action="submit"] {
+			display: none;
+		}
+	}
+
+	&.first {
+		[data-xgn-stepper-action="previous"] {
+			display: none;
+		}
+
+		[data-xgn-stepper-action="next"] {
+			display: inline-block;
+		}
+
+		[data-xgn-stepper-action="submit"] {
+			display: none;
+		}
+	}
+
+	&.between {
+		[data-xgn-stepper-action="previous"] {
+			display: inline-block;
+		}
+
+		[data-xgn-stepper-action="next"] {
+			display: inline-block;
+		}
+
+		[data-xgn-stepper-action="submit"] {
+			display: none;
+		}
+	}
+
+	&.last {
+		[data-xgn-stepper-action="previous"] {
+			display: inline-block;
+		}
+
+		[data-xgn-stepper-action="next"] {
+			display: none;
+		}
+
+		[data-xgn-stepper-action="submit"] {
+			display: inline-block;
+		}
+
+		[data-xgn-stepper-action="submit"].btn-flex {
+			display: flex;
+		}
+	}
+}

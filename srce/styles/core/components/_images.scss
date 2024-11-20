@@ -1,0 +1,12 @@
+
+
+// Image thumbnails
+.img-thumbnail {
+	background-color: var(--xgn-thumbnail-bg);
+	border: $thumbnail-border-width solid var(--xgn-thumbnail-border-color);
+	@include box-shadow(var(--xgn-thumbnail-box-shadow));
+}
+
+.figure-caption {
+	color: var(--xgn-figure-caption-color);
+}

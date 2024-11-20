@@ -1,0 +1,51 @@
+//
+// Root
+//
+
+// Light mode
+@include theme-light() {
+    // Page bg color
+    --xgn-page-bg: #{$page-bg};
+
+    // Header
+    --xgn-header-default-bg-color: #{get($header-config, default, bg-color)};
+	--xgn-header-fixed-bg-color: #{get($header-config, fixed, bg-color)};
+	--xgn-header-fixed-box-shadow: #{get($header-config, fixed, box-shadow)};
+
+	// Aside
+	--xgn-aside-box-shadow: #{get($aside-config, box-shadow)};
+	--xgn-aside-bg-color: #{get($aside-config, bg-color)};
+	--xgn-aside-minimized-hover-box-shadow: #{get($aside-config, minimized-hover-box-shadow)};
+
+	// Toolbar
+	--xgn-toolbar-bg-color: #{get($toolbar-config, bg-color)};
+	--xgn-toolbar-box-shadow: #{get($toolbar-config, box-shadow)};
+	--xgn-toolbar-border-top: #{get($toolbar-config, border-top)};
+
+	// Footer
+	--xgn-footer-bg-color: #{get($footer-config, bg-color)};
+}
+
+// Dark mode
+@include theme-dark() {
+    // Page bg color
+    --xgn-page-bg: #{$page-bg-dark};
+
+    // Header
+    --xgn-header-default-bg-color: #{get($header-config, default, bg-color-dark)};
+	--xgn-header-fixed-bg-color: #{get($header-config, fixed, bg-color-dark)};
+	--xgn-header-fixed-box-shadow: #{get($header-config, fixed, box-shadow-dark)};
+
+	// Aside
+	--xgn-aside-box-shadow: #{get($aside-config, box-shadow-dark)};
+	--xgn-aside-bg-color: #{get($aside-config, bg-color-dark)};
+	--xgn-aside-minimized-hover-box-shadow: #{get($aside-config, minimized-hover-box-shadow-dark)};
+
+	// Toolbar
+	--xgn-toolbar-bg-color: #{get($toolbar-config, bg-color-dark)};
+	--xgn-toolbar-box-shadow: #{get($toolbar-config, box-shadow-dark)};
+	--xgn-toolbar-border-top: #{get($toolbar-config, border-top-dark)};
+
+	// Footer
+	--xgn-footer-bg-color: #{get($footer-config, bg-color-dark)};
+}

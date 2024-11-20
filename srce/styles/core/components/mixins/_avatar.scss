@@ -1,0 +1,28 @@
+//
+// avatar
+//
+
+@mixin avatar-size($size) {
+    > img {
+        width: $size;
+        height: $size;
+    }
+
+    .avatar-label {
+        width: $size;
+        height: $size;
+    }
+
+    &.avatar-fixed {
+        .avatar-label {
+            width: $size;
+            height: $size;
+        }
+
+        > img {
+            width: $size;
+            height: $size;
+            max-width: none;
+        }
+    }
+}

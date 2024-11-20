@@ -1,0 +1,223 @@
+//
+// sidebar
+//
+
+// General mode
+.app-header {
+    transition: $app-header-base-transition;   
+    display: flex;
+    align-items: stretch;
+}
+
+// Desktop mode
+@include media-breakpoint-up(lg) {
+    // Base
+    .app-header {
+        @include property( z-index, $app-header-base-z-index);
+
+        background-color: var(--xgn-app-header-base-bg-color);
+        box-shadow: var(--xgn-app-header-base-box-shadow);
+        border-bottom: var(--xgn-app-header-base-border-bottom);
+    }    
+
+    // Vars
+    :root {
+        --xgn-app-header-height: #{$app-header-base-height};
+        --xgn-app-header-height-actual: #{$app-header-base-height};
+    }
+
+    [data-xgn-app-header-sticky="on"] {
+        --xgn-app-header-height: #{$app-header-sticky-height};
+        --xgn-app-header-height-actual: #{$app-header-base-height};
+    }
+
+    [data-xgn-app-header-sticky="on"][data-xgn-app-header-stacked="true"] {
+        --xgn-app-header-height: calc(var(--xgn-app-header-primary-height, 0px) + var(--xgn-app-header-secondary-height, 0px));
+        --xgn-app-header-height-actual: calc(#{$app-header-primary-base-height} + #{$app-header-secondary-base-height});
+    }
+
+    [data-xgn-app-header-minimize="on"] {
+        --xgn-app-header-height: #{$app-header-minimize-height};
+    } 
+
+    // States
+    .app-header {
+        height: var(--xgn-app-header-height);
+
+        [data-xgn-app-header-fixed="true"] & {
+            @include property( z-index, $app-header-fixed-z-index);
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;            
+        }
+
+        [data-xgn-app-header-static="true"] & {
+            position: relative;
+        }
+
+        [data-xgn-app-header-stacked="true"] & {
+            flex-direction: column;
+            height: calc(var(--xgn-app-header-primary-height) + var(--xgn-app-header-secondary-height, 0px));
+        }
+
+        [data-xgn-app-header-sticky="on"] & {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            @include property( z-index, $app-header-sticky-z-index);
+
+            background-color: var(--xgn-app-header-sticky-bg-color);
+            box-shadow: var(--xgn-app-header-sticky-box-shadow);
+            border-bottom: var(--xgn-app-header-sticky-border-bottom);
+        }
+
+        [data-xgn-app-header-minimize="on"] & {
+            transition: $app-header-base-transition; 
+            @include property( z-index, $app-header-minimize-z-index);
+
+            background-color: var(--xgn-app-header-minimize-bg-color);
+            box-shadow: var(--xgn-app-header-minimize-box-shadow);
+            border-bottom: var(--xgn-app-header-minimize-border-bottom);
+        }
+
+        .app-header-mobile-drawer {
+            display: flex;    
+        }
+    }
+
+    // Integration
+    .app-header {
+        // Sidebar
+        [data-xgn-app-header-fixed="true"][data-xgn-app-sidebar-fixed="true"][data-xgn-app-sidebar-push-header="true"] &,
+        [data-xgn-app-header-fixed="true"][data-xgn-app-sidebar-sticky="on"][data-xgn-app-sidebar-push-header="true"] & {
+            left: calc(
+                var(--xgn-app-sidebar-width) + 
+                var(--xgn-app-sidebar-gap-start, 0px) + 
+                var(--xgn-app-sidebar-gap-end, 0px)
+            );
+        }
+
+        body:not([data-xgn-app-header-fixed="true"])[data-xgn-app-sidebar-fixed="true"][data-xgn-app-sidebar-push-header="true"] &,
+        body:not([data-xgn-app-header-fixed="true"])[data-xgn-app-sidebar-sticky="on"][data-xgn-app-sidebar-push-header="true"] & {
+            margin-left: calc(
+                var(--xgn-app-sidebar-width) + 
+                var(--xgn-app-sidebar-gap-start, 0px) + 
+                var(--xgn-app-sidebar-gap-end, 0px)
+            );
+        }
+
+        // Sidebar Panel
+        [data-xgn-app-header-fixed="true"][data-xgn-app-sidebar-panel-fixed="true"][data-xgn-app-sidebar-panel-push-header="true"] &,
+        [data-xgn-app-header-fixed="true"][data-xgn-app-sidebar-panel-sticky="on"][data-xgn-app-sidebar-panel-push-header="true"] & {
+            left: calc(
+                var(--xgn-app-sidebar-width) + 
+                var(--xgn-app-sidebar-gap-start, 0px) + 
+                var(--xgn-app-sidebar-gap-end, 0px) +
+                var(--xgn-app-sidebar-panel-width) + 
+                var(--xgn-app-sidebar-panel-gap-start, 0px) + 
+                var(--xgn-app-sidebar-panel-gap-end, 0px)
+            );
+        }
+
+        body:not([data-xgn-app-header-fixed="true"])[data-xgn-app-sidebar-panel-fixed="true"][data-xgn-app-sidebar-panel-push-header="true"] &,
+        body:not([data-xgn-app-header-fixed="true"])[data-xgn-app-sidebar-panel-sticky="on"][data-xgn-app-sidebar-panel-push-header="true"] & {
+            margin-left: calc(
+                var(--xgn-app-sidebar-width) + 
+                var(--xgn-app-sidebar-gap-start, 0px) + 
+                var(--xgn-app-sidebar-gap-end, 0px) +
+                var(--xgn-app-sidebar-panel-width) + 
+                var(--xgn-app-sidebar-panel-gap-start, 0px) + 
+                var(--xgn-app-sidebar-panel-gap-end, 0px)
+            );
+        }        
+
+        // Toolbar
+        [data-xgn-app-header-fixed="true"][data-xgn-app-toolbar-fixed="true"] & {
+            box-shadow: none;    
+        }
+    } 
+}
+
+// Tablet & mobile modes
+@include media-breakpoint-down(lg) {
+    // Base
+    .app-header {
+        @include property( z-index, $app-header-base-z-index-mobile);
+
+        background-color: var(--xgn-app-header-base-bg-color-mobile);
+        box-shadow: var(--xgn-app-header-base-box-shadow-mobile);
+        border-bottom: var(--xgn-app-header-base-border-bottom-mobile);
+    }
+
+    // Vars
+    :root {
+        --xgn-app-header-height: #{$app-header-base-height-mobile};
+    }
+
+    [data-xgn-app-header-sticky="on"] {
+        --xgn-app-header-height: #{$app-header-sticky-height-mobile};
+        --xgn-app-header-height-actual: #{$app-header-sticky-height-mobile};
+    }
+
+    [data-xgn-app-header-minimize="on"] {
+        --xgn-app-header-height: #{$app-header-minimize-height-mobile};
+        --xgn-app-header-height-actual: #{$app-header-minimize-height-mobile};
+    }
+
+    // States
+    .app-header {
+        height: var(--xgn-app-header-height);
+        align-items: stretch;
+        
+        .app-header-mobile-drawer {
+            display: none;    
+        }
+
+        [data-xgn-app-header-stacked="true"] & {
+            flex-direction: column;
+        }
+
+        [data-xgn-app-header-fixed-mobile="true"] & {
+            @include property( z-index, $app-header-fixed-z-index-mobile);
+            transition: $app-header-base-transition;   
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;        
+        }
+
+        [data-xgn-app-header-sticky="on"] & {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            @include property( z-index, $app-header-sticky-z-index-mobile);
+
+            background-color: var(--xgn-app-header-sticky-bg-color-mobile);
+            box-shadow: var(--xgn-app-header-sticky-box-shadow-mobile);
+            border-bottom: var(--xgn-app-header-sticky-border-bottom-mobile);
+        }
+
+        [data-xgn-app-header-minimize="on"] & {            
+            @include property( z-index, $app-header-minimize-z-index-mobile);
+            transition: $app-header-base-transition; 
+            background-color: var(--xgn-app-header-minimize-bg-color-mobile);
+            box-shadow: var(--xgn-app-header-minimize-box-shadow-mobile);
+            border-bottom: var(--xgn-app-header-minimize-border-bottom-mobile);
+        }
+    }
+
+    // Integration
+    .app-header {
+        // Toolbar
+        [data-xgn-app-header-fixed-mobile="true"][data-xgn-app-toolbar-fixed-mobile="true"] & {
+            box-shadow: none;    
+        }
+
+        [data-xgn-app-header-fixed-mobile="true"][data-xgn-app-toolbar-sticky="on"] & {
+            box-shadow: none;    
+        }
+    }    
+}

@@ -1,0 +1,9 @@
+//
+// Input group
+//
+
+.input-group-text {
+	color: var(--xgn-input-group-addon-color);
+	background-color: var(--xgn-input-group-addon-bg);
+	border: $input-border-width solid var(--xgn-input-group-addon-border-color);
+}

@@ -1,0 +1,61 @@
+//
+// CSS Variables
+//
+
+[data-theme="dark"] {
+	@each $color, $value in $grays-dark {
+		--#{$prefix}gray-#{$color}: #{$value};
+	}
+
+	@each $color, $value in $theme-colors-dark {
+		--#{$prefix}#{$color}: #{$value};
+	}
+
+	--#{$prefix}body-color-rgb: #{to-rgb($body-color-dark)};
+	--#{$prefix}body-bg-rgb: #{to-rgb($body-bg-dark)};
+
+	--#{$prefix}body-color: #{$body-color-dark};
+	--#{$prefix}body-bg: #{$body-bg-dark};
+
+	--#{$prefix}border-color: #{$border-color-dark};
+
+	--#{$prefix}heading-color: #{$headings-color-dark};
+	--#{$prefix}link-color: #{$link-color-dark};
+	--#{$prefix}link-hover-color: #{$link-hover-color-dark};
+
+	--#{$prefix}code-color: #{$code-color-dark};
+
+	    /* -------------------------------- Kanban ------------------------------- */
+		--#{$prefix}kanban-bg: #{$body-bg-dark};
+		--#{$prefix}kanban-column-bg: var(--#{$prefix}emphasis-bg);
+		--#{$prefix}kanban-ghost-bg: #{$body-bg-dark};
+		--#{$prefix}kanban-drag-bg: #1c222c;
+		--#{$prefix}kanban-column-hover-bg: #1c222c;
+	
+		--#{$prefix}leaflet-popup-content-wrapper-bg: #{$dark};
+	
+		// table variants
+		@each $color, $value in $theme-colors {
+		  @if $color == 'dark' {
+			.table-#{$color} {
+			  --#{$prefix}table-bg: $value;
+			}
+		  } @else if $color == 'light' {
+			.table-#{$color} {
+			  --#{$prefix}table-bg: #{map-get($grays, '100')};
+			}
+		  } @else {
+			.table-#{$color} {
+			  --#{$prefix}table-bg: #{shift-color($value, -$table-bg-scale)};
+			  --#{$prefix}table-color: #{color-contrast(opaque(map-get($grays-dark, '200'), $value))};
+			  --#{$prefix}table-hover-bg: #{mix(color-contrast(opaque(map-get($grays-dark, '200'), $value)),$value,percentage($table-hover-bg-factor))};
+			  --#{$prefix}table-hover-color: #{color-contrast(mix(color-contrast(opaque(map-get($grays-dark, '200'), $value)),$value,percentage($table-hover-bg-factor)))};
+			  --#{$prefix}table-striped-bg: #{mix(color-contrast(opaque(map-get($grays-dark, '200'), $value)),$value,percentage($table-striped-bg-factor))};
+			  --#{$prefix}table-striped-color: #{color-contrast(mix(color-contrast(opaque(map-get($grays-dark, '200'), $value)),$value,percentage($table-striped-bg-factor)))};
+			  --#{$prefix}table-active-bg: #{mix(color-contrast(opaque(map-get($grays-dark, '200'), $value)),$value,percentage($table-active-bg-factor))};
+			  --#{$prefix}table-active-color: #{color-contrast(mix(color-contrast(opaque(map-get($grays-dark, '200'), $value)),$value,percentage($table-active-bg-factor)))};
+			  --#{$prefix}table-border-color: #{rgba(mix(color-contrast(opaque(map-get($grays-dark, '200'), $value)),$value,percentage($table-border-factor)),0.05)};
+			}
+		  }
+		}
+}

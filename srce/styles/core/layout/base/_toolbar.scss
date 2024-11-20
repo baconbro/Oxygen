@@ -1,0 +1,179 @@
+//
+// Toolbar
+//
+
+// General mode
+.app-toolbar { 
+    display: flex;
+    align-items: stretch;
+    
+    &.app-toolbar-minimize {        
+        transition: $app-toolbar-base-transition;
+    }
+}
+
+// Desktop mode
+@include media-breakpoint-up(lg) {
+    // Base
+    .app-toolbar {
+        background-color: var(--xgn-app-toolbar-base-bg-color); 
+        box-shadow: var(--xgn-app-toolbar-base-box-shadow); 
+        border-top: var(--xgn-app-toolbar-base-border-top); 
+        border-bottom: var(--xgn-app-toolbar-base-border-bottom); 
+    }    
+
+    // Vars
+    :root {
+        --xgn-app-toolbar-height: #{$app-toolbar-base-height};
+        --xgn-app-toolbar-height-actual: #{$app-toolbar-base-height};
+    }
+
+    [data-xgn-app-toolbar-sticky="on"] {
+        --xgn-app-toolbar-height: #{$app-toolbar-sticky-height};
+    }
+
+    [data-xgn-app-toolbar-minimize="on"] {
+        --xgn-app-toolbar-height: #{$app-toolbar-minimize-height};
+    } 
+
+    // States
+    .app-toolbar {
+        height: var(--xgn-app-toolbar-height);
+
+        [data-xgn-app-header-fixed="true"][data-xgn-app-toolbar-fixed="true"] & {            
+            @include property( z-index, $app-toolbar-base-z-index);
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0; 
+        }
+
+        [data-xgn-app-toolbar-sticky="on"] & {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            @include property( z-index, $app-toolbar-sticky-z-index);
+
+            box-shadow: var(--xgn-app-toolbar-sticky-box-shadow);
+            background-color: var(--xgn-app-toolbar-sticky-bg-color);
+            border-top: var(--xgn-app-toolbar-sticky-border-top);
+            border-bottom: var(--xgn-app-toolbar-sticky-border-bottom);
+        }
+
+        [data-xgn-app-toolbar-minimize="on"] & {
+            transition: $app-toolbar-base-transition;
+            @include property( z-index, $app-toolbar-minimize-z-index);
+
+            box-shadow: var(--xgn-app-toolbar-minimize-box-shadow);
+            background-color: var(--xgn-app-toolbar-minimize-bg-color);
+            border-top: var(--xgn-app-toolbar-minimize-border-top);
+            border-bottom: var(--xgn-app-toolbar-minimize-border-bottom);
+        }
+    }
+
+    // Integration
+    .app-toolbar {
+        // Header
+        [data-xgn-app-toolbar-fixed="true"][data-xgn-app-header-fixed="true"] & {
+            top: var(--xgn-app-header-height);
+        }
+
+        // Sidebar
+        [data-xgn-app-toolbar-sticky="on"][data-xgn-app-sidebar-fixed="true"][data-xgn-app-sidebar-push-toolbar="true"] &,
+        [data-xgn-app-toolbar-fixed="true"][data-xgn-app-sidebar-fixed="true"][data-xgn-app-sidebar-push-toolbar="true"] & {
+            left: calc(
+                var(--xgn-app-sidebar-width) + 
+                var(--xgn-app-sidebar-gap-start, 0px) + 
+                var(--xgn-app-sidebar-gap-end, 0px)
+            );
+        } 
+
+        // Sidebar panel
+        [data-xgn-app-toolbar-sticky="on"][data-xgn-app-sidebar-panel-fixed="true"][data-xgn-app-sidebar-panel-push-toolbar="true"] &,
+        [data-xgn-app-toolbar-fixed="true"][data-xgn-app-sidebar-panel-fixed="true"][data-xgn-app-sidebar-panel-push-toolbar="true"] & {
+            left: calc(
+                var(--xgn-app-sidebar-width) + 
+                var(--xgn-app-sidebar-gap-start, 0px) + 
+                var(--xgn-app-sidebar-gap-end, 0px) +
+                var(--xgn-app-sidebar-panel-width) + 
+                var(--xgn-app-sidebar-panel-gap-start, 0px) + 
+                var(--xgn-app-sidebar-panel-gap-end, 0px)
+            );
+        }
+
+        // Aside
+        [data-xgn-app-toolbar-sticky="on"][data-xgn-app-aside-fixed="true"][data-xgn-app-aside-push-toolbar="true"] &,
+        [data-xgn-app-toolbar-fixed="true"][data-xgn-app-aside-fixed="true"][data-xgn-app-aside-push-toolbar="true"] & {
+            right: calc(
+                var(--xgn-app-aside-width) + 
+                var(--xgn-app-aside-gap-start, 0px) + 
+                var(--xgn-app-aside-gap-end, 0px)
+            );
+        } 
+    } 
+}
+
+// Tablet & mobile modes
+@include media-breakpoint-down(lg) {
+    // Base
+    .app-toolbar {
+        @include property( z-index, $app-toolbar-base-z-index-mobile);
+
+        box-shadow: var(--xgn-app-toolbar-base-box-shadow-mobile);
+        background-color: var(--xgn-app-toolbar-base-bg-color-mobile);
+        border-top: var(--xgn-app-toolbar-base-border-top-mobile);
+        border-bottom: var(--xgn-app-toolbar-base-border-bottom-mobile);
+    }
+
+    // Vars
+    :root {
+        --xgn-app-toolbar-height: #{$app-toolbar-base-height-mobile};
+    }
+
+    [data-xgn-app-toolbar-sticky="on"] {
+        --xgn-app-toolbar-height: #{$app-toolbar-sticky-height-mobile};
+    }
+
+    [data-xgn-app-toolbar-minimize="on"] {
+        --xgn-app-toolbar-height: #{$app-toolbar-minimize-height-mobile};
+    } 
+
+    // States
+    .app-toolbar {
+        height: var(--xgn-app-toolbar-height);
+
+        [data-xgn-app-header-fixed-mobile="true"][data-xgn-app-toolbar-fixed-mobile="true"] & {
+            @include property( z-index, $app-toolbar-base-z-index-mobile);
+            position: fixed;            
+            top: calc(var(--xgn-app-header-height, 0px) + var(--xgn-app-header-mobile-height, 0px));          
+            left: 0;
+            right: 0;
+        }
+
+        [data-xgn-app-toolbar-sticky="on"] & {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: var(--xgn-app-header-height, 0px);
+
+            box-shadow: var(--xgn-app-toolbar-sticky-box-shadow-mobile);
+            background-color: var(--xgn-app-toolbar-sticky-bg-color-mobile);
+            border-top: var(--xgn-app-toolbar-sticky-border-top-mobile);
+            border-bottom: var(--xgn-app-toolbar-sticky-border-bottom-mobile);
+
+            @include property( z-index, $app-toolbar-sticky-z-index-mobile);
+        }
+
+        [data-xgn-app-toolbar-minimize="on"] & {
+            transition: $app-toolbar-base-transition;
+
+            box-shadow: var(--xgn-app-toolbar-minimize-box-shadow-mobile);
+            background-color: var(--xgn-app-toolbar-minimize-bg-color-mobile);
+            border-top: var(--xgn-app-toolbar-minimize-border-top-mobile);
+            border-bottom: var(--xgn-app-toolbar-minimize-border-bottom-mobile);
+
+            @include property( z-index, $app-toolbar-minimize-z-index-mobile);
+        }
+    }
+}

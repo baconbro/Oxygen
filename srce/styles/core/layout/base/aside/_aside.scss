@@ -1,0 +1,294 @@
+//
+// Aside
+//
+
+// General mode
+.app-aside {    
+    transition: $app-aside-base-transition;
+}
+
+// Utilities
+.app-aside-minimize-d-flex,
+.app-aside-sticky-d-flex,
+.app-aside-collapse-d-flex,
+.app-aside-minimize-mobile-d-flex,
+.app-aside-collapse-mobile-d-flex {
+    display: none;    
+}
+
+// Desktop mode
+@include media-breakpoint-up(lg) {
+    // Base
+    .app-aside {        
+        display: flex;    
+        flex-shrink: 0;
+        width: var(--xgn-app-aside-width);      
+        background-color: var(--xgn-app-aside-base-bg-color);
+        box-shadow: var(--xgn-app-aside-base-box-shadow);
+        border-left: var(--xgn-app-aside-base-border-left);
+        border-right: var(--xgn-app-aside-base-border-right);
+
+        @include property( margin-left, $app-aside-base-gap-start);
+        @include property( margin-right, $app-aside-base-gap-end);
+        @include property( margin-top, $app-aside-base-gap-top);
+        @include property( margin-bottom, $app-aside-base-gap-bottom);
+        @include property( z-index, $app-aside-base-z-index);
+    }    
+
+    // Vars
+    :root {
+        --xgn-app-aside-width: #{$app-aside-base-width};
+        --xgn-app-aside-width-actual: #{$app-aside-base-width};
+
+        --xgn-app-aside-gap-start: #{$app-aside-base-gap-start};
+        --xgn-app-aside-gap-end: #{$app-aside-base-gap-end};
+        --xgn-app-aside-gap-top: #{$app-aside-base-gap-top};
+        --xgn-app-aside-gap-bottom: #{$app-aside-base-gap-bottom};
+    }
+
+    [data-xgn-app-aside-stacked="true"] {
+        --xgn-app-aside-width: calc(var(--xgn-app-aside-primary-width) + var(--xgn-app-aside-secondary-width));
+    }
+
+    [data-xgn-app-aside-minimize="on"] {
+        --xgn-app-aside-width: #{$app-aside-minimize-width};
+
+        --xgn-app-aside-gap-start: #{$app-aside-minimize-gap-start};
+        --xgn-app-aside-gap-end: #{$app-aside-minimize-gap-end};
+        --xgn-app-aside-gap-top: #{$app-aside-minimize-gap-top};
+        --xgn-app-aside-gap-bottom: #{$app-aside-minimize-gap-bottom};
+    }
+
+    [data-xgn-app-aside-sticky="on"] {
+        --xgn-app-aside-width: #{$app-aside-sticky-width};
+
+        --xgn-app-aside-gap-start: #{$app-aside-sticky-gap-start};
+        --xgn-app-aside-gap-end: #{$app-aside-sticky-gap-end};
+        --xgn-app-aside-gap-top: #{$app-aside-sticky-gap-top};
+        --xgn-app-aside-gap-bottom: #{$app-aside-sticky-gap-bottom};
+    }    
+
+    [data-xgn-app-aside-collapse="on"] {
+        --xgn-app-aside-width: 0px;  
+    }
+
+    // States
+    .app-aside {
+        [data-xgn-app-aside-static="true"] & {
+            position: relative;
+        }
+
+        [data-xgn-app-aside-offcanvas="true"] & {
+            display: none;
+        }
+
+        [data-xgn-app-aside-fixed="true"] & {
+            @include property( z-index, $app-aside-fixed-z-index);
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }  
+
+        [data-xgn-app-aside-stacked="true"] & {
+            align-items: stretch; 
+        }
+
+        [data-xgn-app-aside-sticky="on"] & {
+            position: fixed;
+            transition: $app-aside-base-transition;
+
+            box-shadow: var(--xgn-app-aside-sticky-box-shadow);
+            border-left: var(--xgn-aside-sticky-border-start);
+            border-right: var(--xgn-app-aside-sticky-border-end);
+
+            @include property( top, $app-aside-sticky-top);
+            @include property( bottom, $app-aside-sticky-bottom);
+            @include property( left, $app-aside-sticky-left);
+            @include property( z-index, $app-aside-sticky-z-index);
+            @include property( margin-left, $app-aside-sticky-gap-start);
+            @include property( margin-right, $app-aside-sticky-gap-end);
+            @include property( margin-top, $app-aside-sticky-gap-top);
+            @include property( margin-bottom, $app-aside-sticky-gap-bottom);
+        }
+
+        [data-xgn-app-aside-minimize="on"] & {
+            transition: $app-aside-base-transition;
+
+            background-color: var(--xgn-app-aside-minimize-bg-color);
+            box-shadow: var(--xgn-app-aside-minimize-box-shadow);
+            border-start: var(--xgn-app-aside-minimize-border-start);
+            border-end: var(--xgn-app-aside-minimize-border-end);
+
+            @include property( margin-left, $app-aside-minimize-gap-start);
+            @include property( margin-right, $app-aside-minimize-gap-end);
+            @include property( margin-top, $app-aside-minimize-gap-top);
+            @include property( margin-bottom, $app-aside-minimize-gap-bottom);
+        }
+
+        [data-xgn-app-aside-hoverable="true"] & {
+            .app-aside-wrapper {
+                width: var(--xgn-app-aside-width-actual); 
+            }
+        }
+
+        [data-xgn-app-aside-hoverable="true"][data-xgn-app-aside-minimize="on"] &:hover:not(.animating) {
+            transition: $app-aside-base-transition;
+			width: var(--xgn-app-aside-width-actual);
+            box-shadow: var(--xgn-app-aside-minimize-hover-box-shadow);
+        }
+
+        [data-xgn-app-aside-collapse="on"] & {
+            transition: $app-aside-base-transition;
+            width: var(--xgn-app-aside-width-actual);
+            margin-right: calc( -1 * var(--xgn-app-aside-width-actual));
+        }
+    }
+
+    // Utilities
+    [data-xgn-app-aside-minimize="on"] {
+        .app-aside-minimize-d-none {
+            display: none !important;    
+        }
+
+        .app-aside-minimize-d-flex {
+            display: flex !important;    
+        }
+    }
+
+    [data-xgn-app-aside-sticky="on"] {
+        .app-aside-sticky-d-none {
+            display: none !important;    
+        }
+
+        .app-aside-sticky-d-flex {
+            display: flex !important;    
+        }
+    } 
+
+    [data-xgn-app-aside-collapse="on"] {
+        .app-aside-collapse-d-none {
+            display: none !important;    
+        }
+
+        .app-aside-collapse-d-flex {
+            display: flex !important;    
+        }
+    }
+
+    // Integration
+    .app-aside {
+        // Header
+        [data-xgn-app-aside-fixed="true"][data-xgn-app-header-fixed="true"]:not([data-xgn-app-aside-push-header="true"]) & {
+            top: var(--xgn-app-header-height);
+        }
+
+        // Toolbar
+        [data-xgn-app-aside-fixed="true"][data-xgn-app-header-fixed="true"][data-xgn-app-toolbar-fixed="true"]:not([data-xgn-app-aside-push-toolbar="true"]) & {
+            top: calc(var(--xgn-app-header-height) + var(--xgn-app-toolbar-height, 0px));
+        }
+    }
+}
+
+// Tablet & mobile modes
+@include media-breakpoint-down(lg) {
+    // Base
+    .app-aside {
+        display: none;
+        width: var(--xgn-app-aside-width);
+        @include property( z-index, $app-aside-base-z-index-mobile);
+
+        background-color: var(--xgn-app-aside-base-bg-color-mobile);
+        box-shadow: var(--xgn-app-aside-base-box-shadow-mobile);
+        border-left: var(--xgn-app-aside-base-border-start-mobile);
+        order-right: var(--xgn-app-aside-base-border-end-mobile);
+
+        @include property( margin-left, $app-aside-base-gap-start-mobile);
+        @include property( margin-right, $app-aside-base-gap-end-mobile);
+        @include property( margin-top, $app-aside-base-gap-top-mobile);
+        @include property( margin-bottom, $app-aside-base-gap-bottom-mobile);
+    }
+
+    // Vars
+    :root {
+        --xgn-app-aside-width: #{$app-aside-base-width-mobile};
+        --xgn-app-aside-width-actual: #{$app-aside-base-width-mobile};
+
+        --xgn-app-aside-gap-start: #{$app-aside-base-gap-start-mobile};
+        --xgn-app-aside-gap-end: #{$app-aside-base-gap-end-mobile};
+        --xgn-app-aside-gap-top: #{$app-aside-base-gap-top-mobile};
+        --xgn-app-aside-gap-bottom: #{$app-aside-base-gap-bottom-mobile};
+    }
+
+    [data-xgn-app-aside-minimize-mobile="on"] {
+        --xgn-app-aside-width: #{$app-aside-minimize-width-mobile};
+
+        --xgn-app-aside-gap-start: #{$app-aside-minimize-gap-start-mobile};
+        --xgn-app-aside-gap-end: #{$app-aside-minimize-gap-end-mobile};
+        --xgn-app-aside-gap-top: #{$app-aside-minimize-gap-top-mobile};
+        --xgn-app-aside-gap-bottom: #{$app-aside-minimize-gap-bottom-mobile};
+    }
+
+    [data-xgn-app-aside-collapse-mobile="on"] {
+        --xgn-app-aside-width: 0px;
+    }
+
+    // States
+    .app-aside {
+        [data-xgn-app-aside-stacked="true"] & {
+            align-items: stretch; 
+        }
+            
+        [data-xgn-app-aside-minimize-mobile="on"] & {
+            transition: $app-aside-base-transition;
+            background-color: var(--xgn-app-aside-minimize-bg-color-mobile);
+            box-shadow: var(--xgn-app-aside-minimize-box-shadow-mobile);
+            border-left: var(--xgn-app-aside-minimize-border-start-mobile);
+            border-right: var(--xgn-app-aside-minimize-border-end-mobile);
+        
+            @include property( margin-left, $app-aside-minimize-gap-start-mobile);
+            @include property( margin-right, $app-aside-minimize-gap-end-mobile);
+            @include property( margin-top, $app-aside-minimize-gap-top-mobile);
+            @include property( margin-bottom, $app-aside-minimize-gap-bottom-mobile);
+        }
+
+        [data-xgn-app-aside-hoverable-mobile="true"] & {
+            .app-aside-wrapper {
+                width: var(--xgn-app-aside-width-actual); 
+            }
+        }
+
+        [data-xgn-app-aside-hoverable-mobile="true"][data-xgn-app-aside-minimize-mobile="on"] &:hover:not(.animating) {
+            transition: $app-aside-base-transition;
+			width: var(--xgn-app-aside-width-actual);
+            box-shadow: var(--xgn-app-aside-minimize-hover-box-shadow-mobile);
+        }
+
+        [data-xgn-app-aside-collapse-mobile="on"] & {
+            transition: $app-aside-base-transition;
+            width: var(--xgn-app-aside-width-actual);
+            margin-right: calc( -1 * var(--xgn-app-aside-width-actual));
+        }
+    }
+
+    // Utilities
+    [data-xgn-app-aside-minimize-mobile="on"] {
+        .app-aside-minimize-mobile-d-none {
+            display: none !important;    
+        }
+
+        .app-aside-minimize-mobile-d-flex {
+            display: flex !important;    
+        }
+    }
+
+    [data-xgn-app-aside-collapse-mobile="on"] {
+        .app-aside-collapse-mobile-d-none {
+            display: none !important;    
+        }
+
+        .app-aside-collapse-mobile-d-flex {
+            display: flex !important;    
+        }
+    }
+}

@@ -1,0 +1,193 @@
+//
+// Pagination
+//
+
+.pagination {
+	--#{$prefix}pagination-color: var(--xgn-pagination-color);
+	--#{$prefix}pagination-bg: var(--xgn-pagination-bg);
+	--#{$prefix}pagination-border-color: var(--xgn-pagination-border-color);
+	--#{$prefix}pagination-hover-color: var(--xgn-pagination-hover-color);
+	--#{$prefix}pagination-hover-bg: var(--xgn-pagination-hover-bg);
+	--#{$prefix}pagination-hover-border-color: var(--xgn-pagination-hover-border-color);
+	--#{$prefix}pagination-focus-color: var(--xgn-pagination-focus-color);
+	--#{$prefix}pagination-focus-bg: var(--xgn-pagination-focus-bg);
+	--#{$prefix}pagination-focus-box-shadow: var(--xgn-pagination-focus-box-shadow);
+	--#{$prefix}pagination-active-color: var(--xgn-pagination-active-color);
+	--#{$prefix}pagination-active-bg: var(--xgn-pagination-active-bg);
+	--#{$prefix}pagination-active-border-color: var(--xgn-pagination-active-border-color);
+	--#{$prefix}pagination-disabled-color: var(--xgn-pagination-disabled-color);
+	--#{$prefix}pagination-disabled-bg: var(--xgn-pagination-disabled-bg);
+	--#{$prefix}pagination-disabled-border-color: var(--xgn-pagination-disabled-border-color);
+
+	display:flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	margin: 0;
+
+	// Pagination circle
+	&.pagination-circle {
+		.page-link {
+			border-radius: 50%;
+		}
+	}
+
+	// Pagination outline
+	&.pagination-outline {
+		.page-link {
+			border: 1px solid var(--xgn-border-color);
+		}
+
+		.page-item {
+			&:hover:not(.disabled),
+		    &.active {
+			    .page-link {
+			        border-color: var(--xgn-primary-light);
+				}	
+			}
+		}
+	}		
+}
+
+.page-item {
+    margin-right: $pagination-item-space;
+
+	&:last-child {
+        margin-right: 0;
+    }
+
+	.page-link {
+		display:flex;
+		justify-content: center;
+		align-items: center;
+		border-radius: $btn-border-radius;
+		height: $pagination-item-height;
+		width: $pagination-item-height;
+		font-weight: $pagination-font-weight;
+		font-size: $pagination-font-size;
+
+		i {
+			font-size: $pagination-icon-font-size;
+		}
+
+		/*rtl:options:{"autoRename":false}*/
+		.previous,
+		.next {
+			display: block;
+			height: $pagination-icon-height;
+			width: $pagination-icon-height;
+
+			/*rtl:raw:transform: rotateZ(-180deg);*/
+		}
+		/*rtl:end:ignore*/
+
+		.previous {
+			@include svg-bg-icon(arrow-start, $pagination-color);
+		}
+
+		/*rtl:options:{"autoRename":false}*/
+		.next {
+			@include svg-bg-icon(arrow-end, $pagination-color);
+		}
+	}
+
+	&:focus {
+		.page-link {
+			color: var(--xgn-pagination-focus-color);
+
+			.svg-icon,
+			i {
+				color: var(--xgn-pagination-focus-color);
+			}
+
+			.previous {
+				@include svg-bg-icon(arrow-start, var(--xgn-pagination-focus-color));
+			}
+
+			/*rtl:options:{"autoRename":false}*/
+			.next {
+				@include svg-bg-icon(arrow-end, var(--xgn-pagination-focus-color));
+			}
+		}
+	}
+
+	&:hover:not(.active):not(.offset):not(.disabled) {
+		.page-link {
+			color: var(--xgn-pagination-hover-color);
+			
+			&.page-text {
+				background-color: transparent;	
+			}
+
+			.svg-icon,
+			i {
+				color: var(--xgn-pagination-hover-color);
+			}
+
+			.previous {
+				@include svg-bg-icon(arrow-start, var(--xgn-pagination-hover-color));
+			}
+
+			/*rtl:options:{"autoRename":false}*/
+			.next {
+				@include svg-bg-icon(arrow-end, var(--xgn-pagination-hover-color));
+			}
+		}
+	}
+
+	&.active {
+		.page-link {
+			color: var(--xgn-pagination-active-color);
+
+			&.page-text {
+				background-color: transparent;	
+			}
+
+			.svg-icon,
+			i {
+				color: var(--xgn-pagination-active-color);;
+			}
+				
+			.previous {
+				@include svg-bg-icon(arrow-start, var(--xgn-pagination-active-color));
+			}
+
+			/*rtl:options:{"autoRename":false}*/
+			.next {
+				@include svg-bg-icon(arrow-end, var(--xgn-pagination-active-color));
+			}
+		}
+	}
+
+	&.disabled {
+		.page-link {
+			color: var(--xgn-pagination-disabled-color);
+
+			.svg-icon,
+			i {
+				color: var(--xgn-pagination-disabled-color);
+			}
+
+			.previous {
+				@include svg-bg-icon(arrow-start, var(--xgn-pagination-disabled-color));
+			}
+
+			/*rtl:options:{"autoRename":false}*/
+			.next {
+				@include svg-bg-icon(arrow-end, var(--xgn-pagination-disabled-color));
+			}
+		}
+	}
+	/*rtl:end:ignore*/
+}
+
+// Tablet & mobile modes
+@include media-breakpoint-down(lg) {
+	.page-item {
+		margin-right: $pagination-item-space-tablet-and-mobile;
+
+		&:last-child {
+			margin-right: 0;
+		}
+	}
+}
+

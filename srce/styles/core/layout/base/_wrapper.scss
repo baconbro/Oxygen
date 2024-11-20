@@ -1,0 +1,100 @@
+//
+// Wrapper
+//
+
+// General mode
+.app-wrapper {
+    display: flex;
+}
+
+// Desktop mode
+@include media-breakpoint-up(lg) {
+    // Integration
+    .app-wrapper {
+        transition: $app-wrapper-transition;
+        
+        // Header
+        [data-xgn-app-header-sticky="on"] & {
+            margin-top: var(--xgn-app-header-height-actual);
+        }
+
+        [data-xgn-app-header-fixed="true"] & {
+            margin-top: var(--xgn-app-header-height);
+        }
+
+        // Toolbar
+        [data-xgn-app-toolbar-sticky="on"] & {
+            margin-top: var(--xgn-app-toolbar-height-actual, 0px);
+        }
+
+        [data-xgn-app-header-fixed="true"][data-xgn-app-toolbar-sticky="on"] & {
+            margin-top: calc(var(--xgn-app-header-height-actual) + var(--xgn-app-toolbar-height-actual, 0px));
+        }
+
+        [data-xgn-app-header-fixed="true"][data-xgn-app-toolbar-fixed="true"] & {
+            margin-top: calc(var(--xgn-app-header-height) + var(--xgn-app-toolbar-height, 0px));
+        }
+
+        // Sidebar
+        [data-xgn-app-sidebar-fixed="true"] & {
+            margin-left: calc(
+                var(--xgn-app-sidebar-width) + 
+                var(--xgn-app-sidebar-gap-start, 0px) + 
+                var(--xgn-app-sidebar-gap-end, 0px)
+            );
+        }
+
+        // Sidebar Panel
+        [data-xgn-app-sidebar-panel-fixed="true"] & {
+            margin-left: calc(
+                var(--xgn-app-sidebar-width) + 
+                var(--xgn-app-sidebar-gap-start, 0px) + 
+                var(--xgn-app-sidebar-gap-end, 0px) +
+                var(--xgn-app-sidebar-panel-width) + 
+                var(--xgn-app-sidebar-panel-gap-start, 0px) + 
+                var(--xgn-app-sidebar-panel-gap-end, 0px)
+            );
+        }
+
+        // Aside
+        [data-xgn-app-aside-fixed="true"] & {
+            margin-right: calc(
+                var(--xgn-app-aside-width) + 
+                var(--xgn-app-aside-gap-start, 0px) + 
+                var(--xgn-app-aside-gap-end, 0px)
+            );
+        }
+
+        // Footer
+        [data-xgn-app-footer-fixed="true"] & {
+            margin-bottom: var(--xgn-app-footer-height);
+        }  
+    }
+}
+
+// Tablet & mobile modes
+@include media-breakpoint-down(lg) {
+    // Integration
+    .app-wrapper {
+        transition: $app-wrapper-transition;
+        
+        // Header
+        [data-xgn-app-header-sticky-mobile="on"] & {
+            margin-top: var(--xgn-app-header-height-actual);
+        }
+
+        [data-xgn-app-header-fixed-mobile="true"] & {
+            margin-top: var(--xgn-app-header-height);
+        }
+
+        // Toolbar
+        [data-xgn-app-header-fixed-mobile="true"][data-xgn-app-toolbar-sticky-mobile="on"] & {
+            margin-top: calc(var(--xgn-app-header-height-actual) + var(--xgn-app-toolbar-height-actual, 0px));
+        }
+
+        // Footer
+        [data-xgn-app-footer-fixed-mobile="true"] & {
+            margin-bottom: var(--xgn-app-footer-height);
+        }  
+    }
+}

@@ -1,0 +1,53 @@
+//
+// Popover
+//
+
+
+// Base
+.popover {
+    --#{$prefix}popover-bg: var(--xgn-popover-bg);
+    --#{$prefix}popover-border-color: var(--xgn-popover-border-color);
+    --#{$prefix}popover-box-shadow: var(--xgn-popover-box-shadow);
+    --#{$prefix}popover-header-color: var(--xgn-popover-header-color);
+    --#{$prefix}popover-header-bg: var(--xgn-popover-header-bg);
+    --#{$prefix}popover-body-color: var(--xgn-popover-body-color);
+    --#{$prefix}popover-arrow-border: var(--xgn-popover-bg);
+
+    .popover-header {
+        font-size: $popover-header-font-size;
+        font-weight: $popover-header-font-weight;
+        border-bottom: 1px solid var(--xgn-popover-header-border-color);
+    }
+
+    .popover-dismiss {
+        position: absolute;
+        top: $popover-dissmis-btn-top;
+        right: $popover-dissmis-btn-end;
+        height: $popover-dissmis-btn-height;
+        width: $popover-dissmis-btn-height;
+        @include svg-bg-icon(close, var(--xgn-gray-500)); // todo: revise
+        mask-size: 50%;
+        -webkit-mask-size: 50%;
+
+        &:hover {
+            background-color: var(--xgn-primary);
+        }
+
+        & + .popover-header {
+            padding-right: $popover-body-padding-x + $popover-dissmis-btn-height;
+        }
+    }
+}
+
+// Inverse
+.popover-inverse {
+    @include popover-theme(
+        $bg-color: var(--xgn-gray-900), 
+        $border-color: var(--xgn-gray-800), 
+        $header-bg-color: var(--xgn-gray-900), 
+        $header-color: var(--xgn-gray-200), 
+        $body-color: var(--xgn-gray-400), 
+        $arrow-outer-color: var(--xgn-gray-100), 
+        $arrow-color: var(--xgn-gray-900)
+    );
+}

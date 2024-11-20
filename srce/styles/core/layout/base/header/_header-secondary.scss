@@ -1,0 +1,120 @@
+//
+// Header secondary
+//
+
+// General mode
+.app-header-secondary {
+    transition: $app-header-secondary-base-transition;
+    display: flex;
+    align-items: stretch; 
+}
+
+// Desktop mode
+@include media-breakpoint-up(lg) {
+    // Base
+    .app-header-secondary {
+        @include property( z-index, $app-header-secondary-base-z-index);
+
+        background-color: var(--xgn-app-header-secondary-base-bg-color);
+        box-shadow: var(--xgn-app-header-secondary-base-box-shadow);
+        border-bottom: var(--xgn-app-header-secondary-base-border-bottom);
+    }    
+
+    // Vars
+    :root {
+        --xgn-app-header-secondary-height: #{$app-header-secondary-base-height};
+    }
+
+    [data-xgn-app-header-sticky="on"] {
+        --xgn-app-header-secondary-height: #{$app-header-secondary-sticky-height};
+    }
+
+    [data-xgn-app-header-minimize="on"] {
+        --xgn-app-header-secondary-height: #{$app-header-secondary-minimize-height};
+    } 
+
+    [data-xgn-app-header-sticky="on"][data-xgn-app-header-secondary-sticky-hide="true"] {
+        --xgn-app-header-secondary-height: 0;
+    }
+
+    // States
+    .app-header-secondary {
+        height: var(--xgn-app-header-secondary-height);
+
+        [data-xgn-app-header-secondary-fixed="true"] & {
+            @include property( z-index, $app-header-secondary-fixed-z-index);
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;            
+        }
+
+        [data-xgn-app-header-secondary-static="true"] & {
+            position: static;
+        }
+
+        [data-xgn-app-header-secondary-sticky="on"] & {
+            transition: $app-header-secondary-base-transition;
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            @include property( height, $app-header-secondary-sticky-height);
+            @include property( z-index, $app-header-secondary-sticky-z-index);
+
+            background-color: var(--xgn-app-header-secondary-sticky-bg-color);
+            box-shadow: var(--xgn-app-header-secondary-sticky-box-shadow);
+            border-bottom: var(--xgn-app-header-secondary-sticky-border-bottom);
+        }
+
+        [data-xgn-app-header-secondary-minimize="on"] & {
+            transition: $app-header-secondary-base-transition;
+            @include property( height, $app-header-secondary-minimize-height);
+            @include property( z-index, $app-header-secondary-minimize-z-index);
+
+            background-color: var(--xgn-app-header-secondary-minimize-bg-color);
+            box-shadow: var(--xgn-app-header-secondary-minimize-box-shadow);
+            border-bottom: var(--xgn-app-header-secondary-minimize-border-bottom);
+        }
+
+        [data-xgn-app-header-sticky="on"][data-xgn-app-header-secondary-sticky-hide="true"] & {
+            display: none !important;
+        }
+    }
+
+    // Integration
+    .app-header-secondary {
+        // Sidebar
+        [data-xgn-app-sidebar-fixed="true"][data-xgn-app-sidebar-push-header="true"] & {
+            left: calc(
+                var(--xgn-app-sidebar-width) + 
+                var(--xgn-app-sidebar-gap-start, 0px) + 
+                var(--xgn-app-sidebar-gap-end, 0px)
+            );
+        }  
+
+        // Sidebar Panel
+        [data-xgn-app-sidebar-panel-fixed="true"][data-xgn-app-sidebar-panel-push-header="true"] & {
+            left: calc(
+                var(--xgn-app-sidebar-width) + 
+                var(--xgn-app-sidebar-gap-start, 0px) + 
+                var(--xgn-app-sidebar-gap-end, 0px) +
+                var(--xgn-app-sidebar-panel-width) + 
+                var(--xgn-app-sidebar-panel-gap-start, 0px) + 
+                var(--xgn-app-sidebar-panel-gap-end, 0px)
+            );
+        }
+    } 
+}
+
+// Tablet & mobile modes
+@include media-breakpoint-down(lg) {
+    // Base
+    .app-header-secondary {
+        flex-grow: 1;
+        background-color: var(--xgn-app-header-secondary-base-bg-color-mobile);
+        box-shadow: var(--xgn-app-header-secondary-base-box-shadow-mobile);
+        border-left: var(--xgn-app-header-secondary-base-border-start-mobile);
+        border-right: var(--xgn-app-header-secondary-base-border-end-mobile);
+    }
+}

@@ -1,0 +1,120 @@
+//
+// Header primary
+//
+
+// General mode
+.app-header-primary {
+    transition: $app-header-primary-base-transition;
+    display: flex;
+    align-items: stretch;   
+}
+
+// Desktop mode
+@include media-breakpoint-up(lg) {
+    // Base
+    .app-header-primary {
+        @include property( z-index, $app-header-primary-base-z-index);
+
+        background-color: var(--xgn-app-header-primary-base-bg-color);
+        box-shadow: var(--xgn-app-header-primary-base-box-shadow);
+        border-bottom: var(--xgn-app-header-primary-base-border-bottom);
+    }    
+
+    // Vars
+    :root {
+        --xgn-app-header-primary-height: #{$app-header-primary-base-height};
+    }
+
+    [data-xgn-app-header-sticky="on"] {
+        --xgn-app-header-primary-height: #{$app-header-primary-sticky-height};
+    }
+
+    [data-xgn-app-header-minimize="on"] {
+        --xgn-app-header-primary-height: #{$app-header-primary-minimize-height};
+    } 
+
+    [data-xgn-app-header-sticky="on"][data-xgn-app-header-primary-sticky-hide="true"] {
+        --xgn-app-header-primary-height: 0;
+    }
+
+    // States
+    .app-header-primary {
+        height: var(--xgn-app-header-primary-height);
+
+        [data-xgn-app-header-primary-fixed="true"] & {
+            @include property( z-index, $app-header-primary-fixed-z-index);
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;            
+        }
+
+        [data-xgn-app-header-primary-static="true"] & {
+            position: relative;
+        }
+
+        [data-xgn-app-header-primary-sticky="on"] & {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            @include property( height, $app-header-primary-sticky-height);
+            @include property( z-index, $app-header-primary-sticky-z-index);
+
+            background-color: var(--xgn-app-header-primary-sticky-bg-color);
+            box-shadow: var(--xgn-app-header-primary-sticky-box-shadow);
+            border-bottom: var(--xgn-app-header-primary-sticky-border-bottom);
+        }
+
+        [data-xgn-app-header-primary-minimize="on"] & {
+            transition: $app-header-primary-base-transition;
+            @include property( height, $app-header-primary-minimize-height);
+            @include property( z-index, $app-header-primary-minimize-z-index);
+
+            background-color: var(--xgn-app-header-primary-minimize-bg-color);
+            box-shadow: var(--xgn-app-header-primary-minimize-box-shadow);
+            border-bottom: var(--xgn-app-header-primary-minimize-border-bottom);
+        }
+
+        [data-xgn-app-header-sticky="on"][data-xgn-app-header-primary-sticky-hide="true"] & {
+            display: none !important;
+        }
+    }
+
+    // Integration
+    .app-header-primary {
+        // Sidebar
+        [data-xgn-app-sidebar-fixed="true"][data-xgn-app-sidebar-push-header="true"] & {
+            left: calc(
+                var(--xgn-app-sidebar-width) + 
+                var(--xgn-app-sidebar-gap-start, 0px) + 
+                var(--xgn-app-sidebar-gap-end, 0px)
+            );
+        }  
+
+        // Sidebar Panel
+        [data-xgn-app-sidebar-panel-fixed="true"][data-xgn-app-sidebar-panel-push-header="true"] & {
+            left: calc(
+                var(--xgn-app-sidebar-width) + 
+                var(--xgn-app-sidebar-gap-start, 0px) + 
+                var(--xgn-app-sidebar-gap-end, 0px) +
+                var(--xgn-app-sidebar-panel-width) + 
+                var(--xgn-app-sidebar-panel-gap-start, 0px) + 
+                var(--xgn-app-sidebar-panel-gap-end, 0px)
+            );
+        }
+    } 
+}
+
+// Tablet & mobile modes
+@include media-breakpoint-down(lg) {
+    // Base
+    .app-header-primary {
+        flex-grow: 1;
+        @include property( z-index, $app-header-primary-base-z-index-mobile);
+
+        background-color: var(--xgn-app-header-primary-base-bg-color-mobile);
+        box-shadow: var(--xgn-app-header-primary-base-box-shadow-mobile);
+        border-bottom: var(--xgn-app-header-primary-base-border-bottom-mobile);
+    }  
+}

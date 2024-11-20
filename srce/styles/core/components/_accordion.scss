@@ -1,0 +1,74 @@
+//
+// Accordion
+//
+
+// Base
+.accordion {
+	--#{$prefix}accordion-color: var(--xgn-accordion-color);
+	--#{$prefix}accordion-bg: var(--xgn-accordion-bg);
+	--#{$prefix}accordion-border-color: var(--xgn-accordion-border-color);
+	--#{$prefix}accordion-btn-color: var(--xgn-accordion-color);
+	--#{$prefix}accordion-btn-bg: var(--xgn-accordion-button-bg);
+	--#{$prefix}accordion-btn-icon: var(--xgn-accordion-button-icon);
+	--#{$prefix}accordion-btn-active-icon: var(--xgn-accordion-button-active-icon);
+	--#{$prefix}accordion-btn-focus-border-color: var(--xgn-accordion-button-focus-border-color);
+	--#{$prefix}accordion-btn-focus-box-shadow: var(--xgn-accordion-button-focus-box-shadow);
+	--#{$prefix}accordion-active-color: var(--xgn-accordion-button-active-color);
+	--#{$prefix}accordion-active-bg: var(--xgn-accordion-button-active-bg);
+
+	// According heading
+	.accordion-header {
+		cursor: pointer;
+	}
+
+	// Icon toggle mode
+	&.accordion-icon-toggle {
+		// Accordion icon expaned mode
+		.accordion-icon {
+			display: flex;
+			flex-shrink: 0;
+			transition: $transition-base;
+			transform: rotate(90deg);
+			align-items: center;
+			justify-content: center;
+
+			i,
+			.svg-icon {
+	    		color: var(--xgn-primary);
+	    	}
+		}
+
+		// Accordion icon collapsed mode
+		.collapsed {
+			.accordion-icon {
+				transition: $transition-base;
+				transform: rotate(0);
+
+				i,
+				.svg-icon {
+		    		color: var(--xgn-text-muted);
+		    	}
+			}
+		}
+	}
+
+	// Reset accordion item border
+	&.accordion-borderless {
+		// According item
+		.accordion-item {
+			border: 0;
+		}
+	}
+
+	// Reset accordion item border, border radiues and background color
+	&.accordion-flush {
+		// According item
+		.accordion-item {
+			background-color: transparent;
+			border: 0;
+			border-radius: 0;
+			padding-left: 0;
+			padding-right: 0;
+		}
+	}	
+}

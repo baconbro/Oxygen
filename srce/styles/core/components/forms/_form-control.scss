@@ -1,0 +1,46 @@
+//
+// Form controls
+//
+
+.form-control {
+  	color: var(--xgn-input-color);
+  	background-color: var(--xgn-input-bg);
+	border: $input-border-width solid var(--xgn-input-border-color);
+  	box-shadow: none !important;
+	//@include box-shadow(var(--xgn-input-box-shadow));
+
+  	&:focus {
+		color: var(--xgn-input-focus-color);
+		background-color: var(--xgn-input-focus-bg);
+		border-color: var(--xgn-input-focus-border-color);
+		//box-shadow: var(--xgn-input-focus-box-shadow);
+  	}
+
+  	// Placeholder
+  	&::placeholder {
+    	color: var(--xgn-input-placeholder-color);
+  	}
+
+  	// Disabled and read-only inputs
+  	&:disabled,
+  	&[readonly] {
+    	color: var(--xgn-input-disabled-color);
+    	background-color: var(--xgn-input-disabled-bg);
+    	border-color: var(--xgn-input-disabled-border-color);
+  	}
+
+  	// File input buttons theming
+  	&::file-selector-button {
+    	color: var(--xgn-form-file-button-color);
+    	@include gradient-bg(var(--xgn-form-file-button-bg));
+  	}
+
+  	&:hover:not(:disabled):not([readonly])::file-selector-button {
+    	background-color: var(--xgn-form-file-button-hover-bg);
+  	}
+}
+
+// Readonly controls as plain text
+.form-control-plaintext {
+  	color: var(--xgn-input-plaintext-color);
+}

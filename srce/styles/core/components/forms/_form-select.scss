@@ -1,0 +1,35 @@
+// Select
+//
+// Replaces the browser default select with a custom one, mostly pulled from
+// https://primer.github.io/.
+
+.form-select {
+	color: var(--xgn-form-select-color);
+	background-color: var(--xgn-form-select-bg);
+	background-image: var(--xgn-form-select-indicator);
+	border: $form-select-border-width solid var(--xgn-form-select-border-color);
+	@include box-shadow(var(--xgn-form-select-box-shadow));
+	appearance: none;
+
+	&:focus {
+		border-color: var(--xgn-form-select-focus-border-color);
+		@if $enable-shadows {
+			@include box-shadow(var(--xgn-form-select-box-shadow), var(--xgn-form-select-focus-box-shadow));
+		} @else {
+			// Avoid using mixin so we can pass custom focus shadow properly
+			box-shadow: var(--xgn-form-select-focus-box-shadow);
+		}
+	}
+
+
+	&:disabled {
+		color: var(--xgn-form-select-disabled-color);
+		background-color: var(--xgn-form-select-disabled-bg);
+		border-color: var(--xgn-form-select-disabled-border-color);
+	}
+
+	// Remove outline from select box in FF
+	&:-moz-focusring {
+		text-shadow: 0 0 0 var(--xgn-form-select-color);
+	}
+}

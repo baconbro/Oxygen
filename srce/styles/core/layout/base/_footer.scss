@@ -1,0 +1,105 @@
+//
+// Footer
+//
+
+// General mode
+.app-footer {
+    transition: $app-footer-transition;
+    display: flex;
+    align-items: stretch;
+}
+
+// Desktop mode
+@include media-breakpoint-up(lg) {
+    // Base
+    .app-footer {
+        background-color: var(--xgn-app-footer-bg-color); 
+        box-shadow: var(--xgn-app-footer-box-shadow); 
+        border-top: var(--xgn-app-footer-border-top); 
+
+        @include property( z-index, $app-footer-z-index);
+        @include property( box-shadow, $app-footer-box-shadow);
+        @include property( border-top, $app-footer-border-top);
+    }    
+
+    // Vars
+    :root {
+        --xgn-app-footer-height: #{$app-footer-height};
+    }
+
+    // States
+    .app-footer {
+        height: var(--xgn-app-footer-height);
+
+        [data-xgn-app-footer-fixed="true"] & {        
+            @include property( z-index, $app-footer-fixed-z-index);   
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    }
+
+    // Integration
+    .app-footer {
+        // Sidebar
+        [data-xgn-app-sidebar-fixed="true"][data-xgn-app-sidebar-push-footer="true"] & {
+            left: calc(
+                var(--xgn-app-sidebar-width) + 
+                var(--xgn-app-sidebar-gap-start, 0px) + 
+                var(--xgn-app-sidebar-gap-end, 0px)
+            );
+        }   
+
+        // Sidebar Panel
+        [data-xgn-app-sidebar-panel-fixed="true"][data-xgn-app-sidebar-panel-push-footer="true"] & {
+            left: calc(
+                var(--xgn-app-sidebar-width) + 
+                var(--xgn-app-sidebar-gap-start, 0px) + 
+                var(--xgn-app-sidebar-gap-end, 0px) +
+                var(--xgn-app-sidebar-panel-width) + 
+                var(--xgn-app-sidebar-panel-gap-start, 0px) + 
+                var(--xgn-app-sidebar-panel-gap-end, 0px)
+            );
+        }
+
+        // Aside
+        [data-xgn-app-aside-fixed="true"][data-xgn-app-aside-push-footer="true"] & {
+            right: calc(
+                var(--xgn-app-aside-width) + 
+                var(--xgn-app-aside-gap-start, 0px) + 
+                var(--xgn-app-aside-gap-end, 0px)
+            );
+        }
+    } 
+}
+
+// Tablet & mobile modes
+@include media-breakpoint-down(lg) {
+    // Base
+    .app-footer {
+        background-color: var(--xgn-app-footer-bg-color-mobile); 
+        box-shadow: var(--xgn-app-footer-box-shadow-mobile); 
+        border-top: var(--xgn-app-footer-border-top-mobile); 
+
+        @include property( z-index, $app-footer-z-index-mobile);
+    }
+
+    // Vars
+    body {
+        --xgn-app-footer-height: #{$app-footer-height-mobile};
+    }
+
+    // States
+    .app-footer {
+        height: var(--xgn-app-footer-height);
+
+        [data-xgn-app-footer-fixed-mobile="true"] & {
+            @include property( z-index, $app-footer-fixed-z-index-mobile);
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;            
+        }
+    }
+}
