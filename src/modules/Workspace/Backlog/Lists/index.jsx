@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
-import useCurrentUser from '../../../../hooks/currentUser';
 import { moveItemWithinArray, insertItemIntoArray } from '../../../../utils/javascript';
 import List from './List';
 import EmptyBacklog from '../../../../components/common/emptyStates/emptyBacklog';
@@ -26,13 +25,14 @@ const ProjectBoardLists = ({ project, filters, updateLocalProjectIssues }) => {
     setSprints(data)
   }, [data])
 
-  const { currentUserId } = useCurrentUser();
+
   const [showModal, setShowModal] = useState(false);
 
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
   const editItemMutation = useUpdateItem();
   const { currentUser } = useAuth();
+  const currentUserId = currentUser?.all?.currentUserId;
 
   // Get the keys of the IssueStatus
   const statuses = Object.keys(project.config.issueStatus);
