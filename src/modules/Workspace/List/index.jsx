@@ -392,21 +392,15 @@ const List = () => {
   };
 
   return (
-    <Fragment>
-      <div id="xgn_app_toolbar" className="app-toolbar  py-3 py-lg-6 ">
-        <div id="xgn_app_toolbar_container" className="app-container  container-xxl d-flex flex-stack ">
-          <div className="d-flex flex-column justify-content-center flex-wrap me-3 ">
-            <Filters
-              projectUsers={projectUsers}
-              defaultFilters={defaultFilters}
-              filters={filters}
-              mergeFilters={mergeFilters}
-            />
-          </div>
-          <div className="d-flex align-items-center gap-2 gap-lg-3">
-            <AddItem reloadList={handleDataRefresh} />
-          </div>
-        </div>
+    <>
+
+      <div className="d-flex align-items-center py-2 py-md-1 ">
+        <Filters
+          projectUsers={projectUsers}
+          defaultFilters={defaultFilters}
+          filters={filters}
+          mergeFilters={mergeFilters}
+        />
       </div>
 
 
@@ -572,7 +566,7 @@ const List = () => {
         <EmptyList /> : ('')
       }
 
-    </Fragment>
+    </>
   );
 };
 
