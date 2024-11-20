@@ -51,8 +51,6 @@ const Project = () => {
   useEffect(() => {
     if (data) {
       try {
-        //const spaceData = await FirestoreService.getSpaceData(id.id, currentUser?.all?.currentOrg);
-
         const orgDataUsers = orgusers
         setOrgUsers(orgDataUsers)
 
@@ -91,9 +89,6 @@ const Project = () => {
 
               // Await all member data fetches
               const fetchedMembers = Promise.all(memberPromises);
-
-              // Filter out null values if you want
-              // const validMembers = fetchedMembers.filter(Boolean);
             }
           }
         } else {
@@ -302,7 +297,7 @@ const Project = () => {
             />
           }
         />
-                <Route
+        <Route
           path="/calendar/issue/:issueId/*"
           element={
             <IssueDetailsPage
@@ -357,7 +352,7 @@ const Project = () => {
         <Route
           path="/calendar/*"
           element={
-            <Calendar/>
+            <Calendar />
           }
         />
       </Routes>

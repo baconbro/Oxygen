@@ -1,7 +1,7 @@
-import React, { Fragment, useEffect, useMemo } from 'react';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import React, { Fragment, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useMergeState from '../../hooks/mergeState';
-import { Breadcrumbs, Modal, Avatar } from '../../components/common';
+import { Avatar } from '../../components/common';
 
 import * as FirestoreService from '../../services/firestore';
 import { useWorkspace } from '../../contexts/WorkspaceProvider';
