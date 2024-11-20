@@ -1,46 +1,64 @@
-# Getting Started with Create React App
+Oxygen work management - An Open-Source Jira Alternative
+<p align="center">
+  <img src="https://oxgn.io/images/logo.png" alt="Oxygen agile planning" />
+</p>
+<h1 align="center">Oxygen  <small><sup>V1.0</sup></small></h1>
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<div align="center">
 
-## Available Scripts
+Oxygen is a powerful, flexible, and open-source project management platform designed to be a compelling alternative to Jira. Built with React, Oxygen (OXGN) provides a comprehensive suite of features for agile teams to plan, track, and release software.! 💪
 
-In the project directory, you can run:
+![quote application example](https://oxgn.io/images/kanban.jpeg)
 
-### `yarn start`
+[Try the software here](https://oxgn.io)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+</div>
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Features 
 
-### `yarn test`
+* **Issue Tracking:** Create, manage, and prioritize issues with customizable workflows, fields, and statuses.
+* **Agile Boards:** Scrum and Kanban boards to visualize progress and manage sprints.
+* **Project Planning:**  Organize projects with epics, stories, and sub-tasks.
+* **Open Source:**  Free to use, modify, and distribute under the [insert license, e.g., MIT License].
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Motivation 
 
-### `yarn build`
+Oxygen started as a personal quest for a simpler, more powerful project management system. Frustrated with the bloat and cost of existing solutions like Jira, I set out to create something truly open and efficient.  While it's a solo endeavor for now, my hope is that Oxygen will resonate with others who share this vision.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Why Oxygen?
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Escape the expensive trap: Tired of expensive licenses and complex setups? Oxygen offers a free and open alternative.
+Built for Speed: Oxygen is designed for a streamlined workflow, helping you focus on what matters most.
+Your Vision, Your Way: Customize and adapt Oxygen to perfectly match your unique needs and preferences.
+Transparency is Key: With Oxygen's open-source, you have complete control and visibility.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Oxygen embraces the open-source philosophy:
 
-### `yarn eject`
+Reduced Costs: Eliminate licensing fees and redirect resources towards customization and innovation.
+Improved Quality: Harness the collective intelligence of a global community to identify and resolve bugs faster.
+Rapid Development: Embrace agile methodologies and accelerate your development cycles.
+Future-Proof Solutions: Open source fosters continuous improvement and adaptability, ensuring your software remains relevant.
+Community Support: Tap into a vast network of experts and enthusiasts ready to help you succeed.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+While Oxygen is currently a one-person show, your support can make a big difference.  Even if you're not a developer, you can contribute by:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Testing Oxygen and providing feedback.
+Spreading the word about the project.
+Sharing your ideas and feature requests.
+Oxygen may be a solo project for now, but with your help, it can become something truly special. Let's build a better ticketing system together!
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Not agile ?
 
-## Learn More
+Oxygen uses and make the most of agile methodologie, but you do not have to be an expert to use it. You don't even have to know anything about agile to start managing your projects.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Support 👩‍⚕️
+
+- For now it's community support only.
+
+
+## Collaboration
+
+I really hope to motivate other to join me to build the best sets of tool ever build to help everyone, and every organisation to acheive more. 
+Do not hesitate to be in touch. 
