@@ -1,13 +1,11 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-import {useState, useEffect} from 'react'
-import {useFormik} from 'formik'
+import { useState, useEffect } from 'react'
+import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import clsx from 'clsx'
-import {getUserByToken, register} from '../core/_requests'
-import {Link} from 'react-router-dom'
-import {toAbsoluteUrl} from '../../../utils'
-import {PasswordMeterComponent} from '../../../components/common'
-import {useAuth} from '../core/Auth'
+import { getUserByToken, register } from '../core/_requests'
+import { Link } from 'react-router-dom'
+import { PasswordMeterComponent } from '../../../components/common'
+import { useAuth } from '../core/Auth'
 
 const initialValues = {
   firstname: '',
@@ -47,11 +45,11 @@ const registrationSchema = Yup.object().shape({
 
 export function Registration() {
   const [loading, setLoading] = useState(false)
-  const {saveAuth, setCurrentUser} = useAuth()
+  const { saveAuth, setCurrentUser } = useAuth()
   const formik = useFormik({
     initialValues,
     validationSchema: registrationSchema,
-    onSubmit: async (values, {setStatus, setSubmitting}) => {
+    onSubmit: async (values, { setStatus, setSubmitting }) => {
       setLoading(true)
       try {
         const auth = await register(
@@ -62,12 +60,12 @@ export function Registration() {
           values.changepassword
         )
         saveAuth(auth)
-        const {user} = await getUserByToken(auth.email)
+        const { user } = await getUserByToken(auth.email)
         setCurrentUser(user)
       } catch (error) {
         console.error(error)
         saveAuth(undefined)
-        setStatus('The registration details is incorrect'+ error)
+        setStatus('The registration details is incorrect' + error)
         setSubmitting(false)
         setLoading(false)
       }
@@ -95,7 +93,7 @@ export function Registration() {
         {/* begin::Link */}
         <div className='text-gray-400 fw-bold fs-4'>
           Already have an account?
-          <Link to='/auth/login' className='link-primary fw-bolder' style={{marginLeft: '5px'}}>
+          <Link to='/auth/login' className='link-primary fw-bolder' style={{ marginLeft: '5px' }}>
             Sign in
           </Link>
         </div>
@@ -104,7 +102,7 @@ export function Registration() {
       {/* end::Heading */}
 
       {/* begin::Action */}
-{/*       <button type='button' className='btn btn-light-primary fw-bolder w-100 mb-10'>
+      {/*       <button type='button' className='btn btn-light-primary fw-bolder w-100 mb-10'>
         <img
           alt='Logo'
           src={toAbsoluteUrl('/media/svg/brand-logos/google-icon.svg')}
@@ -129,7 +127,7 @@ export function Registration() {
       {/* begin::Form group Firstname */}
       <div className='row fv-row mb-7'>
         <div className='col-xl-6'>
-          <label className='class="form-label fw-bolder text-dark fs-6'>First name</label>
+          <label className='form-label fw-bolder text-dark fs-6'>First name</label>
           <input
             placeholder='First name'
             type='text'
@@ -154,38 +152,33 @@ export function Registration() {
           )}
         </div>
         <div className='col-xl-6'>
-          {/* begin::Form group Lastname */}
-          <div className='fv-row mb-5'>
-            <label className='form-label fw-bolder text-dark fs-6'>Last name</label>
-            <input
-              placeholder='Last name'
-              type='text'
-              autoComplete='off'
-              {...formik.getFieldProps('lastname')}
-              className={clsx(
-                'form-control form-control-lg form-control-solid',
-                {
-                  'is-invalid': formik.touched.lastname && formik.errors.lastname,
-                },
-                {
-                  'is-valid': formik.touched.lastname && !formik.errors.lastname,
-                }
-              )}
-            />
-            {formik.touched.lastname && formik.errors.lastname && (
-              <div className='fv-plugins-message-container'>
-                <div className='fv-help-block'>
-                  <span role='alert'>{formik.errors.lastname}</span>
-                </div>
-              </div>
+          <label className='form-label fw-bolder text-dark fs-6'>Last name</label>
+          <input
+            placeholder='Last name'
+            type='text'
+            autoComplete='off'
+            {...formik.getFieldProps('lastname')}
+            className={clsx(
+              'form-control form-control-lg form-control-solid',
+              {
+                'is-invalid': formik.touched.lastname && formik.errors.lastname,
+              },
+              {
+                'is-valid': formik.touched.lastname && !formik.errors.lastname,
+              }
             )}
-          </div>
-          {/* end::Form group */}
+          />
+          {formik.touched.lastname && formik.errors.lastname && (
+            <div className='fv-plugins-message-container'>
+              <div className='fv-help-block'>
+                <span role='alert'>{formik.errors.lastname}</span>
+              </div>
+            </div>
+          )}
         </div>
-      </div>
-      {/* end::Form group */}
 
-      {/* begin::Form group Email */}
+      </div>
+
       <div className='fv-row mb-7'>
         <label className='form-label fw-bolder text-dark fs-6'>Email</label>
         <input
@@ -195,7 +188,7 @@ export function Registration() {
           {...formik.getFieldProps('email')}
           className={clsx(
             'form-control form-control-lg form-control-solid',
-            {'is-invalid': formik.touched.email && formik.errors.email},
+            { 'is-invalid': formik.touched.email && formik.errors.email },
             {
               'is-valid': formik.touched.email && !formik.errors.email,
             }
@@ -209,9 +202,7 @@ export function Registration() {
           </div>
         )}
       </div>
-      {/* end::Form group */}
 
-      {/* begin::Form group Password */}
       <div className='mb-10 fv-row' data-xgn-password-meter='true'>
         <div className='mb-1'>
           <label className='form-label fw-bolder text-dark fs-6'>Password</label>
@@ -239,25 +230,23 @@ export function Registration() {
               </div>
             )}
           </div>
-          {/* begin::Meter */}
+
           <div
             className='d-flex align-items-center mb-3'
             data-xgn-password-meter-control='highlight'
           >
-            <div className='flex-grow-1 bg-danger bg-active-warning rounded h-5px me-2'></div>
+            <div className='flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2'></div>
             <div className='flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2'></div>
             <div className='flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2'></div>
             <div className='flex-grow-1 bg-secondary bg-active-success rounded h-5px'></div>
           </div>
-          {/* end::Meter */}
+
         </div>
         <div className='text-muted'>
           Use 8 or more characters with a mix of letters, numbers & symbols.
         </div>
       </div>
-      {/* end::Form group */}
 
-      {/* begin::Form group Confirm password */}
       <div className='fv-row mb-5'>
         <label className='form-label fw-bolder text-dark fs-6'>Confirm Password</label>
         <input
@@ -283,9 +272,7 @@ export function Registration() {
           </div>
         )}
       </div>
-      {/* end::Form group */}
 
-      {/* begin::Form group */}
       <div className='fv-row mb-10'>
         <div className='form-check form-check-custom form-check-solid'>
           <input
@@ -313,9 +300,7 @@ export function Registration() {
           )}
         </div>
       </div>
-      {/* end::Form group */}
 
-      {/* begin::Form group */}
       <div className='text-center'>
         <button
           type='submit'
@@ -325,7 +310,7 @@ export function Registration() {
         >
           {!loading && <span className='indicator-label'>Submit</span>}
           {loading && (
-            <span className='indicator-progress' style={{display: 'block'}}>
+            <span className='indicator-progress' style={{ display: 'block' }}>
               Please wait...{' '}
               <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
             </span>
@@ -341,7 +326,7 @@ export function Registration() {
           </button>
         </Link>
       </div>
-      {/* end::Form group */}
+
     </form>
   )
 }
