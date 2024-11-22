@@ -21,6 +21,58 @@ Oxygen is a powerful, flexible, and open-source project management platform desi
 * **Project Planning:**  Organize projects with epics, stories, and sub-tasks.
 * **Open Source:**  Free to use, modify, and distribute under the [insert license, e.g., MIT License].
 
+## Installation
+
+Install the Firebase CLI:
+
+```bash
+npm install -g firebase-tools
+```
+
+Install dependencies:
+
+```bash
+npm install 
+```
+
+Initialize the Emulator:
+
+```bash
+firebase init emulators
+```
+Select "Firestore" and "Auth" from the list of available emulators.
+
+Start the Emulator
+
+```bash
+firebase emulators:start
+```
+
+Start Oxygen
+
+```bash
+npm start
+```
+
+## Firebase Configuration
+To configure Firebase for your project, follow these steps:
+
+Create a .env file in the root directory of your project.
+
+Add your Firebase configuration to the .env file. You can find these values in your Firebase project settings. The .env file should look like this:
+
+```bash
+REACT_APP_FIREBASE_API_KEY=your-api-key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your-auth-domain
+REACT_APP_FIREBASE_PROJECT_ID=your-project-id
+REACT_APP_FIREBASE_STORAGE_BUCKET=your-storage-bucket
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+REACT_APP_FIREBASE_APP_ID=your-app-id
+REACT_APP_FIREBASE_MEASUREMENT_ID=your-measurement-id
+```
+Save the .env file.
+
+
 ## Motivation 
 
 Oxygen started as a personal quest for a simpler, more powerful project management system. Frustrated with the bloat and cost of existing solutions like Jira, I set out to create something truly open and efficient.  While it's a solo endeavor for now, my hope is that Oxygen will resonate with others who share this vision.

@@ -19,6 +19,7 @@ import {
     deleteField,
     orderBy,
     limit,
+    connectFirestoreEmulator
 } from "firebase/firestore";
 import {
     getAuth,
@@ -29,7 +30,8 @@ import {
     onAuthStateChanged,
     updateProfile,
     updateEmail,
-    sendEmailVerification
+    sendEmailVerification,
+    connectAuthEmulator
 } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 import { async } from "@firebase/util";
@@ -50,11 +52,20 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app)
+export const auth = getAuth();
+
+// Connect to the emulators if running locally
+if (window.location.hostname === 'localhost') {
+    connectAuthEmulator(auth, 'http://localhost:9099'); 
+    connectFirestoreEmulator(db, 'localhost', 8080); 
+  }
+
+
 const analytics = getAnalytics(app);
 
 
 //Auth
-export const auth = getAuth();
+
 
 export const logInWithEmailAndPassword = async (email, password) => {
     const res = await signInWithEmailAndPassword(auth, email, password);
