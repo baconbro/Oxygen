@@ -24,7 +24,6 @@
 @import "~bootstrap/scss/badge";
 @import "~bootstrap/scss/alert";
 @import "~bootstrap/scss/progress";
-@import "~bootstrap/scss/list-group";
 @import "~bootstrap/scss/close";
 @import "~bootstrap/scss/toasts";
 @import "~bootstrap/scss/modal";
@@ -50,7 +49,6 @@
 @import "theme-mode";
 @import "animation";
 @import "alert";
-@import "list-group";
 @import "images";
 @import "button-group";
 @import "dropdown";
@@ -62,9 +60,7 @@
 @import "nav-pills-custom";
 @import "pagination";
 @import "separator";
-@import "carousel";
 @import "menu";
-@import "anchor";
 @import "card";
 @import "breadcrumb";
 @import "buttons";
@@ -96,10 +92,6 @@
 @import "rating";
 @import "stepper";
 @import "toggle";
-@import "shape";
-@import "ribbon";
-@import "blockui";
-@import "explore";
 @import "print";
 @import "helpers";
 @import "kanban";

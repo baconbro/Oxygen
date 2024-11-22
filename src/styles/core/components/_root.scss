@@ -317,20 +317,6 @@
     --xgn-progress-bg: #{$progress-bg};
     --xgn-progress-box-shadow: #{$progress-box-shadow};
 
-    // List group
-    --xgn-list-group-color: #{$list-group-color};
-    --xgn-list-group-bg: #{$list-group-bg};
-    --xgn-list-group-border-color: #{$list-group-border-color};
-    --xgn-list-group-hover-bg: #{$list-group-hover-bg};
-    --xgn-list-group-active-color: #{$list-group-active-color};
-    --xgn-list-group-active-bg: #{$list-group-active-bg};
-    --xgn-list-group-active-border-colorg: #{$list-group-active-border-color};
-    --xgn-list-group-disabled-color: #{$list-group-disabled-color};
-    --xgn-list-group-disabled-bg: #{$list-group-disabled-bg};
-    --xgn-list-group-action-colorg: #{$list-group-action-color};
-    --xgn-list-group-action-hover-color: #{$list-group-action-hover-color};
-    --xgn-list-group-action-active-color: #{$list-group-action-active-color};
-    --xgn-list-group-action-active-bg: #{$list-group-action-active-bg};
 
     // Image thumbnails
     --xgn-thumbnail-bg: #{$thumbnail-bg};
@@ -344,12 +330,6 @@
     --xgn-breadcrumb-bg: #{$breadcrumb-bg};
     --xgn-breadcrumb-divider-color: #{$breadcrumb-divider-color};
     --xgn-breadcrumb-active-color: #{$breadcrumb-active-color};
-
-    // Carousel
-    --xgn-carousel-custom-indicator-default-bg-color: #{$carousel-custom-indicator-default-bg-color};
-    --xgn-carousel-custom-indicator-active-bg-color: #{$carousel-custom-indicator-active-bg-color};
-    --xgn-carousel-custom-bullet-indicator-default-bg-color: #{$carousel-custom-bullet-indicator-default-bg-color};
-    --xgn-carousel-custom-bullet-indicator-active-bg-color: #{$carousel-custom-bullet-indicator-active-bg-color};
 
     // Code
     --xgn-code-bg: #{$code-bg};
@@ -414,18 +394,10 @@
     // overlay component 
     --xgn-overlay-bg: #{$overlay-bg};
 
-    // blockui component
-    --xgn-blockui-overlay-bg: #{$blockui-overlay-bg};
-
     // rating component
     --xgn-rating-color-default: #{$rating-color-default};
     --xgn-rating-color-active: #{$rating-color-active};
 
-    // ribbon component 
-    --xgn-ribbon-label-box-shadow: #{$ribbon-label-box-shadow};
-    --xgn-ribbon-label-bg: #{$ribbon-label-bg};
-    --xgn-ribbon-label-border-color: #{$ribbon-label-border-color};
-    --xgn-ribbon-clip-bg: #{$ribbon-clip-bg}; 
 }
 
 [data-theme="dark"] {
@@ -732,21 +704,6 @@
     --xgn-progress-bg: #{$progress-bg-dark};
     --xgn-progress-box-shadow: #{$progress-box-shadow-dark};
 
-    // List group
-    --xgn-list-group-color: #{$list-group-color-dark};
-    --xgn-list-group-bg: #{$list-group-bg-dark};
-    --xgn-list-group-border-color: #{$list-group-border-color-dark};
-    --xgn-list-group-hover-bg: #{$list-group-hover-bg-dark};
-    --xgn-list-group-active-color: #{$list-group-active-color-dark};
-    --xgn-list-group-active-bg: #{$list-group-active-bg-dark};
-    --xgn-list-group-active-border-colorg: #{$list-group-active-border-color-dark};
-    --xgn-list-group-disabled-color: #{$list-group-disabled-color-dark};
-    --xgn-list-group-disabled-bg: #{$list-group-disabled-bg-dark};
-    --xgn-list-group-action-colorg: #{$list-group-action-color-dark};
-    --xgn-list-group-action-hover-color: #{$list-group-action-hover-color-dark};
-    --xgn-list-group-action-active-color: #{$list-group-action-active-color-dark};
-    --xgn-list-group-action-active-bg: #{$list-group-action-active-bg-dark};
-
     // Image thumbnails
     --xgn-thumbnail-bg: #{$thumbnail-bg-dark};
     --xgn-thumbnail-border-color: #{$thumbnail-border-color-dark};
@@ -759,12 +716,6 @@
     --xgn-breadcrumb-bg: #{$breadcrumb-bg-dark};
     --xgn-breadcrumb-divider-color: #{$breadcrumb-divider-color-dark};
     --xgn-breadcrumb-active-color: #{$breadcrumb-active-color-dark};
-
-    // Carousel
-    --xgn-carousel-custom-indicator-default-bg-color: #{$carousel-custom-indicator-default-bg-color-dark};
-    --xgn-carousel-custom-indicator-active-bg-color: #{$carousel-custom-indicator-active-bg-color-dark};
-    --xgn-arousel-custom-bullet-indicator-default-bg-color: #{$carousel-custom-bullet-indicator-default-bg-color-dark};
-    --xgn-carousel-custom-bullet-indicator-active-bg-color: #{$carousel-custom-bullet-indicator-active-bg-color-dark};
 
     // Close
     --xgn-btn-close-color: #{$btn-close-color-dark};
@@ -831,16 +782,8 @@
     // overlay component 
     --xgn-overlay-bg: #{$overlay-bg-dark};
 
-    // blockui component
-    --xgn-blockui-overlay-bg: #{$blockui-overlay-bg-dark};
-
     // rating component
     --xgn-rating-color-default: #{$rating-color-default-dark};
     --xgn-rating-color-active: #{$rating-color-active-dark};
 
-    // ribbon component 
-    --xgn-ribbon-label-box-shadow: #{$ribbon-label-box-shadow-dark};
-    --xgn-ribbon-label-bg: #{$ribbon-label-bg-dark};
-    --xgn-ribbon-label-border-color: #{$ribbon-label-border-color-dark};
-    --xgn-ribbon-clip-bg: #{$ribbon-clip-bg-dark};  
 }

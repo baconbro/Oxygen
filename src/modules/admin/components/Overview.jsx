@@ -135,10 +135,9 @@ const AdminOverview = () => {
             <div className="card">
                 <div className="card-header border-0 pt-6">
                     <div className="card-title">
-                        <div className="alert alert-light d-flex align-items-center p-5 mb-10">
+                        <div className=" d-flex align-items-center p-5 mb-10">
                             <div className="d-flex flex-column">
                                 <h5 className="mb-1">Manage users in your organization</h5>
-                                <span>Once a user is added, you can later added them to spaces</span>
                             </div>
                         </div>
                     </div>

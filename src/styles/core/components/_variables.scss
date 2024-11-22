@@ -1142,38 +1142,6 @@ $progress-box-shadow:               none !default;
 $progress-box-shadow-dark:          none !default;
 
 
-// List group
-$list-group-color:                          $gray-900 !default;
-$list-group-color-dark:                     $gray-900-dark !default;
-$list-group-bg:                             $white !default;
-$list-group-bg-dark:                        $black !default;
-$list-group-border-color:                   rgba($black, .125) !default;
-$list-group-border-color-dark:              rgba($white, .125) !default;
-
-$list-group-hover-bg:                       $gray-100 !default;
-$list-group-hover-bg-dark:                  $gray-100 !default;
-$list-group-active-color:                   $component-active-color !default;
-$list-group-active-color-dark:              $component-active-color-dark !default;
-$list-group-active-bg:                      $component-active-bg !default;
-$list-group-active-bg-dark:                 $component-active-bg-dark !default;
-$list-group-active-border-color:            $list-group-active-bg !default;
-$list-group-active-border-color-dark:       $list-group-active-bg-dark !default;
-
-$list-group-disabled-color:                 $gray-600 !default;
-$list-group-disabled-color-dark:            $gray-600-dark !default;
-$list-group-disabled-bg:                    $list-group-bg !default;
-$list-group-disabled-bg-dark:               $list-group-bg-dark !default;
-
-$list-group-action-color:                   $gray-700 !default;
-$list-group-action-color-dark:              $gray-700-dark !default;
-$list-group-action-hover-color:             $list-group-action-color !default;
-$list-group-action-hover-color-dark:        $list-group-action-color-dark !default;
-
-$list-group-action-active-color:            $body-color !default;
-$list-group-action-active-color-dark:       $body-color-dark !default;
-$list-group-action-active-bg:               $gray-200 !default;
-$list-group-action-active-bg-dark:          $gray-200-dark !default;
-
 
 // Image thumbnails
 $thumbnail-bg:                      $body-bg !default;
@@ -1198,23 +1166,6 @@ $breadcrumb-active-color:               $primary !default;
 $breadcrumb-active-color-dark:          $primary !default;
 $breadcrumb-item-padding-x:             .5rem !default;
 
-
-// Carousel
-$carousel-custom-indicator-transition-speed:                    0.3s !default;
-$carousel-custom-indicator-default-bg-color:                    $gray-200 !default;
-$carousel-custom-indicator-default-bg-color-dark:               $gray-200-dark !default;
-$carousel-custom-indicator-active-bg-color:                     $gray-400 !default;
-$carousel-custom-indicator-active-bg-color-dark:                $gray-400-dark !default;
-
-$carousel-custom-dots-indicator-default-size:                   9px !default;
-$carousel-custom-dots-indicator-active-size:                    13px !default;
-
-$carousel-custom-bullet-indicator-default-size:                 6px !default;
-$carousel-custom-bullet-indicator-active-width:                 16px !default;
-$carousel-custom-bullet-indicator-default-bg-color:             $gray-400 !default;
-$carousel-custom-bullet-indicator-default-bg-color-dark:        $gray-400-dark !default;
-$carousel-custom-bullet-indicator-active-bg-color:              $gray-600 !default;
-$carousel-custom-bullet-indicator-active-bg-color-dark:         $gray-600-dark !default;
 
 
 // Spinners
@@ -1504,25 +1455,11 @@ $scrollbar-hover-color-dark: darken($gray-200-dark, 2%) !default;
 $overlay-bg: rgba($black, 0.05)  !default;
 $overlay-bg-dark: rgba($white, 0.05) !default;
 
-// blockui component 
-$blockui-overlay-bg: rgba($black, 0.05) !default;
-$blockui-overlay-bg-dark: rgba($white, 0.05) !default;
-
 // rating component 
 $rating-color-default: $gray-400 !default;
 $rating-color-default-dark: $gray-400-dark !default;
 $rating-color-active: #FFAD0F !default;
 $rating-color-active-dark: #FFAD0F !default;
-
-// ribbon component 
-$ribbon-label-box-shadow: 0px -1px 5px 0px rgba($dark, 0.1) !default;
-$ribbon-label-box-shadow-dark: 0px -1px 5px 0px rgba($white, 0.1) !default;
-$ribbon-label-bg: $primary !default;
-$ribbon-label-bg-dark: $primary !default;
-$ribbon-label-border-color: darken($primary, 20%) !default;
-$ribbon-label-border-color-dark: darken($primary, 20%) !default;
-$ribbon-clip-bg: $dark !default;
-$ribbon-clip-bg-dark: $light !default;
 
 // fixed component 
 $fixed-z-index: 101 !default;

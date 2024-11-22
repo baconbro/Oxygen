@@ -1,7 +1,6 @@
-import React, {useState} from 'react'
-import {IProfileDetails} from '../SettingsModel'
+import { useState } from 'react'
 import * as Yup from 'yup'
-import {useFormik} from 'formik'
+import { useFormik } from 'formik'
 import * as FirestoreService from '../../../../../services/firestore'
 import { useAuth } from '../../../../auth'
 
@@ -17,9 +16,9 @@ const profileDetailsSchema = Yup.object().shape({
   currency: Yup.string().required('Currency is required'),
 })
 
-const ProfileDetails: React.FC = () => {
-  const {currentUser} = useAuth()
-  const initialValues: IProfileDetails = {
+const ProfileDetails = () => {
+  const { currentUser } = useAuth()
+  const initialValues = {
     photoURL: currentUser?.all.photoURL ?? "",
     fName: currentUser?.all.fName ?? "",
     lName: currentUser?.all.lName ?? "",
@@ -39,14 +38,14 @@ const ProfileDetails: React.FC = () => {
     role: currentUser?.all.role ?? ""
   }
 
-  const [data, setData] = useState<IProfileDetails>(initialValues)
-  const updateData = (fieldsToUpdate: Partial<IProfileDetails>): void => {
+  const [data, setData] = useState(initialValues)
+  const updateData = (fieldsToUpdate) => {
     const updatedData = Object.assign(data, fieldsToUpdate)
     setData(updatedData)
   }
 
   const [loading, setLoading] = useState(false)
-  const formik = useFormik<IProfileDetails>({
+  const formik = useFormik({
     initialValues,
     validationSchema: profileDetailsSchema,
     onSubmit: (values) => {
@@ -56,8 +55,8 @@ const ProfileDetails: React.FC = () => {
         values.communications.phone = data.communications.phone
         values.allowMarketing = data.allowMarketing
         const updatedData = Object.assign(data, values)
-        const who = {email:currentUser?.email }
-        FirestoreService.editUser(who,values)
+        const who = { email: currentUser?.email }
+        FirestoreService.editUser(who, values)
         setData(updatedData)
         setLoading(false)
       }, 1000)
@@ -82,7 +81,7 @@ const ProfileDetails: React.FC = () => {
       <div id='xgn_account_profile_details' className='collapse show'>
         <form onSubmit={formik.handleSubmit} noValidate className='form'>
           <div className='card-body border-top p-9'>
-           {/*  <div className='row mb-6'>
+            {/*  <div className='row mb-6'>
               <label className='col-lg-4 col-form-label fw-bold fs-6'>Avatar</label>
               <div className='col-lg-8 fv-row'>
                 <input
@@ -810,7 +809,7 @@ const ProfileDetails: React.FC = () => {
             <button type='submit' className='btn btn-primary' disabled={loading}>
               {!loading && 'Save Changes'}
               {loading && (
-                <span className='indicator-progress' style={{display: 'block'}}>
+                <span className='indicator-progress' style={{ display: 'block' }}>
                   Please wait...{' '}
                   <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
                 </span>
@@ -823,4 +822,4 @@ const ProfileDetails: React.FC = () => {
   )
 }
 
-export {ProfileDetails}
+export { ProfileDetails }
