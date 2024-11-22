@@ -103,9 +103,14 @@ const Column = (props) => {
                     </>
                   </div>
                 </Header>
-                <button className="hover-actions  btn btn-sm" onClick={handleShowModal}>
-                  <i className="bi bi-three-dots"></i>
-                </button>
+                {collapsed ? (
+                  <></>
+                ) : (
+                  <button className="hover-actions  btn btn-sm" onClick={handleShowModal}>
+                    <i className="bi bi-three-dots"></i>
+                  </button>
+                )}
+
                 <Modal show={showModal} onHide={handleCloseModal} centered>
                   <Modal.Header closeButton>
                     <Modal.Title>
