@@ -5,7 +5,7 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { useWorkspace } from '../../../contexts/WorkspaceProvider';
 
 
-const Backlog = ({ project, fetchProject, updateLocalProjectIssues, refreshData }) => {
+const Backlog = ({ project, updateLocalProjectIssues, refreshData }) => {
   const analytics = getAnalytics();
   logEvent(analytics, 'screen_view', {
     firebase_screen: project.title + " - workspace - backlog",

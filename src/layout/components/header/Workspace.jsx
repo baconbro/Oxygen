@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Avatar } from "../../../components/common";
 import { Link } from 'react-router-dom'
 import { CreateWorkspaceModal } from "../../../components/partials"
 
-const WorkspaceHeaderMenu = ({spaces}) => {
+const WorkspaceHeaderMenu = ({ spaces }) => {
     const [showCreateModal, setShowCreateModal] = useState(false)
 
     return (

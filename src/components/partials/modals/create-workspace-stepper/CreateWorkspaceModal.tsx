@@ -1,5 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import {useState, useRef} from 'react'
 import {createPortal} from 'react-dom'
 import {Modal} from 'react-bootstrap'
@@ -94,7 +92,7 @@ const CreateWorkspaceModal = ({show, handleClose}: Props) => {
     try {
       const newSpace = await createSpace(values, currentUser);
       if(newSpace){
-        navigate('/workspace', { replace: true });
+        navigate(`/workspace/${newSpace}/board`, { replace: true });
       }
     } catch (error) {
       console.log(error)
@@ -114,162 +112,92 @@ const CreateWorkspaceModal = ({show, handleClose}: Props) => {
     >
       <div className='modal-header'>
         <h2>Create Workspace</h2>
-        {/* begin::Close */}
         <div className='btn btn-sm btn-icon btn-active-color-primary' onClick={handleClose}>
           <InlineSVG className='svg-icon-1' path='/media/icons/duotune/arrows/arr061.svg' />
         </div>
-        {/* end::Close */}
       </div>
 
       <div className='modal-body py-lg-10 px-lg-10'>
-        {/*begin::Stepper */}
         <div
           ref={stepperRef}
           className='stepper stepper-pills stepper-column d-flex flex-column flex-xl-row flex-row-fluid'
           id='xgn_modal_create_app_stepper'
         >
-          {/* begin::Aside*/}
           <div className='d-flex justify-content-center justify-content-xl-start flex-row-auto w-100 w-xl-300px'>
-            {/* begin::Nav*/}
             <div className='stepper-nav ps-lg-10'>
-              {/* begin::Step 1*/}
               <div className='stepper-item current' data-xgn-stepper-element='nav'>
-                {/* begin::Wrapper*/}
                 <div className='stepper-wrapper'>
-                  {/* begin::Icon*/}
                   <div className='stepper-icon w-40px h-40px'>
                     <i className='stepper-check fas fa-check'></i>
                     <span className='stepper-number'>1</span>
                   </div>
-                  {/* end::Icon*/}
-
-                  {/* begin::Label*/}
                   <div className='stepper-label'>
                     <h3 className='stepper-title'>Details</h3>
 
                     <div className='stepper-desc'>Name your workspace</div>
                   </div>
-                  {/* end::Label*/}
                 </div>
-                {/* end::Wrapper*/}
-
-                {/* begin::Line*/}
                 <div className='stepper-line h-40px'></div>
-                {/* end::Line*/}
               </div>
-              {/* end::Step 1*/}
-
-              {/* begin::Step 2*/}
               <div className='stepper-item' data-xgn-stepper-element='nav'>
-                {/* begin::Wrapper*/}
                 <div className='stepper-wrapper'>
-                  {/* begin::Icon*/}
                   <div className='stepper-icon w-40px h-40px'>
                     <i className='stepper-check fas fa-check'></i>
                     <span className='stepper-number'>2</span>
                   </div>
-                  {/* begin::Icon*/}
-
-                  {/* begin::Label*/}
                   <div className='stepper-label'>
                     <h3 className='stepper-title'>Template</h3>
 
                     <div className='stepper-desc'>Define your workplace template</div>
                   </div>
-                  {/* begin::Label*/}
                 </div>
-                {/* end::Wrapper*/}
-
-                {/* begin::Line*/}
                 <div className='stepper-line h-40px'></div>
-                {/* end::Line*/}
               </div>
-              {/* end::Step 2*/}
-
-              {/* begin::Step 3*/}
               <div className='stepper-item' data-xgn-stepper-element='nav'>
-                {/* begin::Wrapper*/}
                 <div className='stepper-wrapper'>
-                  {/* begin::Icon*/}
                   <div className='stepper-icon w-40px h-40px'>
                     <i className='stepper-check fas fa-check'></i>
                     <span className='stepper-number'>3</span>
                   </div>
-                  {/* end::Icon*/}
-
-                  {/* begin::Label*/}
                   <div className='stepper-label'>
                     <h3 className='stepper-title'>Collaboration</h3>
 
                     <div className='stepper-desc'>Select team members</div>
                   </div>
-                  {/* end::Label*/}
                 </div>
-                {/* end::Wrapper*/}
-
-                {/* begin::Line*/}
                 <div className='stepper-line h-40px'></div>
-                {/* end::Line*/}
               </div>
-              {/* end::Step 3*/}
-
-              {/* begin::Step 4*/}
               <div className='stepper-item' data-xgn-stepper-element='nav'>
-                {/* begin::Wrapper*/}
                 <div className='stepper-wrapper'>
-                  {/* begin::Icon*/}
                   <div className='stepper-icon w-40px h-40px'>
                     <i className='stepper-check fas fa-check'></i>
                     <span className='stepper-number'>4</span>
                   </div>
-                  {/* end::Icon*/}
-
-                  {/* begin::Label*/}
                   <div className='stepper-label'>
                     <h3 className='stepper-title'>Configuration</h3>
 
                     <div className='stepper-desc'>Add extra configuration</div>
                   </div>
-                  {/* end::Label*/}
                 </div>
-                {/* end::Wrapper*/}
-
-                {/* begin::Line*/}
                 <div className='stepper-line h-40px'></div>
-                {/* end::Line*/}
               </div>
-              {/* end::Step 4*/}
-
-              {/* begin::Step 5*/}
               <div className='stepper-item' data-xgn-stepper-element='nav'>
-                {/* begin::Wrapper*/}
                 <div className='stepper-wrapper'>
-                  {/* begin::Icon*/}
                   <div className='stepper-icon w-40px h-40px'>
                     <i className='stepper-check fas fa-check'></i>
                     <span className='stepper-number'>5</span>
                   </div>
-                  {/* end::Icon*/}
-
-                  {/* begin::Label*/}
                   <div className='stepper-label'>
                     <h3 className='stepper-title'>Completed</h3>
 
                     <div className='stepper-desc'>Review and Create</div>
                   </div>
-                  {/* end::Label*/}
                 </div>
-                {/* end::Wrapper*/}
               </div>
-              {/* end::Step 5*/}
             </div>
-            {/* end::Nav*/}
           </div>
-          {/* begin::Aside*/}
 
-          {/*begin::Content */}
           <div className='flex-row-fluid py-lg-5 px-lg-15'>
-            {/*begin::Form */}
             <form noValidate id='xgn_modal_create_app_form'>
               <Step1 data={data} updateData={updateData} hasError={hasError} />
               <Step2 data={data} updateData={updateData} hasError={hasError} />
@@ -277,7 +205,6 @@ const CreateWorkspaceModal = ({show, handleClose}: Props) => {
               <Step4 data={data} updateData={updateData} hasError={hasError} />
               <Step5 />
 
-              {/*begin::Actions */}
               <div className='d-flex flex-stack pt-10'>
                 <div className='me-2'>
                   <button
@@ -321,13 +248,9 @@ const CreateWorkspaceModal = ({show, handleClose}: Props) => {
                   </button>
                 </div>
               </div>
-              {/*end::Actions */}
             </form>
-            {/*end::Form */}
           </div>
-          {/*end::Content */}
         </div>
-        {/* end::Stepper */}
       </div>
     </Modal>,
     modalsRoot

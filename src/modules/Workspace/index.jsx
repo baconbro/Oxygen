@@ -113,7 +113,7 @@ const Project = () => {
         issues: items
       });
     }
-  }, [itemsStatus, items]);
+  }, [itemsStatus, items,spaceData]);
 
   const history = useNavigate();
 

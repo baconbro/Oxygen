@@ -1,4 +1,4 @@
-import { getFirestore, collection, getDocs, addDoc, updateDoc, doc,query,where,setDoc ,deleteDoc,getDoc} from 'firebase/firestore';
+import { collection, getDocs, updateDoc, doc, query, where, getDoc} from 'firebase/firestore';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { db } from '../services/firestore';
 
