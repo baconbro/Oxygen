@@ -71,7 +71,8 @@ const Board = ({
 
   useEffect(() => {
     setColumns(initial);
-  }, []);
+    setOrdered(Object.keys(initial))
+  }, [initial]);
 
   const activeJoy = (movedCardId) => {
     if (movedCardId) {

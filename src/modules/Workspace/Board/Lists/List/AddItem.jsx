@@ -1,11 +1,11 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Textarea } from '../../../../../components/common';
 import { Actions, FormButton } from './Styles';
 import toast from '../../../../../utils/toast';
 import { KeyCodes } from '../../../../../constants/keyCodes';
-
 import { useAuth } from '../../../../auth';
 import { useAddItem } from '../../../../../services/itemServices';
+import { useWorkspace } from '../../../../../contexts/WorkspaceProvider';
 
 
 
@@ -16,29 +16,36 @@ const AddItem = ({ status, currentUserId, spaceId, lastIssue }) => {
     const $textareaRef = useRef();
 
     const { currentUser } = useAuth();
+    const {project, setProject} = useWorkspace()
     const addItemMutation = useAddItem();
 
     const handleSubmit = () => {
         if ($textareaRef.current.value.trim()) {
+            const newItem = {
+                description: '',
+                status: status,
+                projectId: spaceId,
+                listPosition: lastIssue,
+                type: 'task',
+                title: body,
+                reporterId: currentUserId,
+                userIds: [],
+                priority: '',
+                users: [],
+              }
+
           addItemMutation({
             orgId: currentUser?.all?.currentOrg,
-            item: {
-              description: '',
-              status: status,
-              projectId: spaceId,
-              listPosition: lastIssue,
-              type: 'task',
-              title: body,
-              reporterId: currentUserId,
-              userIds: [],
-              priority: '',
-              users: [],
-            },
+            item: newItem,
             userId: 'userId'
           }, {
             onSuccess: () => {
               setFormOpen(false);
-              setBody('');
+              
+                            // Add the new item to project.issues and update the project context
+                            const updatedProject = { ...project, issues: [...project.issues, newItem] };
+                            setProject(updatedProject);
+                            setBody('');
             },
             onError: (error) => {
               toast.error(error.message);

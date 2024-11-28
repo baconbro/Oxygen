@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import Board from "./board/Board";
+
 
 
 const Dnd = ({
@@ -7,6 +9,7 @@ const Dnd = ({
   updateLocalProjectIssues,
 }) => {
 
+  const [groupedIssues, setGroupedIssues] = useState([]);
 
   const groupIssuesByStatus = (issues, issueStatus) => {
     // Convert the issueStatus array into an object with status IDs as keys for faster lookup
@@ -46,7 +49,12 @@ const Dnd = ({
     return groupedByStatusId;
   };
 
-  const groupedIssues = groupIssuesByStatus(project.issues, project.config.issueStatus);
+  useEffect(() => {
+    const grouped = groupIssuesByStatus(project.issues, project.config.issueStatus);
+    setGroupedIssues(grouped);
+  }, [project]);
+
+
 
   return (
     <>

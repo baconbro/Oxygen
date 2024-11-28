@@ -31,7 +31,7 @@ const ProjectBoardIssueDetailsCommentsCreate = ({ issueId, fetchIssue }) => {
 
   return (
     <Create>
-      {currentUser && <UserAvatar name={currentUser.name} avatarUrl={currentUser.photoURL} />}
+      {currentUser && <UserAvatar name={currentUser.first_name} avatarUrl={currentUser.photoURL} />}
       <Right>
         {isFormOpen ? (
           <BodyForm

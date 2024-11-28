@@ -9,6 +9,9 @@ const defaultProps = {
 };
 
 const Avatar = ({ className, avatarUrl, name, size, ...otherProps }) => {
+  if (!name) {
+    name = "o";
+  }
   const sizeClass = `avatar avatar-${size}px`;
   const combinedClassName = `${className} ${sizeClass}`.trim();
 
