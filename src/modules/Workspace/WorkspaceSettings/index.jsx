@@ -1,9 +1,7 @@
-import React from 'react';
-
 import toast from '../../../utils/toast';
-import { Form, Breadcrumbs, Select, Avatar } from '../../../components/common';
+import { Form } from '../../../components/common';
 
-import { FormCont, FormHeading, FormElement, ActionButton } from './Styles';
+import { FormCont, FormElement, ActionButton } from './Styles';
 import ProjectMembers from './Members'
 
 import * as FirestoreService from '../../../services/firestore';
@@ -25,7 +23,7 @@ const ProjectSettings = ({ project, spaceId, updateLocalProjectConfig }) => {
       <div className='card mb-5 mb-xl-10'>
         <div className="card-header border-0 ">
           <div className="card-title m-0">
-            <h3 className="fw-bolder m-0">Project Details</h3>
+            <h3 className="fw-bolder m-0">Workspace Details</h3>
           </div>
         </div>
         <div className='card-body border-top p-9'>
@@ -55,7 +53,7 @@ const ProjectSettings = ({ project, spaceId, updateLocalProjectConfig }) => {
                 <Form.Field.TextEditor
                   name="description"
                   label="Description"
-                  tip="Describe the project in as much detail as you'd like."
+                  tip="Describe the workspace in as much detail as you'd like."
                 />
                 <ActionButton type="submit" variant="primary" className="form-control btn btn-primary">
                   Save changes
@@ -69,7 +67,7 @@ const ProjectSettings = ({ project, spaceId, updateLocalProjectConfig }) => {
       <div className='card mb-5 mb-xl-10'>
         <div className="card-header border-0 ">
           <div className="card-title m-0">
-            <h3 className="fw-bolder m-0">Project Members</h3>
+            <h3 className="fw-bolder m-0">Workspace Members</h3>
           </div>
         </div>
         <div className='card-body border-top p-9'>
@@ -81,7 +79,7 @@ const ProjectSettings = ({ project, spaceId, updateLocalProjectConfig }) => {
       <div className='card mb-5 mb-xl-10'>
         <div className="card-header border-0 ">
           <div className="card-title m-0">
-            <h3 className="fw-bolder m-0">Objects</h3>
+            <h3 className="fw-bolder m-0">Workspace objects</h3>
           </div>
         </div>
         <div className='card-body border-top p-9'>
@@ -105,7 +103,7 @@ const ProjectSettings = ({ project, spaceId, updateLocalProjectConfig }) => {
       <div className='card mb-5 mb-xl-10'>
         <div className="card-header border-0 ">
           <div className="card-title m-0">
-            <h3 className="fw-bolder m-0">Delete space</h3>
+            <h3 className="fw-bolder m-0">Delete Workspace</h3>
           </div>
         </div>
         <div className='card-body border-top p-9'>
