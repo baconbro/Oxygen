@@ -135,6 +135,9 @@ function Item(props) {
             {item.dueDate && <div className="badge badge-light me-2"> <i className="bi bi-calendar-event me-2"></i> {item.dueDate.split('T')[0]}</div>}
           </div>
           <div className="d-flex mb-3">
+            {item.wpkg && <div className="badge badge-light-dark me-2"> <i className="bi bi-box-seam me-2"></i> {item.wpkg}</div>}
+          </div>
+          <div className="d-flex mb-3">
             {item.tsize && <div className="badge badge-light me-2"><i className="bi bi-rulers me-2"></i>{item.tsize}</div>}
             {item.storypoint && <div className="badge badge-light me-2"><i className="bi bi-ticket-fill me-2"></i>{item.storypoint}</div>}
           </div>

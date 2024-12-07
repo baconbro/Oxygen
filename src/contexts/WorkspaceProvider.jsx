@@ -29,6 +29,7 @@ export function WorkspaceProvider({ children }) {
     viewStatus: [],
     hideOld: 30,
     sprint: '',
+    wpkg : '',
   };
 
   const [filters, mergeFilters] = useMergeState(defaultFilters);

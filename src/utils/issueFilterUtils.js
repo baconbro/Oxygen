@@ -2,7 +2,7 @@ import { intersection } from 'lodash';
 import moment from 'moment';
 
 export const filterIssues = (projectIssues, filters, currentUserId) => {
-  const { searchTerm, userIds, myOnly, recent, viewType, viewStatus, hideOld, sprint } = filters;
+  const { searchTerm, userIds, myOnly, recent, viewType, viewStatus, hideOld, sprint, wpkg } = filters;
   let issues = projectIssues;
 
   if (searchTerm) {
@@ -28,6 +28,9 @@ export const filterIssues = (projectIssues, filters, currentUserId) => {
   }
   if (sprint && sprint !== '') {
     issues = issues.filter(issue => issue.sprintId === Number(sprint));
+  }
+  if (wpkg && wpkg !== '') {
+    issues = issues.filter(issue => issue.wpkg === wpkg);
   }
   return issues;
 };

@@ -7,7 +7,6 @@ import {
   Avatars,
   AvatarIsActiveBorder,
   StyledAvatar,
-  StyledButton,
   ClearAll,
 } from './Styles';
 import { Modal } from 'react-bootstrap'
@@ -15,6 +14,7 @@ import ProjectMembers from '../../WorkspaceSettings/Members';
 import { useWorkspace } from '../../../../contexts/WorkspaceProvider';
 import findAvailableParameters from '../../../../utils/issueVariables';
 import { useGetSprints } from '../../../../services/sprintServices';
+import { useGetWorkPackages } from '../../../../services/workPackageServices';
 
 const propTypes = {
   projectUsers: PropTypes.array.isRequired,
@@ -25,13 +25,15 @@ const propTypes = {
 
 const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilters }) => {
   const [projectMembers, setprojectMembers] = useState([]);
-  const { searchTerm, userIds, myOnly, recent, groupBy, viewType, viewStatus, hideOld, sprint } = filters;
+  const { searchTerm, userIds, myOnly, recent, groupBy, viewType, viewStatus, hideOld, sprint, wpkg } = filters;
   const [showMembersModal, setShowMembersModal] = useState(false)
   const [showFilterModal, setShowFilterModal] = useState(false)
   const { project } = useWorkspace();
 
   const { data } = useGetSprints(project.spaceId, project.org);
+  const { data: wpkgData } = useGetWorkPackages(project.spaceId, project.org);
   const [sprints, setSprints] = useState([]);
+  const [wpkgs, setWpkgs] = useState([]);
   const [activeSprints, setActiveSprints] = useState([]);
 
   useEffect(() => {
@@ -39,12 +41,18 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
   }, [data])
 
   useEffect(() => {
+    if (wpkgData) {
+   setWpkgs(wpkgData)
+    }
+  }, [wpkgData])
+
+  useEffect(() => {
     const today = new Date();
     const filteredSprints = sprints?.filter(sprint => new Date(sprint.endDate) >= today) || [];
     setActiveSprints(filteredSprints);
   }, [sprints]);
 
-  const areFiltersCleared = !searchTerm && userIds.length === 0 && !myOnly && !recent && viewType.length === 0 && viewStatus.length === 0 && hideOld === 30 && !sprint;
+  const areFiltersCleared = !searchTerm && userIds.length === 0 && !myOnly && !recent && viewType.length === 0 && viewStatus.length === 0 && hideOld === 30 && !sprint && !wpkg;
 
   useEffect(() => {
     //if projectMembers is not equal to projectUsers then set projectUsers to projectMembers
@@ -94,7 +102,7 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
   if (!project || Object.keys(project).length === 0) {
     return null;
   }
-
+  
   return (
     <div className="d-flex flex-wrap flex-stack pb-7">
       <Filters data-testid="board-filters">
@@ -210,6 +218,19 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
                   {activeSprints.map(sprint => (
                     <option key={sprint.id} value={sprint.id}>
                       {sprint.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-10">
+                <label className="form-label fw-semibold">Work packages</label>
+                <select className="form-select" onChange={(e) => mergeFilters({ wpkg: e.target.value })}>
+                  <option value=''>
+                    No work package selected
+                  </option>
+                  {wpkgs.map(wpkg => (
+                    <option key={wpkg.id} value={wpkg.title}>
+                      {wpkg.title}
                     </option>
                   ))}
                 </select>

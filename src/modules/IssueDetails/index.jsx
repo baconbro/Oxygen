@@ -31,6 +31,7 @@ import { useAddUserView } from '../../services/userViewServices';
 import { Breadcrumbs } from '../../components/common';
 import { getParentIssueIds } from '../../utils/getIssueX';
 import { useWorkspace } from '../../contexts/WorkspaceProvider';
+import PackageDetail from './Package/package';
 
 
 const ProjectBoardIssueDetails = ({
@@ -248,6 +249,10 @@ const ProjectBoardIssueDetails = ({
                 </div>
                 <div className="">
                   <TshirtSizeInput issue={issue} updateIssue={updateIssue} />
+                </div>
+                <div className="">
+                <h3 className="fw-bold mb-1">Work package</h3>
+                  <PackageDetail issue={issue} updateIssue={updateIssue} />
                 </div>
 
               </div>

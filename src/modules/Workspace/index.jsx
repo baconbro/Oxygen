@@ -20,6 +20,7 @@ import { getIssueField } from '../../utils/getIssueX';
 
 import KanbanPage from './Kanban/KanbanPage';
 import Calendar from './Calendar';
+import WorkPackageList from './workPackage/workPackageList';
 
 const Project = () => {
   //get current user data
@@ -226,6 +227,11 @@ const Project = () => {
     },
     {
       position: 0,
+      title: 'Packages',
+      to: `/workspace/${id.id}/packages`,
+    },
+    {
+      position: 0,
       title: 'Settings',
       to: `/workspace/${id.id}/settings`,
     },
@@ -332,6 +338,16 @@ const Project = () => {
           path="/list/*"
           element={
             <List
+              project={project}
+              updateLocalProjectIssues={updateLocalProjectIssues}
+              refreshData={refreshData}
+            />
+          }
+        />
+                <Route
+          path="/packages/*"
+          element={
+            <WorkPackageList
               project={project}
               updateLocalProjectIssues={updateLocalProjectIssues}
               refreshData={refreshData}
