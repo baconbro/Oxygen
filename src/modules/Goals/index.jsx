@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useMergeState from '../../hooks/mergeState';
 import { Avatar } from '../../components/common';
@@ -10,6 +10,7 @@ import { Status } from '../IssueDetails/Status/Styles';
 import { customStatus, getScoreColor } from '../../constants/custom';
 import AddGoal from './goal-drawer/AddGoal';
 import EmptyGoals from '../../components/common/emptyStates/emptyGoals';
+import { filterIssues } from '../../utils/issueFilterUtils';
 
 
 import {
@@ -22,6 +23,7 @@ import {
 
 import { useAuth } from '../auth';
 import { useFetchOKRs } from '../../services/okrServices'
+import GoalFilter from './goalFilter';
 
 
 
@@ -83,10 +85,12 @@ const Goals = () => {
   const { data: okrs, status, error } = useFetchOKRs(currentUser?.all?.currentOrg);
   const match = useLocation();
   const navigate = useNavigate();
-  const { currentGoal, setCurrentGoal, setOrgUsers, setHighLevelWorkItems, orgUsers } = useWorkspace();
+  const { currentGoal, setCurrentGoal, setOrgUsers, setHighLevelWorkItems, orgUsers , filters} = useWorkspace();
   const [refreshData, setRefreshData] = React.useState(true);
+  const [filteredIssues, setFilteredIssues] = useState([]);
+  const [data, setData] = useState(() => [...defaultData])
 
-  const [filters, mergeFilters] = useMergeState(defaultFilters);
+ // const [filters, mergeFilters] = useMergeState(defaultFilters);
 
   const reloadGoals = () => {
     FirestoreService.getGoals(currentUser?.all?.currentOrg)
@@ -100,10 +104,30 @@ const Goals = () => {
       })
   };
 
+
+  // Fetch OKRs when status is 'success'
+  useEffect(() => {
+    if (status === 'success' && Array.isArray(okrs)) {
+      setData(okrs);
+    }
+  }, [status, okrs]);
+
+    // Filter issues when data or filters change
+    useEffect(() => {
+      const issues = data; // Assume 'data' contains issues
+      if (issues && Array.isArray(issues)) {
+        const filtered = filterIssues(issues, filters,currentUser?.all?.uid);
+        setFilteredIssues(filtered);
+      }
+    }, [data, filters]);
+
+
+
   const handleDataRefresh = () => {
     setRefreshData(true); // Trigger data retrieval by updating the state
     reloadGoals()
   };
+
 
 
 
@@ -155,31 +179,11 @@ const Goals = () => {
       );
   }, [refreshData]);
 
-  const [data, setData] = React.useState(() => [...defaultData])
-  const rerender = React.useReducer(() => ({}), {})[1]
-  const [expanded, setExpanded] = React.useState({})
-
-
-  const KrData = [
-    {
-      keyResult: 'tanner',
-      owner: 'linsley',
-      objectiveId: 24,
-      keyResultId: 1,
-      status: 'In Relationship',
-      score: 30,
-    },
-    {
-      keyResult: 'tanner',
-      owner: 'linsley',
-      objectiveId: 24,
-      keyResultId: 2,
-      status: 'In Relationship',
-      score: 70,
-    },
-
-  ]
+ 
+  const rerender = useReducer(() => ({}), {})[1]
+  const [expanded, setExpanded] = useState({})
   const columnHelper = createColumnHelper()
+
 
   const columns = [
     columnHelper.accessor('title', {
@@ -309,9 +313,8 @@ const Goals = () => {
 
 
 
-
   const table = useReactTable({
-    data: okrs || [],  // Provide data directly from React Query
+    data: filteredIssues || [], 
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSubRows: row => row.subRows,
@@ -340,11 +343,16 @@ const Goals = () => {
 
   if (status === 'error' && error instanceof Error) {
     return <div>Error: {error.message}</div>;
+  } 
+
+  if (error) {
+    return <div>Error loading OKRs</div>;
   }
 
 
   return (
-    <Fragment>
+    <>
+    <GoalFilter />
       <div id="xgn_app_toolbar" className="app-toolbar  py-3 py-lg-6 ">
         <div id="xgn_app_toolbar_container" className="app-container  container-xxl d-flex flex-stack ">
           <div className="page-title d-flex flex-column justify-content-center flex-wrap me-3 ">
@@ -421,7 +429,7 @@ const Goals = () => {
       </div>
 
       {(!okrs || okrs.length === 0) ? <EmptyGoals /> : ''}
-    </Fragment>
+    </>
   );
 };
 

@@ -166,25 +166,6 @@ const List = () => {
   const [sorting, setSorting] = React.useState([])
   const filteredIssues = filterIssues(project.issues, filters, currentUser?.all?.uid);
 
-  const KrData = [
-    {
-      keyResult: 'tanner',
-      owner: 'linsley',
-      objectiveId: 24,
-      keyResultId: 1,
-      status: 'In Relationship',
-      score: 30,
-    },
-    {
-      keyResult: 'tanner',
-      owner: 'linsley',
-      objectiveId: 24,
-      keyResultId: 2,
-      status: 'In Relationship',
-      score: 70,
-    },
-
-  ]
   const columnHelper = createColumnHelper()
 
   const defaultColumns = [
