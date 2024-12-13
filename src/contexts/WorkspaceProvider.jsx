@@ -14,6 +14,7 @@ export function WorkspaceProvider({ children }) {
   const [currentGoal, setCurrentGoal] = useState([]);
   const [highLevelWorkItems, setHighLevelWorkItems] = useState();
   const [workspaceConfig, setWorkspaceConfig] = useState();
+  const [goals, setGoals] = useState([]);
 
   const addCard = card => {
     setCards([...cards, card]);
@@ -62,6 +63,7 @@ export function WorkspaceProvider({ children }) {
     filters,
     mergeFilters,
     workspaceConfig,
+    goals,
     setHighLevelWorkItems,
     setCurrentGoal,
     updateProjectContext,
@@ -70,6 +72,8 @@ export function WorkspaceProvider({ children }) {
     assignCard,
     setProjectUsers,
     setWorkspaceConfig,
+    setGoals,
+
   };
 
   return (

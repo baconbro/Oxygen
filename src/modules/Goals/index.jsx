@@ -11,6 +11,7 @@ import { customStatus, getScoreColor } from '../../constants/custom';
 import AddGoal from './goal-drawer/AddGoal';
 import EmptyGoals from '../../components/common/emptyStates/emptyGoals';
 import { filterIssues } from '../../utils/issueFilterUtils';
+import HeaderInsight from './headerInsight';
 
 
 import {
@@ -85,7 +86,7 @@ const Goals = () => {
   const { data: okrs, status, error } = useFetchOKRs(currentUser?.all?.currentOrg);
   const match = useLocation();
   const navigate = useNavigate();
-  const { currentGoal, setCurrentGoal, setOrgUsers, setHighLevelWorkItems, orgUsers , filters} = useWorkspace();
+  const { setCurrentGoal, setOrgUsers, setHighLevelWorkItems, orgUsers , filters, setGoals} = useWorkspace();
   const [refreshData, setRefreshData] = React.useState(true);
   const [filteredIssues, setFilteredIssues] = useState([]);
   const [data, setData] = useState(() => [...defaultData])
@@ -93,15 +94,7 @@ const Goals = () => {
  // const [filters, mergeFilters] = useMergeState(defaultFilters);
 
   const reloadGoals = () => {
-    FirestoreService.getGoals(currentUser?.all?.currentOrg)
-      .then((data) => {
-        setData(data);
         setRefreshData(false);
-      }
-      )
-      .catch((err) => {
-        console.log(err);
-      })
   };
 
 
@@ -109,6 +102,7 @@ const Goals = () => {
   useEffect(() => {
     if (status === 'success' && Array.isArray(okrs)) {
       setData(okrs);
+      setGoals(okrs);
     }
   }, [status, okrs]);
 
@@ -353,6 +347,7 @@ const Goals = () => {
   return (
     <>
     <GoalFilter />
+    <HeaderInsight />
       <div id="xgn_app_toolbar" className="app-toolbar  py-3 py-lg-6 ">
         <div id="xgn_app_toolbar_container" className="app-container  container-xxl d-flex flex-stack ">
           <div className="page-title d-flex flex-column justify-content-center flex-wrap me-3 ">
