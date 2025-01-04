@@ -1,10 +1,10 @@
-import React, { Fragment, useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { getTextContentsFromHtmlString } from '../../../utils/browser';
 import { TextEditor, TextEditedContent, Button } from '../../../components/common';
 
-import { Title, EmptyLabel, Actions } from './Styles';
+import { EmptyLabel, Actions } from './Styles';
 
 const propTypes = {
   issue: PropTypes.object.isRequired,
@@ -23,10 +23,10 @@ const ProjectBoardIssueDetailsDescription = ({ issue, updateIssue }) => {
   const isDescriptionEmpty = getTextContentsFromHtmlString(description).trim().length === 0;
 
   return (
-    <Fragment>
-      <h3 className="fw-bold mb-1">Details</h3>      
+    <>
+      <h3 className="fw-bold mb-1">Details</h3>
       {isEditing ? (
-        <Fragment>
+        <>
           <TextEditor
             placeholder="Describe the issue"
             defaultValue={description}
@@ -40,17 +40,17 @@ const ProjectBoardIssueDetailsDescription = ({ issue, updateIssue }) => {
               Cancel
             </Button>
           </Actions>
-        </Fragment>
+        </>
       ) : (
-        <Fragment>
+        <>
           {isDescriptionEmpty ? (
             <EmptyLabel onClick={() => setEditing(true)}>Add a description...</EmptyLabel>
           ) : (
             <TextEditedContent content={description} onClick={() => setEditing(true)} />
           )}
-        </Fragment>
+        </>
       )}
-    </Fragment>
+    </>
   );
 };
 

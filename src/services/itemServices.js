@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, query, where, setDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where, setDoc, deleteDoc, doc, getDoc } from 'firebase/firestore';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { db } from '../services/firestore';
 
@@ -92,11 +92,21 @@ const deleteItem = async (orgId, itemId) => {
   });
 };
 
-
-
-
-
-
+const getItem = async (goalId, orgId) => {
+  try {
+    const q = query(collection(db, "organisation", orgId, "items"), where("goalLink", "==", goalId));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const itemDoc = querySnapshot.docs[0];
+      return { id: itemDoc.id, ...itemDoc.data() };
+    } else {
+      throw new Error('Item not found');
+    }
+  } catch (error) {
+    console.error('Error fetching item: ', error);
+    throw new Error('Error fetching item');
+  }
+};
 
 
 // React Query hooks
@@ -135,6 +145,12 @@ export const useDeleteItem = () => {
       queryClient.invalidateQueries(['Items', orgId]);
     },
   });
-
   return mutation.mutate;
+};
+
+export const useGetItem = (goalId, orgId) => {
+  return useQuery(['Item', goalId, orgId], () => getItem(goalId, orgId), {
+    enabled: !!goalId && !!orgId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 };

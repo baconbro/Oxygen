@@ -28,3 +28,22 @@ export   const getScoreColor = (value) => {
       return 'secondary';
     }
   };
+
+  export const goalType =
+{
+  IssueStatus: {
+    STRAT: 'strat',
+    OBJ: 'obj',
+    KR: 'kr',
+  },
+  IssueStatusCopy: {
+    strat: 'Strategic',
+    obj: 'Objective',
+    kr: 'Key Result',
+  },
+  IssueStatusClass: {
+    strat: 'light-success',
+    obj: 'light-primary',
+    kr: 'light-info',
+  }
+}

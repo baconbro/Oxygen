@@ -1,6 +1,6 @@
 
 const Breadcrumbs = ({ items }) => (
-  <ul className="breadcrumb text-muted fs-6 fw-semibold px-11">
+  <ul className="breadcrumb text-muted fs-6 fw-semibold px-3">
     {items.map((item, index) => (
       <li className="breadcrumb-item text-muted" key={index}>
         {item.href ? (

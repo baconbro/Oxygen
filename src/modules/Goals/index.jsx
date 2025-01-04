@@ -1,19 +1,13 @@
 import React, { useState, useEffect, useReducer } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import useMergeState from '../../hooks/mergeState';
 import { Avatar } from '../../components/common';
-
 import * as FirestoreService from '../../services/firestore';
 import { useWorkspace } from '../../contexts/WorkspaceProvider';
-
 import { Status } from '../IssueDetails/Status/Styles';
-import { customStatus, getScoreColor } from '../../constants/custom';
-import AddGoal from './goal-drawer/AddGoal';
+import { customStatus, getScoreColor, goalType } from '../../constants/custom';
 import EmptyGoals from '../../components/common/emptyStates/emptyGoals';
 import { filterIssues } from '../../utils/issueFilterUtils';
 import HeaderInsight from './headerInsight';
-
-
 import {
   createColumnHelper,
   flexRender,
@@ -21,10 +15,13 @@ import {
   useReactTable,
   getExpandedRowModel,
 } from '@tanstack/react-table'
-
 import { useAuth } from '../auth';
 import { useFetchOKRs } from '../../services/okrServices'
 import GoalFilter from './goalFilter';
+import CreateGoal from './createGoal';
+import { Modal } from 'react-bootstrap';
+import { groupTasksByParent } from '../../utils/itemManipulation';
+import { Progress, WorkProgress } from './UtilProgress';
 
 
 
@@ -86,40 +83,53 @@ const Goals = () => {
   const { data: okrs, status, error } = useFetchOKRs(currentUser?.all?.currentOrg);
   const match = useLocation();
   const navigate = useNavigate();
-  const { setCurrentGoal, setOrgUsers, setHighLevelWorkItems, orgUsers , filters, setGoals} = useWorkspace();
+  const { setCurrentGoal, setOrgUsers, setHighLevelWorkItems, orgUsers, filters, setGoals } = useWorkspace();
   const [refreshData, setRefreshData] = React.useState(true);
   const [filteredIssues, setFilteredIssues] = useState([]);
   const [data, setData] = useState(() => [...defaultData])
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
- // const [filters, mergeFilters] = useMergeState(defaultFilters);
+  // const [filters, mergeFilters] = useMergeState(defaultFilters);
 
   const reloadGoals = () => {
-        setRefreshData(false);
+    setRefreshData(false);
   };
 
 
   // Fetch OKRs when status is 'success'
   useEffect(() => {
     if (status === 'success' && Array.isArray(okrs)) {
+
       setData(okrs);
       setGoals(okrs);
     }
   }, [status, okrs]);
 
-    // Filter issues when data or filters change
-    useEffect(() => {
-      const issues = data; // Assume 'data' contains issues
-      if (issues && Array.isArray(issues)) {
-        const filtered = filterIssues(issues, filters,currentUser?.all?.uid);
-        setFilteredIssues(filtered);
-      }
-    }, [data, filters]);
+  // Filter issues when data or filters change
+  useEffect(() => {
+    const issues = data; // Assume 'data' contains issues
+    if (issues && Array.isArray(issues)) {
+      const filtered = filterIssues(issues, filters, currentUser?.all?.uid);
+      const groupedTasks = groupTasksByParent(filtered);
+
+      setFilteredIssues(groupedTasks);
+    }
+  }, [data, filters]);
 
 
 
   const handleDataRefresh = () => {
     setRefreshData(true); // Trigger data retrieval by updating the state
     reloadGoals()
+  };
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setRefreshData(true);
+    reloadGoals()
+  };
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
   };
 
 
@@ -173,7 +183,7 @@ const Goals = () => {
       );
   }, [refreshData]);
 
- 
+
   const rerender = useReducer(() => ({}), {})[1]
   const [expanded, setExpanded] = useState({})
   const columnHelper = createColumnHelper()
@@ -192,18 +202,7 @@ const Goals = () => {
           }}
         >
           <>
-            {row.getCanExpand() ? (
-              <button className='btn btn-link btn-color-gray-500 btn-active-color-primary me-1 '
-                {...{
-                  onClick: row.getToggleExpandedHandler(),
-                  style: {},
-                }}
-              >
-                {row.getIsExpanded() ? '⌄' : '>'}
-              </button>
-            ) : (
-              ''
-            )}{' '}
+
             {getValue()}
           </>
         </div>),
@@ -216,9 +215,9 @@ const Goals = () => {
       header: () => <span>Owner</span>,
       //footer: info => info.column.id,
     }),
-    columnHelper.accessor('krs', {
-      header: () => 'Key Results',
-      cell: value => <Keyresults krs={value.getValue()} />,
+    columnHelper.accessor('type', {
+      header: () => <span>Type</span>,
+      cell: info => <Status className={`btn btn-${goalType.IssueStatusClass[info.renderValue()]}`} color={info.renderValue()}>{goalType.IssueStatusCopy[info.renderValue()]}</Status>,
       //footer: info => info.column.id,
     }),
     columnHelper.accessor('status', {
@@ -241,6 +240,22 @@ const Goals = () => {
       cell: info => info.renderValue(),
       //footer: info => info.column.id,
     }),
+    columnHelper.accessor('workprogress', {
+      header: 'Work Progress',
+      cell: info => {
+        const item = info.row.original;
+        return <WorkProgress item={item} />;
+      },
+      minSize: 150,
+    }),
+    columnHelper.accessor('krprogress', {
+      header: 'Key Result Progress',
+      cell: info => {
+        const item = info.row.original; // Get the entire row data
+        return <Progress item={item} />;
+      },
+      minSize: 150,
+    }),
     columnHelper.accessor('id', {
       header: '',
       cell: '',
@@ -248,28 +263,6 @@ const Goals = () => {
     }),
   ]
 
-  // Custom component to render Keyresults 
-  const Keyresults = ({ krs }) => {
-    if (krs) {
-      return (
-        <>
-          {krs.map((obj) => (
-            <div className="d-flex flex-stack mb-3" key={obj.keyResultId}>
-              <div className="text-gray-700 fw-semibold fs-6 me-2">{obj.title}</div>
-              <div className="d-flex align-items-senter">
-                <span className={`badge badge-light-${getScoreColor(obj.score)} fs-base`}>
-                  {obj.score}
-                </span>
-              </div>
-            </div>
-
-          ))
-          }
-        </>
-      )
-    }
-    return null;
-  };
 
   //get the owner name 
   const OwnerName = ({ reporterId }) => {
@@ -282,19 +275,8 @@ const Goals = () => {
     return <Avatar avatarUrl='' name={name} size={25} />
   }
 
-  const Progress = ({ progress }) => {
-    return (
-      <div className='progress h-6px w-100'>
-        <div
-          className='progress-bar bg-primary'
-          role='progressbar'
-          style={{ width: '50%' }}
-        ></div>
-      </div>
-    )
 
 
-  };
   const Score = ({ score }) => {
     return (
       <div className="d-flex align-items-senter">
@@ -308,7 +290,7 @@ const Goals = () => {
 
 
   const table = useReactTable({
-    data: filteredIssues || [], 
+    data: filteredIssues || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSubRows: row => row.subRows,
@@ -337,7 +319,7 @@ const Goals = () => {
 
   if (status === 'error' && error instanceof Error) {
     return <div>Error: {error.message}</div>;
-  } 
+  }
 
   if (error) {
     return <div>Error loading OKRs</div>;
@@ -346,17 +328,14 @@ const Goals = () => {
 
   return (
     <>
-    <GoalFilter />
-    <HeaderInsight />
+      <GoalFilter />
+      <HeaderInsight />
       <div id="xgn_app_toolbar" className="app-toolbar  py-3 py-lg-6 ">
         <div id="xgn_app_toolbar_container" className="app-container  container-xxl d-flex flex-stack ">
           <div className="page-title d-flex flex-column justify-content-center flex-wrap me-3 ">
             <h1 className="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">
               Objectives and Key results
             </h1>
-          </div>
-          <div className="d-flex align-items-center gap-2 gap-lg-3">
-            <AddGoal reloadGoals={handleDataRefresh} />
           </div>
         </div>
       </div>
@@ -368,8 +347,11 @@ const Goals = () => {
               <thead>
                 {table.getHeaderGroups().map(headerGroup => (
                   <tr key={headerGroup.id} className='fw-bold fs-6 text-gray-800'>
+                    <th key={'expand' + headerGroup.id} className="max-w-50px min-w-25px"></th>
                     {headerGroup.headers.map(header => (
-                      <th key={header.id}>
+                      <th key={header.id}
+                        style={{ minWidth: header.column.columnDef.minSize }}  // Set the min width of the column
+                      >
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -384,6 +366,22 @@ const Goals = () => {
               <tbody>
                 {table.getRowModel().rows.map(row => (
                   <tr key={row.id} >
+                    {/* Add a custom column with the expanding button */}
+                    <td>
+                      {row.getCanExpand() ? (
+                        <button className='btn btn-icon btn-light btn-active-light-primary toggle h-25px w-25px me-1 '
+                          {...{
+                            onClick: row.getToggleExpandedHandler(),
+                            style: {},
+                          }}
+                        >
+                          {row.getIsExpanded() ? <span className="bi bi-dash fs-3 m-0"></span> : <span className="bi bi-plus fs-3 m-0 "></span>}
+                        </button>
+                      ) : (
+                        ''
+                      )}{''}
+                    </td>
+                    {/* Render the other data columns */}
                     {row.getVisibleCells().map(cell => (
                       <td key={cell.id} onClick={() => {
                         if (cell.id === row.id + '_title') {
@@ -416,14 +414,27 @@ const Goals = () => {
               </tfoot>
             </table>
             <div className="h-4" />
-            {/*             <button onClick={() => rerender()} className="border p-2">
-              Rerender
-            </button> */}
+
+            <button className='btn btn-primary me-2 mb-2 ms-2' onClick={handleOpenModal}><i className='bi bi-plus'></i>Add a goal</button>
+
           </div>
         </div>
       </div>
 
       {(!okrs || okrs.length === 0) ? <EmptyGoals /> : ''}
+      {isModalOpen &&
+        <Modal show={isModalOpen} onHide={handleCloseModal} centered>
+          <Modal.Header closeButton>
+            <Modal.Title>
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <CreateGoal modalClose={handleCloseModal} />
+          </Modal.Body>
+          <Modal.Footer>
+          </Modal.Footer>
+        </Modal>
+      }
     </>
   );
 };

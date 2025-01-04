@@ -8,7 +8,7 @@ const propTypes = {
   updateIssue: PropTypes.func.isRequired,
 };
 
-const ProjectBoardIssueDetailsStatus = ({ issue, updateIssue, customStatus }) => {
+const ProjectBoardIssueDetailsStatus = ({ issue, updateIssue, customStatus, fieldName }) => {
   const { project } = useWorkspace()
 
   return (
@@ -20,13 +20,16 @@ const ProjectBoardIssueDetailsStatus = ({ issue, updateIssue, customStatus }) =>
           variant="empty"
           dropdownWidth={343}
           withClearValue={false}
-          name="status"
-          value={issue.status}
+          name={fieldName || "status"}
+          value={issue[fieldName || 'status']}
           options={Object.values(customStatus.IssueStatus).map(status => ({
             value: status,
             label: customStatus.IssueStatusCopy[status],
           }))}
-          onChange={status => updateIssue({ status })}
+          onChange={status => {
+            const updateField = fieldName || 'status';
+            updateIssue({ [updateField]: status });
+          }}
           renderValue={({ value: status }) => (
             <Status isValue color={status} className={`btn btn-${customStatus.IssueStatusClass[status]}`}>
               <div>{customStatus.IssueStatusCopy[status]}</div>

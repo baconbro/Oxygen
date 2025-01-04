@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { KeyCodes } from '../../../constants/keyCodes';
@@ -14,6 +14,12 @@ const propTypes = {
 const ProjectBoardIssueDetailsTitle = ({ issue, updateIssue, InStyle }) => {
   const $titleInputRef = useRef();
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if ($titleInputRef.current) {
+      $titleInputRef.current.value = issue.title;
+    }
+  }, [issue]);
 
   const handleTitleChange = () => {
     setError(null);
@@ -31,7 +37,7 @@ const ProjectBoardIssueDetailsTitle = ({ issue, updateIssue, InStyle }) => {
   };
 
   return (
-    <Fragment>
+    <>
       <TitleTextarea style={InStyle}
         minRows={1}
         placeholder="Short summary"
@@ -45,7 +51,7 @@ const ProjectBoardIssueDetailsTitle = ({ issue, updateIssue, InStyle }) => {
         }}
       />
       {error && <ErrorText>{error}</ErrorText>}
-    </Fragment>
+    </>
   );
 };
 

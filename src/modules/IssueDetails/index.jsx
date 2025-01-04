@@ -32,6 +32,7 @@ import { Breadcrumbs } from '../../components/common';
 import { getParentIssueIds } from '../../utils/getIssueX';
 import { useWorkspace } from '../../contexts/WorkspaceProvider';
 import PackageDetail from './Package/package';
+import GoalIssueLink from './GoalLink/goalLink';
 
 
 const ProjectBoardIssueDetails = ({
@@ -46,7 +47,7 @@ const ProjectBoardIssueDetails = ({
   const [data, setData] = useState()
   const editItemMutation = useUpdateItem();
   const { currentUser } = useAuth();
-  const { project } = useWorkspace();
+  const { project, goals } = useWorkspace();
   var id = useParams()
   const [breadcrumbItems, setBreadcrumbItems] = useState([]);
   const [showPrioritization, setShowPrioritization] = useState(project.config.workspaceConfig?.board?.rice || false);
@@ -153,7 +154,10 @@ const ProjectBoardIssueDetails = ({
   return (
     <div className='card card-flush border-0 h-md-100'>
       <div className="card-header py-5" style={{ backgroundColor: issueTypeColors[issue.type] }}>
-        <div className='card-toolbar'> <Type issue={issue} updateIssue={updateIssue} /></div>
+        <div className='card-toolbar'>
+          <Breadcrumbs items={breadcrumbItems} />
+          {issue.parent && <span>/</span>}
+          <Type issue={issue} updateIssue={updateIssue} /></div>
 
         <div className="card-toolbar">
           <div className='me-3'>
@@ -166,7 +170,7 @@ const ProjectBoardIssueDetails = ({
       </div>
       <div className='card-body py-9'>
         <div className='row g-5 g-xl-10'>
-          <Breadcrumbs items={breadcrumbItems} className="px-9" />
+
           <div className='col-xl-8 mb-5 mb-xl-10'>
 
             <div className=" flex-wrap d-grid gap-5 px-9 mb-5">
@@ -251,8 +255,12 @@ const ProjectBoardIssueDetails = ({
                   <TshirtSizeInput issue={issue} updateIssue={updateIssue} />
                 </div>
                 <div className="">
-                <h3 className="fw-bold mb-1">Work package</h3>
+                  <h3 className="fw-bold mb-1">Work package</h3>
                   <PackageDetail issue={issue} updateIssue={updateIssue} />
+                </div>
+                <div className="">
+                  <h3 className="fw-bold mb-1">Goal Link</h3>
+                  <GoalIssueLink issue={issue} updateIssue={updateIssue} />
                 </div>
 
               </div>
