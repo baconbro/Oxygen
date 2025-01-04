@@ -54,6 +54,18 @@ Start Oxygen
 npm start
 ```
 
+Compile Oxygen
+
+```bash
+yarn build
+```
+
+Publish on Firebase (if only hosting)
+
+```bash
+firebase deploy --only hosting
+```
+
 ## Firebase Configuration
 To configure Firebase for your project, follow these steps:
 
