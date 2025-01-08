@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import BodyForm from '../BodyForm';
 import { Create, UserAvatar, Right, FakeTextarea } from './Styles';
 import { useAuth } from "../../../auth"
@@ -60,9 +60,9 @@ const UpdatesCreate = ({ issue, updateIssue, object }) => {
             onCancel={() => setFormOpen(false)}
           />
         ) : (
-          <Fragment>
+          <>
             <FakeTextarea onClick={() => setFormOpen(true)}>Add an update</FakeTextarea>
-          </Fragment>
+          </>
         )}
       </Right>
     </Create>

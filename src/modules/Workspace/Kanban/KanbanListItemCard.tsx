@@ -2,7 +2,7 @@
 import { Avatar } from '../../../components/common';
 import { KanbanBoardItem, KanbanBoardTask } from './dummyData';
 import { Card, Dropdown } from 'react-bootstrap';
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import { Assignees, AssigneeAvatar } from '../Board/Lists/List/Issue/Styles';

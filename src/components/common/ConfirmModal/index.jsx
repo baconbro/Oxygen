@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { StyledConfirmModal, Title, Message, Actions, StyledButton } from './Styles';
@@ -53,7 +53,7 @@ const ConfirmModal = ({
       withCloseIcon={false}
       renderLink={renderLink}
       renderContent={modal => (
-        <Fragment>
+        <>
           <Title>{title}</Title>
           {message && <Message>{message}</Message>}
           <Actions>
@@ -69,7 +69,7 @@ const ConfirmModal = ({
               {cancelText}
             </button>
           </Actions>
-        </Fragment>
+        </>
       )}
     />
   );

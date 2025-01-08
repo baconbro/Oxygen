@@ -1,10 +1,6 @@
-import React, { Fragment, useState } from 'react';
-
-
+import { useState } from 'react';
 import BodyForm from '../BodyForm';
-
 import { Create, UserAvatar, Right, FakeTextarea } from './Styles';
-
 import * as FirestoreService from '../../../../services/firestore';
 import { useAuth } from "../../../auth"
 
@@ -42,9 +38,9 @@ const ProjectBoardIssueDetailsCommentsCreate = ({ issueId, fetchIssue }) => {
             onCancel={() => setFormOpen(false)}
           />
         ) : (
-          <Fragment>
+          <>
             <FakeTextarea onClick={() => setFormOpen(true)}>Add a comment...</FakeTextarea>
-          </Fragment>
+          </>
         )}
       </Right>
     </Create>

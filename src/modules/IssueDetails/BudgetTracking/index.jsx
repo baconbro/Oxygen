@@ -1,4 +1,3 @@
-import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { isNil } from 'lodash';
 
@@ -22,7 +21,7 @@ const propTypes = {
 };
 
 const BudgetTracking = ({ issue, updateIssue }) => (
-  <Fragment>
+  <>
     <SectionTitle>Original Estimate ($)</SectionTitle>
     {renderHourInput('budgetEstimate', issue, updateIssue)}
 
@@ -58,7 +57,7 @@ const BudgetTracking = ({ issue, updateIssue }) => (
         </ModalContents>
       )}
     />
-  </Fragment>
+  </>
 );
 
 const formattedNumber = (number) => (

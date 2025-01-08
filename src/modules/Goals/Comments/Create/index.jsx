@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 
 
 import BodyForm from '../BodyForm';
@@ -53,9 +53,9 @@ const CommentsCreate = ({ issue, updateIssue, object }) => {
             onCancel={() => setFormOpen(false)}
           />
         ) : (
-          <Fragment>
+          <>
             <FakeTextarea onClick={() => setFormOpen(true)}>Add a comment...</FakeTextarea>
-          </Fragment>
+          </>
         )}
       </Right>
     </Create>

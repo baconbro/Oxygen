@@ -1,4 +1,3 @@
-import { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { IssuePriority, IssuePriorityCopy } from '../../../constants/issues';
 import { Select, IssuePriorityIcon } from '../../../components/common';
@@ -10,7 +9,7 @@ const propTypes = {
 };
 
 const ProjectBoardIssueDetailsPriority = ({ issue, updateIssue }) => (
-  <Fragment>
+  <>
     <h3 className="fw-bold mb-1">Priority</h3>
     <Select
       variant="empty"
@@ -26,7 +25,7 @@ const ProjectBoardIssueDetailsPriority = ({ issue, updateIssue }) => (
       renderValue={({ value: priority }) => renderPriorityItem(priority, true)}
       renderOption={({ value: priority }) => renderPriorityItem(priority)}
     />
-  </Fragment>
+  </>
 );
 
 const renderPriorityItem = (priority, isValue) => (

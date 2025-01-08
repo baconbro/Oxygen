@@ -1,4 +1,4 @@
-import React, { Fragment,useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { Avatar, Select, Icon } from '../../../components/common';
@@ -54,7 +54,7 @@ issue.users.forEach(user => {
 
 
   return (
-    <Fragment>
+    <>
       <h3 className="fw-bold mb-1">Assignees</h3>
       {loading && <p>Loading...</p>}
       {!loading && 
@@ -75,7 +75,7 @@ issue.users.forEach(user => {
         }
         renderOption={({ value: userId }) => renderUser(getUserById(userId), false)}
       />}
-    </Fragment>
+    </>
   );
 };
 

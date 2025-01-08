@@ -1,8 +1,6 @@
-import React, { Fragment,useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
-
 import { Avatar, Select, Icon } from '../../../components/common';
-
 import { SectionTitle } from '../Styles';
 import { User, Username } from './Styles';
 
@@ -58,7 +56,7 @@ issue.users.forEach(user => {
   const userOptions = projectUsers.map(user => ({ value: user.id, label: user.name }));
 
   return (
-    <Fragment>
+    <>
       <h3 className="fw-bold mb-1">Reporter</h3>
       {loading && <p>Loading...</p>}
       {!loading && 
@@ -73,7 +71,7 @@ issue.users.forEach(user => {
         renderValue={({ value: userId }) => renderUser(getUserById(userId), true)}
         renderOption={({ value: userId }) => renderUser(getUserById(userId))}
       />}
-    </Fragment>
+    </>
   );
 };
 

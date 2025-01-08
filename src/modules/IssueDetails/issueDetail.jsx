@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect,useState } from 'react';
+import { useEffect,useState } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 
@@ -47,7 +47,7 @@ const IssueDetailsPage = ({ project, fetchProject, updateLocalProjectIssues, ref
   }, []);
 
   return (
-    <Fragment>
+    <>
 
                   <IssueDetails
                     issueId={id.issueId}
@@ -58,7 +58,7 @@ const IssueDetailsPage = ({ project, fetchProject, updateLocalProjectIssues, ref
                     issueProps={project.issues}
                   />
  
-    </Fragment>
+    </>
   );
 };
 

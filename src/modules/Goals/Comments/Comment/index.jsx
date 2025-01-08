@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import { formatDateTimeConversational } from '../../../../utils/dateTime';
 import { ConfirmModal } from '../../../../components/common';
 import BodyForm from '../BodyForm';
@@ -88,13 +88,9 @@ const DetailsComment = ({ comment, issue, updateIssue, object }) => {
                   onCancel={() => setFormOpen(false)}
                 />
               ) : (
-                <Fragment>
-
+                <>
                   {comment.body}
-
-
-
-                </Fragment>
+                </>
               )}
 
             </span>

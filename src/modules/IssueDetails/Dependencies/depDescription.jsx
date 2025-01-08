@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 
 import { getTextContentsFromHtmlString } from '../../../utils/browser';
 import { TextEditor, TextEditedContent, Button } from '../../../components/common';
@@ -18,10 +18,10 @@ const DepDescription = ({ issue, updateIssue }) => {
   const isDescriptionEmpty = getTextContentsFromHtmlString(description).trim().length === 0;
 
   return (
-    <Fragment>
+    <>
       <Title>Description</Title>
       {isEditing ? (
-        <Fragment>
+        <>
           <TextEditor
             placeholder="Describe the issue"
             defaultValue={description}
@@ -35,17 +35,17 @@ const DepDescription = ({ issue, updateIssue }) => {
               Cancel
             </Button>
           </Actions>
-        </Fragment>
+        </>
       ) : (
-        <Fragment>
+        <>
           {isDescriptionEmpty ? (
             <EmptyLabel onClick={() => setEditing(true)}>Add a description...</EmptyLabel>
           ) : (
             <TextEditedContent content={description} onClick={() => setEditing(true)} />
           )}
-        </Fragment>
+        </>
       )}
-    </Fragment>
+    </>
   );
 };
 

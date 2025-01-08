@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { formatDateTimeConversational } from '../../../../utils/dateTime';
@@ -93,13 +93,9 @@ const ProjectBoardIssueDetailsComment = ({ comment, fetchIssue }) => {
           onCancel={() => setFormOpen(false)}
         />
       ) : (
-        <Fragment>
-          
+        <>
             {comment.body}
-          
-          
-
-        </Fragment>
+        </>
       )}
                       
                   </span>

@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { KeyCodes } from '../../../../../constants/keyCodes';
@@ -31,7 +31,7 @@ const ProjectBoardIssueDetailsTitle = ({ issue, updateIssue }) => {
   };
 
   return (
-    <Fragment>
+    <>
       <TitleTextarea
         minRows={1}
         placeholder="Organisation name"
@@ -45,7 +45,7 @@ const ProjectBoardIssueDetailsTitle = ({ issue, updateIssue }) => {
         }}
       />
       {error && <ErrorText>{error}</ErrorText>}
-    </Fragment>
+    </>
   );
 };
 

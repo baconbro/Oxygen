@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import BodyForm from '../BodyForm';
 import { Create, FakeTextarea } from './Styles';
 import { useAuth } from "../../../auth";
@@ -91,9 +91,9 @@ const ProjectBoardIssueDetailsCommentsCreate = ({ issueId, issue, fetchIssue }) 
             <SearchReturn orgId={currentUser?.all?.currentOrg} scope={'project'} onAction={searchAction}/>
             </>
           ) : (
-            <Fragment>
+            <>
               <FakeTextarea onClick={() => setFormOpen(true)}>Add a sub item...</FakeTextarea>
-            </Fragment>
+            </>
           )}
 
         </div>

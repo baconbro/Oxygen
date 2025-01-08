@@ -1,7 +1,6 @@
-import React, {
+import {
     CSSProperties,
     Dispatch,
-    Fragment,
     SetStateAction
   } from 'react';
 
@@ -116,7 +115,7 @@ import React, {
               style={{ width: '15rem' }}
             >
               {kanbanHeaderActions.map(action => (
-                <Fragment key={action.id}>
+                <div key={action.id}>
                   {action.hr ? (
                     <hr className="my-2" />
                   ) : (
@@ -131,7 +130,7 @@ import React, {
                       )}
                     </Dropdown.Item>
                   )}
-                </Fragment>
+                </div>
               ))}
             </Dropdown.Menu>
           </Dropdown>
