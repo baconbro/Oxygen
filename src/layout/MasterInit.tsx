@@ -5,11 +5,10 @@ import {
   StickyComponent,
 } from '../components/common'
 import { ThemeModeComponent } from '../layout'
-
 import {useLayout} from './core'
 
 export function MasterInit() {
-  const {config} = useLayout()
+  //const {config} = useLayout()
   const isFirstRun = useRef(true)
   const pluginsInitialization = () => {
     isFirstRun.current = false
@@ -26,7 +25,8 @@ export function MasterInit() {
       isFirstRun.current = false
       pluginsInitialization()
     }
-  }, [config])
+  }, [])
+  //[config]
 
   return <></>
 }
