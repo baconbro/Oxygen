@@ -1,7 +1,7 @@
 import { collection, getDocs, addDoc, query, where, setDoc, deleteDoc, doc, getDoc } from 'firebase/firestore';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { db } from '../services/firestore';
-
+import { recordStatusChange } from './issueHistoryServices';
 
 const getItems = async (id, orgId) => {
   try {
@@ -25,6 +25,35 @@ const updateItem = async (orgId, field, itemId, workspaceId) => {
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
       const doc = querySnapshot.docs[0];
+      const currentData = doc.data();
+      
+      // Check if the status is being updated
+      if (field.status && field.status !== currentData.status) {
+        console.log('Status change detected');
+        
+        // Normalize data before recording to ensure consistent field names
+        const issueData = { ...currentData, ...field };
+        
+        // Ensure storyPoints exists (might be called storypoint in some places)
+        if (issueData.storypoint !== undefined && issueData.storyPoints === undefined) {
+          issueData.storyPoints = issueData.storypoint;
+        }
+        
+        // Record this status change in history
+        try {
+          await recordStatusChange(
+            orgId,
+            workspaceId,
+            parseInt(itemId),
+            field.status,
+            issueData
+          );
+        } catch (historyError) {
+          console.error("Error recording status history:", historyError);
+          // Continue with the update even if history recording fails
+        }
+      }
+      
       await setDoc(doc.ref, field, { merge: true });
       await setDoc(doc.ref, { updatedAt: Math.floor(Date.now()) }, { merge: true });
       return 'Update successful';
@@ -76,10 +105,27 @@ const addItem = async (orgId, item, userId) => {
     }
 
     // Add the new item to the collection
-    return addDoc(itemsColRef, newItem);
+    const docRef = await addDoc(itemsColRef, newItem);
+    
+    // Create a history entry for the initial status
+    try {
+      await recordStatusChange(
+        orgId,
+        item.projectId, // This is the workspace/space ID
+        newId,
+        item.status,
+        newItem
+      );
+      console.log('Created initial history entry for new item:', newId);
+    } catch (historyError) {
+      console.error("Error recording initial status history:", historyError);
+      // Continue even if history recording fails
+    }
+    
+    return { id: docRef.id, ...newItem }; // Return the created item with ID
   } catch (error) {
-    console.error('Error updating item: ', error);
-    return 'Update failed';
+    console.error('Error adding item: ', error);
+    return 'Add failed';
   }
 };
 

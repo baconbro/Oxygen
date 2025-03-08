@@ -9,7 +9,7 @@ const VelocityChart = () => {
   const doneColumnId = project?.config?.board?.doneColumn;
 
   if (!sprints || sprints.length === 0) {
-    return <div>No sprint data available</div>;
+    return <div className="alert alert-info">No sprint data available</div>;
   }
 
   const sprintMetrics = calculateSprintMetrics(sprints, project.issues,doneColumnId);
@@ -74,13 +74,20 @@ const VelocityChart = () => {
   };
 
   return (
-    <div className="velocity-chart">
-      <ReactApexChart
-        options={chartData.options}
-        series={chartData.series}
-        type="bar"
-        height={350}
-      />
+    <div className="velocity-chart-container">
+      {!sprints || sprints.length === 0 ? (
+        <div className="alert alert-info">No sprint data available</div>
+      ) : (
+        <div className="chart-container" style={{ width: '100%', maxWidth: '100%', height: '350px', overflow: 'hidden' }}>
+          <ReactApexChart
+            options={chartData.options}
+            series={chartData.series}
+            type="bar"
+            height={350}
+            width="100%"
+          />
+        </div>
+      )}
     </div>
   );
 };

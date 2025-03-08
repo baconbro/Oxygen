@@ -7,6 +7,8 @@ import { BaseI18nProvider } from './i18n/Basei18n'
 import './styles/style.scss'
 import './styles/plugins.scss'
 import './styles/style.react.scss'
+import './styles/insights.css'
+
 import { AppRoutes } from './routing/AppRoutes'
 import { AuthProvider, setupAxios } from './modules/auth'
 import { Provider } from 'react-redux';

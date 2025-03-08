@@ -99,6 +99,12 @@
           - storyPoints (number)
           - tshirtSize (string)
           - sprintId (number, optional)
+        - issueHistory
+          - historyId (auto-generated)
+          - issueId (number)
+          - status (string)
+          - timestamp (number)
+          - snapshot (object) - optional, can store a snapshot of entire issue at that point
 
 - users
   - uid

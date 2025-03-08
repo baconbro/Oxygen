@@ -1,0 +1,50 @@
+/* Insights Page Styles */
+
+.chart-wrapper {
+  width: 100%;
+  height: 350px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.card-body {
+  position: relative;
+  overflow: hidden;
+}
+
+.card.h-100 {
+  height: 100% !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-body {
+  flex: 1 1 auto;
+}
+
+/* Chart container styles to prevent overflow */
+.burndown-chart-container,
+.cumulative-flow-chart-container,
+.velocity-chart-container {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Make sure the ApexCharts components don't overflow */
+.apexcharts-canvas {
+  max-width: 100% !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .chart-wrapper {
+    height: 300px;
+  }
+}
+
+@media (max-width: 576px) {
+  .chart-wrapper {
+    height: 250px;
+  }
+}
