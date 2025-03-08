@@ -1,0 +1,107 @@
+# Firestore Structure
+
+## Collections / Fields
+
+- organisation
+  - orgId
+  - Subcollections:
+    - spaces
+      - spaceId (string)
+      - config (object)
+        - issueStatus (array<object>)
+          - id (string)
+          - name (string)
+        - workspaceConfig (object)
+          - board (object)
+            - doneColumn (string)
+            - rice (boolean)
+        - issueType (array<object>)
+          - id (string)
+          - color (string)
+          - icon (string)
+      - Subcollections:
+        - sprints
+          - id (number)
+          - name (string)
+          - sprintGoal (string)
+          - duration (string)
+          - startDate (string)
+          - endDate (string)
+          - Subcollections:
+            - tickets
+              - ticketId (string, matches document ID)
+              - added_at (timestamp)
+              - removed_at (timestamp, optional)
+        - workpackages
+          - id (number)
+          - wpId (string)
+          - title (string)
+          - desc (string)
+          - owner (string)
+          - status (string)
+          - startDate (string)
+          - endDate (string)
+          - createdAt (number)
+          - updatedAt (number)
+        - userviews
+          - userId (string)
+          - itemId (number)
+          - type (string)
+          - lastTime (string)
+        - goals
+          - id (number)
+          - createdAt (number)
+          - updatedAt (number)
+          - title (string)
+          - description (string)
+          - score (number)
+          - status (string)
+          - parent (number, optional)
+          - type (string, optional)
+          - cadence (string)
+          - start (number)
+          - end (number)
+          - startValue (number)
+          - targetValue (number)
+          - mesureAs (string)
+          - learnings (string)
+          - risks (string)
+          - updates (string)
+          - comments (string)
+          - workLink (array<object>)
+        - items
+          - id (number)
+          - type (string)
+          - title (string)
+          - description (string)
+          - reporterId (string)
+          - userIds (array<string>)
+          - priority (string)
+          - status (string)
+          - projectId (string)
+          - users (array<object>)
+          - listPosition (number)
+          - parent (number, optional)
+          - goalLink (number, optional)
+          - createdAt (number)
+          - updatedAt (number)
+          - dependencies (array<object>)
+            - A (number)
+            - B (number)
+            - type (string)
+            - description (string)
+            - id (number)
+            - sourceTarget (string)
+            - ownTarget (string)
+            - createdAt (number)
+          - progress (number)
+          - budget (number)
+          - storyPoints (number)
+          - tshirtSize (string)
+          - sprintId (number, optional)
+
+- users
+  - uid
+  - email
+  - ...other fields...
+
