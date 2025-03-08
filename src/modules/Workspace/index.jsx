@@ -17,6 +17,7 @@ import { useGetItems } from '../../services/itemServices';
 import { useGetOrgUsers } from '../../services/userServices';
 import { useGetUserViews } from '../../services/userViewServices';
 import { getIssueField } from '../../utils/getIssueX';
+import Insight from './Insight/Insight';
 
 import KanbanPage from './Kanban/KanbanPage';
 import Calendar from './Calendar';
@@ -114,7 +115,7 @@ const Project = () => {
         issues: items
       });
     }
-  }, [itemsStatus, items,spaceData]);
+  }, [itemsStatus, items, spaceData]);
 
   const history = useNavigate();
 
@@ -235,6 +236,11 @@ const Project = () => {
       title: 'Settings',
       to: `/workspace/${id.id}/settings`,
     },
+    {
+      position: 0,
+      title: 'Insights',
+      to: `/workspace/${id.id}/insight`,
+    },
 
   ]
 
@@ -344,7 +350,7 @@ const Project = () => {
             />
           }
         />
-                <Route
+        <Route
           path="/packages/*"
           element={
             <WorkPackageList
@@ -369,6 +375,12 @@ const Project = () => {
           path="/calendar/*"
           element={
             <Calendar />
+          }
+        />
+        <Route
+          path="/insight/*"
+          element={
+            <Insight />
           }
         />
       </Routes>

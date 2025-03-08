@@ -16,4 +16,8 @@ export const defaultWorkspaceConfig = {
         { id: 'type8', name: 'Capability' },
         { id: 'type9', name: 'Idea' },
     ],
+    board:[
+    {rice: false},
+    {doneColumn: '4'}
+    ]
 }

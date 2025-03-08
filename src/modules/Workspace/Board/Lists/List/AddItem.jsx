@@ -4,8 +4,9 @@ import { Actions, FormButton } from './Styles';
 import toast from '../../../../../utils/toast';
 import { KeyCodes } from '../../../../../constants/keyCodes';
 import { useAuth } from '../../../../auth';
-import { useAddItem } from '../../../../../services/itemServices';
+import { useAddItem, useGetItems } from '../../../../../services/itemServices';
 import { useWorkspace } from '../../../../../contexts/WorkspaceProvider';
+import { useQueryClient } from 'react-query';
 
 
 
@@ -16,8 +17,12 @@ const AddItem = ({ status, currentUserId, spaceId, lastIssue }) => {
     const $textareaRef = useRef();
 
     const { currentUser } = useAuth();
-    const {project, setProject} = useWorkspace()
+    const { project, updateProjectContext } = useWorkspace()
     const addItemMutation = useAddItem();
+    const queryClient = useQueryClient();
+
+    // Move useGetItems to the component level
+    const { data: items } = useGetItems(project.spaceId, currentUser?.all?.currentOrg);
 
     const handleSubmit = () => {
         if ($textareaRef.current.value.trim()) {
@@ -28,31 +33,41 @@ const AddItem = ({ status, currentUserId, spaceId, lastIssue }) => {
                 listPosition: lastIssue,
                 type: 'task',
                 title: body,
-                reporterId: currentUserId,
+                reporterId: currentUser.id,
                 userIds: [],
                 priority: '',
                 users: [],
-              }
+            }
 
-          addItemMutation({
-            orgId: currentUser?.all?.currentOrg,
-            item: newItem,
-            userId: 'userId'
-          }, {
-            onSuccess: () => {
-              setFormOpen(false);
-              
-                            // Add the new item to project.issues and update the project context
-                            const updatedProject = { ...project, issues: [...project.issues, newItem] };
-                            setProject(updatedProject);
-                            setBody('');
-            },
-            onError: (error) => {
-              toast.error(error.message);
-            },
-          });
+            addItemMutation({
+                orgId: currentUser?.all?.currentOrg,
+                item: newItem,
+                userId: 'userId'
+            }, {
+                onSuccess: (newItemData) => {
+                    setFormOpen(false);
+                    setCreating(false);
+
+                    // Invalidate the items query to trigger a refetch with the new item
+                    queryClient.invalidateQueries(['Items', project.spaceId, currentUser?.all?.currentOrg]);
+
+                    // Optionally, you can update the context manually with the new item
+                    // Make sure newItemData contains the item with ID from the server
+                    if (newItemData && items) {
+                        const updatedItems = [...items, newItemData];
+                        const updatedProject = { ...project, issues: updatedItems };
+                        updateProjectContext(updatedProject);
+                    }
+
+                    setBody('');
+                },
+                onError: (error) => {
+                    setCreating(false);
+                    toast.error(error.message);
+                },
+            });
         }
-      }
+    }
 
 
     return (

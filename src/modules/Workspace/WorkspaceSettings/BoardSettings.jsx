@@ -9,12 +9,12 @@ const profileDetailsSchema = Yup.object().shape({
 });
 
 const BoardSettings = () => {
-    const { project, workspaceConfig } = useWorkspace();
+    const { project, workspaceConfig,setWorkspaceConfig } = useWorkspace();
     const [loading, setLoading] = useState(false)
     const initialValues = {
-        columnHeaderBadge: workspaceConfig?.workspaceConfig?.board?.columnHeaderBadge,
-        doneColumn: workspaceConfig?.workspaceConfig?.board?.doneColumn,
-        rice: workspaceConfig?.workspaceConfig?.board?.rice
+        columnHeaderBadge: workspaceConfig?.board?.columnHeaderBadge,
+        doneColumn: workspaceConfig?.board?.doneColumn,
+        rice: workspaceConfig?.board?.rice
     }
 
     const formik = useFormik({
@@ -32,17 +32,20 @@ const BoardSettings = () => {
 
 
     const handleSaveItem = (updatedData) => {
-        console.log(updatedData)
         // Update the config with the new board array
         const newConfig = {
             ...workspaceConfig,
-            workspaceConfig: {
-                ...workspaceConfig.workspaceConfig,
-                board: updatedData
-            }
+            board: updatedData
         };
         // Update the Firestore
-        editSpace({ config: newConfig }, project.spaceId, project.org);
+        editSpace({ config: newConfig }, project.spaceId, project.org)
+            .then(() => {
+            // Update the local workspaceConfig
+            setWorkspaceConfig(newConfig);
+            })
+            .catch((error) => {
+            console.error("Error updating workspace config: ", error);
+            });
     };
 
     if (!workspaceConfig) {

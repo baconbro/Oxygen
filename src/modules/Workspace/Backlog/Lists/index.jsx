@@ -6,9 +6,10 @@ import EmptyBacklog from '../../../../components/common/emptyStates/emptyBacklog
 import { Modal } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import CreateSprint from '../sprintForm';
-import { useGetSprints } from '../../../../services/sprintServices';
+import { useGetSprints, useAddTicketToSprint, useRemoveTicketFromSprint } from '../../../../services/sprintServices';
 import { useUpdateItem } from '../../../../services/itemServices';
 import { useAuth } from '../../../auth';
+import item from '../../Board/Lists/dnd/board/item';
 
 
 const propTypes = {
@@ -31,6 +32,8 @@ const ProjectBoardLists = ({ project, filters, updateLocalProjectIssues }) => {
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
   const editItemMutation = useUpdateItem();
+  const addTicketToSprint = useAddTicketToSprint();
+  const removeTicketFromSprint = useRemoveTicketFromSprint();
   const { currentUser } = useAuth();
   const currentUserId = currentUser?.all?.currentUserId;
 
@@ -39,28 +42,27 @@ const ProjectBoardLists = ({ project, filters, updateLocalProjectIssues }) => {
   const firstStatus = project.config.issueStatus[0]?.id;
   const secondStatus = project.config.issueStatus[1]?.id;
 
-  const handleIssueDrop = ({ draggableId, destination, source }) => {
-    console.log(draggableId, destination, source)
+  const handleIssueDrop = async ({ draggableId, destination, source }) => {
     //define sprintId based on destination.droppableId wich is the sprint.name to get the sprint.id
     const sprintId = sprints.find(sprint => sprint.name === destination.droppableId)?.id ?? 0;
-    console.log(sprintId, 'sprintId')
 
 
     //if sprints then change the droppableId of destination to secondStatus
     if (sprints && sprints.length > 0) {
-      console.log('sprints', sprints)
       destination.droppableId = secondStatus;
     }
 
     if (!isPositionChanged(source, destination)) return;
 
     const issueId = Number(draggableId);
+    const issue = project.issues.find(issue => issue.id === issueId);
+  
+      // Update ticket status and position
     const updatedFields = {
       status: destination.droppableId,
       listPosition: calculateIssueListPosition(project.issues, destination, source, issueId),
       sprintId: sprintId,
     }
-    console.log(destination, 'destination', source, 'source', issueId, 'issueId', updatedFields, 'updatedFields')
     const mutateItem = editItemMutation({
       orgId: currentUser?.all?.currentOrg,
       field: updatedFields,
@@ -68,6 +70,27 @@ const ProjectBoardLists = ({ project, filters, updateLocalProjectIssues }) => {
       workspaceId: project.spaceId,
     }
     );
+    try {
+      if (sprintId === 0) {
+        await removeTicketFromSprint.mutateAsync({
+          sprintId : issue.sprintId,
+          spaceId: project.spaceId,
+          orgId: currentUser?.all?.currentOrg,
+          ticketId: issueId
+        });
+        //console.log('Ticket removed from sprint successfully');
+      } else {
+        await addTicketToSprint.mutateAsync({
+          sprintId,
+          spaceId: project.spaceId,
+          orgId: currentUser?.all?.currentOrg,
+          ticketId: issueId
+        });
+        //console.log('Ticket added to sprint successfully');
+      }
+    } catch (error) {
+      console.error('Error updating ticket in sprint:', error);
+    }
     updateLocalProjectIssues(issueId, updatedFields)
 
   };
