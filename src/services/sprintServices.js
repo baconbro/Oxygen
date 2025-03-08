@@ -57,10 +57,56 @@ const deleteSprint = async (sprintId, spaceId, orgId) => {
   }
 }
 
+const addTicketToSprint = async (sprintId, spaceId, orgId, ticketId) => {
+  try {
+    const sprintsRef = collection(db, 'organisation', orgId, 'spaces', spaceId, 'sprints');
+    const q = query(sprintsRef, where('id', '==', sprintId));
+    const querySnapshot = await getDocs(q);
 
+    if (querySnapshot.empty) {
+      throw new Error('No sprint found with the given ID');
+    }
 
+    let sprintDocId;
+    querySnapshot.forEach((doc) => {
+      sprintDocId = doc.id;
+    });
 
+    const ticketRef = doc(db, 'organisation', orgId, 'spaces', spaceId, 'sprints', sprintDocId, 'tickets', ticketId.toString());
+    await setDoc(ticketRef, {
+      ticketId: ticketId,
+      added_at: Date.now(),
+    });
+  } catch (error) {
+    console.error('Error adding ticket to sprint: ', error);
+    throw error;
+  }
+};
 
+const removeTicketFromSprint = async (sprintId, spaceId, orgId, ticketId) => {
+  try {
+    const sprintsRef = collection(db, 'organisation', orgId, 'spaces', spaceId, 'sprints');
+    const q = query(sprintsRef, where('id', '==', sprintId));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      throw new Error('No sprint found with the given ID');
+    }
+
+    let sprintDocId;
+    querySnapshot.forEach((doc) => {
+      sprintDocId = doc.id;
+    });
+
+    const ticketRef = doc(db, 'organisation', orgId, 'spaces', spaceId, 'sprints', sprintDocId, 'tickets', ticketId.toString());
+    await setDoc(ticketRef, {
+      removed_at: Date.now()
+    }, { merge: true });
+  } catch (error) {
+    console.error('Error removing ticket from sprint: ', error);
+    throw error;
+  }
+};
 
 // React Query hooks
 export const useGetSprints = (id, orgId) => {
@@ -101,4 +147,28 @@ export const useDeleteSprint = () => {
   });
 
   return mutation.mutate;
+};
+
+export const useAddTicketToSprint = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ({ sprintId, spaceId, orgId, ticketId }) => addTicketToSprint(sprintId, spaceId, orgId, ticketId),
+    {
+      onSuccess: (_, { spaceId, orgId }) => {
+        queryClient.invalidateQueries(['Sprints', spaceId, orgId]);
+      },
+    }
+  );
+};
+
+export const useRemoveTicketFromSprint = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ({ sprintId, spaceId, orgId, ticketId }) => removeTicketFromSprint(sprintId, spaceId, orgId, ticketId),
+    {
+      onSuccess: (_, { spaceId, orgId }) => {
+        queryClient.invalidateQueries(['Sprints', spaceId, orgId]);
+      },
+    }
+  );
 };
