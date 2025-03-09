@@ -17,8 +17,6 @@ const Container = styled.div`
   border-radius: 2%;
 `;
 
-
-
 const Column = (props) => {
   const title = props.title;
   const items = props.items;
@@ -33,6 +31,7 @@ const Column = (props) => {
   const [showModal, setShowModal] = useState(false);
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
+  const [borderColor, setBorderColor] = useState(workspaceConfig.issueStatus[index].borderColor || "#FF5733");
 
   const firstIssue = (allListIssues) => {
     const listPositions = allListIssues.map(({ listPosition }) => listPosition);
@@ -49,7 +48,9 @@ const Column = (props) => {
       // Save the changes
       // Find and update the status object with the matching ID
       const reorderedIssueStatus = project.config.issueStatus.map((status) =>
-        status.id === findIdByName(title, project.config.issueStatus) ? { ...status, name: currentTitle } : status
+        status.id === findIdByName(title, project.config.issueStatus) 
+          ? { ...status, name: currentTitle, borderColor: borderColor } 
+          : status
       );
 
       // Update the config object with the new issueStatus array
@@ -58,7 +59,6 @@ const Column = (props) => {
       editSpace({ config: newConfig }, project.spaceId, project.org);
     }
   };
-
 
   useEffect(() => {
     // Add an event listener to detect clicks outside the input
@@ -81,7 +81,7 @@ const Column = (props) => {
             <div className="kanban-column-header px-4 hover-actions-trigger">
               <div
                 className={`d-flex align-items-center border-bottom border-3 py-3 mb-3`}
-                style={{ "--bs-border-color": "#FF5733" }} // Apply dynamic border color
+                style={{ "--bs-border-color": borderColor }} // Use the state variable
               >
                 <Header isDragging={snapshot.isDragging} className="mb-0 kanban-column-title">
                   <div {...provided.dragHandleProps}>
@@ -120,7 +120,6 @@ const Column = (props) => {
                           value={currentTitle}
                           onChange={(e) => setCurrentTitle(e.target.value)}
                           onBlur={() => {
-                            // Handle saving the new title here
                             setIsEditing(false);
                           }}
                           autoFocus
@@ -133,6 +132,43 @@ const Column = (props) => {
                     </Modal.Title>
                   </Modal.Header>
                   <Modal.Body>
+                    <div className="mb-3">
+                      <label htmlFor="borderColorPicker" className="form-label">Column Border Color</label>
+                      <div className="d-flex align-items-center mb-2">
+                        <input
+                          type="color"
+                          className="form-control form-control-color me-2"
+                          id="borderColorPicker"
+                          value={borderColor}
+                          onChange={(e) => setBorderColor(e.target.value)}
+                          title="Choose border color"
+                        />
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={borderColor}
+                          onChange={(e) => setBorderColor(e.target.value)}
+                          placeholder="Color hex code"
+                        />
+                      </div>
+                      <div className="d-flex justify-content-between mt-2">
+                        {['#EF476F', '#FFD166', '#06D6A0', '#118AB2', '#073B4C'].map((color) => (
+                          <div 
+                            key={color}
+                            onClick={() => setBorderColor(color)}
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              backgroundColor: color,
+                              cursor: 'pointer',
+                              borderRadius: '4px',
+                              border: borderColor === color ? '2px solid #000' : '1px solid #ddd'
+                            }}
+                            title={color}
+                          />
+                        ))}
+                      </div>
+                    </div>
                     <button className="flex-stack px-3 btn btn-danger" onClick={props.onDelete}>
                       Delete status
                     </button>
@@ -141,7 +177,20 @@ const Column = (props) => {
                     <Button variant="secondary" onClick={handleCloseModal}>
                       Close
                     </Button>
-                    <Button variant="primary" onClick={handleCloseModal}>
+                    <Button 
+                      variant="primary" 
+                      onClick={() => {
+                        // Save both title and color changes when clicking Save
+                        const reorderedIssueStatus = project.config.issueStatus.map((status) =>
+                          status.id === findIdByName(title, project.config.issueStatus) 
+                            ? { ...status, name: currentTitle, borderColor: borderColor } 
+                            : status
+                        );
+                        const newConfig = { ...project.config, issueStatus: reorderedIssueStatus };
+                        editSpace({ config: newConfig }, project.spaceId, project.org);
+                        handleCloseModal();
+                      }}
+                    >
                       Save changes
                     </Button>
                   </Modal.Footer>
