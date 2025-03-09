@@ -29,5 +29,10 @@ export const templateMarketing =
                 "icon": "person-check",
                 "id": "type1"
             },
+        },
+        "board": {
+            "rice": false,
+            "doneColumn": "5",
+            "columnHeaderBadge": "itemsnumber"
         }
     }

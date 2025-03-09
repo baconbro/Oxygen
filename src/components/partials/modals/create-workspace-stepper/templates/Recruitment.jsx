@@ -37,5 +37,10 @@ export const templateRecruitment =
                 "icon": "person-check",
                 "id": "type1"
             },
+        },
+        "board": {
+            "rice": false,
+            "doneColumn": "6",
+            "columnHeaderBadge": "itemsnumber"
         }
     }

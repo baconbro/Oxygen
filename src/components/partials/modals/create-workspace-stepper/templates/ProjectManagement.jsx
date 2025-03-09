@@ -25,5 +25,10 @@ export const templateProjectManagement =
                 "icon": "check2-square",
                 "id": "type1"
             },
+        },
+        "board": {
+            "rice": false,
+            "doneColumn": "4",
+            "columnHeaderBadge": "itemsnumber"
         }
     }

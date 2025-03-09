@@ -37,5 +37,10 @@ export const templateSales =
                 "icon": "lightning-fill",
                 "id": "type1"
             },
+        },
+        "board": {
+            "rice": false,
+            "doneColumn": "7",
+            "columnHeaderBadge": "itemsnumber"
         }
     }

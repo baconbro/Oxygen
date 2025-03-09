@@ -33,5 +33,10 @@ export const templateLegal =
                 "icon": "file-earmark-text-fill",
                 "id": "type1"
             },
+        },
+        "board": {
+            "rice": false,
+            "doneColumn": "6",
+            "columnHeaderBadge": "itemsnumber"
         }
     }

@@ -37,5 +37,10 @@ export const templatePortfolio =
                 "icon": "box",
                 "id": "type1"
             },
+        },
+        "board": {
+            "rice": false,
+            "doneColumn": "7",
+            "columnHeaderBadge": "itemsnumber"
         }
     }
