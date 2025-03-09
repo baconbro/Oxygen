@@ -44,12 +44,12 @@ const addWorkPackage = async (orgId, item) => {
     const newItem = {
       createdAt: Math.floor(Date.now()),
       updatedAt: Math.floor(Date.now()),
-      title: item.title,
-      desc: item.desc,
-      owner: item.owner,
-      status: item.status,
-      startDate: item.startDate,
-      endDate: item.endDate,
+      title: item.title || "",
+      desc: item.desc || "",
+      owner: item.owner || null,  // Default to null if undefined
+      status: item.status || "Notstarted",
+      startDate: item.startDate || Math.floor(Date.now()),
+      endDate: item.endDate || Math.floor(Date.now()),
       id: item.id,
       wpId: item.wpId
     };
@@ -69,13 +69,6 @@ const deleteWorkPackage = async (orgId, wpgId) => {
     deleteDoc(doc.ref)
   });
 };
-
-
-
-
-
-
-
 
 // React Query hooks
 export const useGetWorkPackages = (id, orgId) => {
