@@ -4,7 +4,7 @@ export interface IAppBasic {
   appType: 'Quick Online Courses' | 'Face to Face Discussions' | 'Full Intro Training'
 }
 
-export type TAppFramework = 'Soft' | 'Project' | 'Recruitment' | 'Marketing' | 'Legal' | 'Sales' | 'Portfolio'
+export type TAppFramework = 'SimpleTask' | 'Soft' | 'Project' | 'Recruitment' | 'Marketing' | 'Legal' | 'Sales' | 'Portfolio'
 
 export interface IAppDatabase {
   databaseName: string

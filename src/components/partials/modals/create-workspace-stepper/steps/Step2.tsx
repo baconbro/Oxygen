@@ -7,6 +7,7 @@ import { templateMarketing } from '../templates/Marketing'
 import { templateLegal } from '../templates/Legal'
 import { templateSales } from '../templates/Sales'
 import { templatePortfolio } from '../templates/Portfolio'
+import { templateSimpleTaskTracker } from '../templates/SimpleTaskTracker'
 
 const Step2 = ({data, updateData}: StepProps) => {
   return (
@@ -25,8 +26,36 @@ const Step2 = ({data, updateData}: StepProps) => {
           </label>
           {/* end::Label */}
 
-                    {/*begin:Option */}
-                    <label className='d-flex align-items-center justify-content-between cursor-pointer mb-6'>
+          {/*begin:Option */}
+          <label className='d-flex align-items-center justify-content-between cursor-pointer mb-6'>
+            <span className='d-flex align-items-center me-2'>
+              <span className='avatar avatar-50px me-6'>
+                <span className='avatar-label bg-light-info'>
+                  <i className='bi bi-list-check text-info fs-2x'></i>
+                </span>
+              </span>
+
+              <span className='d-flex flex-column'>
+                <span className='fw-bolder fs-6'>Simple Task Tracker</span>
+                <span className='fs-7 text-muted'>Basic task management for individuals and small teams</span>
+              </span>
+            </span>
+
+            <span className='form-check form-check-custom form-check-solid'>
+              <input
+                className='form-check-input'
+                type='radio'
+                name='appFramework'
+                value='SimpleTask'
+                checked={data.appFramework === 'SimpleTask'}
+                onChange={() => updateData({appFramework: 'SimpleTask', appConfig: templateSimpleTaskTracker})}
+              />
+            </span>
+          </label>
+          {/*end::Option */}
+
+          {/*begin:Option */}
+          <label className='d-flex align-items-center justify-content-between cursor-pointer mb-6'>
             <span className='d-flex align-items-center me-2'>
               <span className='avatar avatar-50px me-6'>
                 <span className='avatar-label bg-light-success'>
