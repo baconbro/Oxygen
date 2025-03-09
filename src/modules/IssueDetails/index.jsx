@@ -21,6 +21,7 @@ import DetailsPrioritization from './Prioritization';
 import BudgetTracking from './BudgetTracking';
 import StoryPointInput from './Size/Storypoints';
 import TshirtSizeInput from './Size/TshirtSize/TshirtSize';
+import Checklist from './Checklist';
 
 import * as FirestoreService from '../../services/firestore';
 
@@ -179,6 +180,9 @@ const ProjectBoardIssueDetails = ({
             </div>
             <div className="flex-wrap gap-5 px-9 mb-5">
               <Description issue={issue} updateIssue={updateIssue} />
+            </div>
+            <div className="flex-wrap gap-5 px-9 mb-5">
+              <Checklist issue={issue} updateIssue={updateIssue} />
             </div>
             <div className="flex-wrap gap-5 px-9 mb-5">
               <SubsComponent issue={issue} updateIssue={updateIssue} />
