@@ -153,10 +153,15 @@ const Board = ({
     const current = [...columns[source.droppableId]];
     const target = current[source.index];
     const issueId = Number(result.draggableId);
+    
+    // Get the doneColumn ID with null checks
+    const doneColumnId = project.config?.workspaceConfig?.board?.doneColumn;
+    
     const updatedFields = {
       status: findIdByName(destination.droppableId, issueStatus),
       listPosition: calculateIssueListPosition(project.issues, destination, source, issueId, issueStatus),
-      ...(findIdByName(destination.droppableId, issueStatus) === project.config.workspaceConfig.board.doneColumn && { progress: 100, end: new Date().getTime() }),
+      ...(doneColumnId && findIdByName(destination.droppableId, issueStatus) === doneColumnId && 
+          { progress: 100, end: new Date().getTime() }),
     }
     const mutateItem = editItemMutation({
       orgId: project.org,
@@ -172,8 +177,8 @@ const Board = ({
     });
     setColumns(data.quoteMap);
 
-    // Validate if status is equal to doneColumn in config
-    if (updatedFields.status === project.config.workspaceConfig.board.doneColumn) {
+    // Validate if status is equal to doneColumn in config with null check
+    if (doneColumnId && updatedFields.status === doneColumnId) {
       activeJoy(target.id);
     }
 
