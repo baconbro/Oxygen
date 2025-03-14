@@ -22,7 +22,6 @@ const TagsComponent = ({ issue, updateIssue }) => {
 
   return (
     <>
-      <h3 className="fw-bold mb-1">Tags</h3>
       <Tags
         settings={{
           dropdown: {

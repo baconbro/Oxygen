@@ -4,8 +4,6 @@ import { color, font } from '../../../utils/styles';
 export const ChecklistContainer = styled.div`
   margin: 16px 0;
   padding: 10px 0;
-  border-top: 1px solid ${color.borderLight};
-  border-bottom: 1px solid ${color.borderLight};
 `;
 
 export const ChecklistHeader = styled.div`

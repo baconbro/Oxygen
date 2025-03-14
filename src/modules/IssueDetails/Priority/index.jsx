@@ -10,7 +10,6 @@ const propTypes = {
 
 const ProjectBoardIssueDetailsPriority = ({ issue, updateIssue }) => (
   <>
-    <h3 className="fw-bold mb-1">Priority</h3>
     <Select
       variant="empty"
       withClearValue={false}

@@ -24,7 +24,6 @@ const ProjectBoardIssueDetailsDescription = ({ issue, updateIssue }) => {
 
   return (
     <>
-      <h3 className="fw-bold mb-1">Details</h3>
       {isEditing ? (
         <>
           <TextEditor

@@ -19,7 +19,6 @@ const Progress = ({ issue, updateIssue }) => {
   }
   return (
     <>
-      <h3 className="fw-bold mb-1">Progress</h3>
       <div className="d-flex flex-column mw-200px">
         <div className="d-flex align-items-center mb-2">
           <span className="text-gray-700 fs-6 fw-bold me-2">{progress}%</span>

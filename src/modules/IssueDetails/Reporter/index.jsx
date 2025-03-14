@@ -57,7 +57,6 @@ issue.users.forEach(user => {
 
   return (
     <>
-      <h3 className="fw-bold mb-1">Reporter</h3>
       {loading && <p>Loading...</p>}
       {!loading && 
       <Select

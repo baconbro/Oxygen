@@ -83,7 +83,6 @@ const IssueDetailsChecklist = ({ issue, updateIssue }) => {
     return (
         <ChecklistContainer>
             <ChecklistHeader>
-                <h3 className="fw-bold mb-1">Checklist</h3>
                 <ChecklistProgress>
                     <ChecklistProgressBar>
                         <div style={{ width: `${progressPercentage}%` }}></div>

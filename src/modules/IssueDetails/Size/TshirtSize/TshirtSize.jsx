@@ -11,7 +11,6 @@ const ItemSize = {
 
 const TshirtSizeInput = ({ issue, updateIssue }) => (
   <>
-    <h3 className="fw-bold mb-1">Size</h3>
     <Select
       variant="empty"
       withClearValue={false}

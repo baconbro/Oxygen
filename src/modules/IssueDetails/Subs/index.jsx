@@ -68,7 +68,6 @@ const SubsComponent = ({ issue, updateIssue }) => {
 
   return (
     <>
-      <h3 className="fw-bold mb-1">Child issues</h3>
       {childList && childList.map((item, index) => (
         <div className="d-flex align-items-center mb-8" key={index}>
 

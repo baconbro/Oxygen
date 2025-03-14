@@ -6,7 +6,6 @@ const StoryPointInput = ({ issue, updateIssue }) => {
     <div className="mt-5">
       <div className="mb-3">
         <label className="form-label">
-          Storypoints
           {renderNumberInput('storypoint', issue, updateIssue)}
         </label>
       </div>

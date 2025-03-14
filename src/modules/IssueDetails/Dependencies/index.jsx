@@ -92,7 +92,6 @@ const TaskDependencies = ({ issue, updateIssue, modalClose, scope }) => {
 
   return (
     <>
-      <h3 className="fw-bold mb-1">Dependencies</h3>
       <div className='mb-6'>
         <Search orgId={currentUser?.all?.currentOrg} scope={'project'} currentId={issue.id} onAddDependency={handleAddDependency} />
       </div>
