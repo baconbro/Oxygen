@@ -205,43 +205,50 @@ const Project = () => {
       position: 0,
       title: 'Board',
       to: `/workspace/${id.id}/board`,
+      icon: 'bi-kanban',
     },
     {
       position: 0,
       title: 'Backlog',
       to: `/workspace/${id.id}/backlog`,
+      icon: 'bi-list-check',
     },
     {
       position: 0,
       title: 'Roadmap',
       to: `/workspace/${id.id}/roadmap`,
+      icon: 'bi-map',
     },
     {
       position: 0,
       title: 'List',
       to: `/workspace/${id.id}/list`,
+      icon: 'bi-list-ul',
     },
     {
       position: 0,
       title: 'Calendar',
       to: `/workspace/${id.id}/calendar`,
+      icon: 'bi-calendar3',
     },
     {
       position: 0,
       title: 'Packages',
       to: `/workspace/${id.id}/packages`,
+      icon: 'bi-box',
     },
     {
       position: 0,
       title: 'Settings',
       to: `/workspace/${id.id}/settings`,
+      icon: 'bi-gear',
     },
     {
       position: 0,
       title: 'Insights',
       to: `/workspace/${id.id}/insight`,
+      icon: 'bi-graph-up',
     },
-
   ]
 
 
@@ -385,7 +392,7 @@ const Project = () => {
         />
       </Routes>
       {id['*'] === "" && <Navigate to={`${location.pathname}/board`} replace />}
-      <PageTitle breadcrumbs={accountBreadCrumbs} pageSideMenu={workspaceSideMenu} pageInnerNavigation={workspaceInnerNavigation}>{[project.title]}</PageTitle>
+      <PageTitle breadcrumbs={accountBreadCrumbs} pageSideMenu={workspaceInnerNavigation} pageInnerNavigation={[]}>{[project.title]}</PageTitle>
 
     </>
 

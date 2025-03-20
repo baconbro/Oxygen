@@ -30,17 +30,23 @@ const AsideMenuItem: FC<Props & WithChildren> = ({
 
   return (
     <>
-      <Link className={clsx('d-flex align-items-center p-3 gap-2 border border-transparent bg-hover-light-primary border-hover-primary-clarity roundedb', { active: isActive })} to={to}>
+      <div className='menu-item'>
+      <Link className={clsx('menu-link without-sub', {active: isActive})} to={to}>
         {hasBullet && (
           <span className='menu-bullet'>
             <span className='bullet bullet-dot'></span>
           </span>
         )}
-        <i className=" rounded bi bi-clock-history" />
-        <span className='menu-title'>  {title}	</span>
-        {isNew && <span className="badge badge-light">New</span>}
+        {icon && (
+          <span className='menu-icon'>
+            <i className={`rounded fs-2 bi ${icon || 'bi-clock-history'}`} />
+          </span>
+        )}
+        {fontIcon && <i className={clsx('bi fs-3', fontIcon)}></i>}
+        <span className='menu-title'>{title}</span>
       </Link>
       {children}
+    </div>
     </>
   )
 }

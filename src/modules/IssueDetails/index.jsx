@@ -28,7 +28,6 @@ import * as FirestoreService from '../../services/firestore';
 import { useAuth } from '../auth';
 import { useParams } from 'react-router-dom';
 import { useUpdateItem } from '../../services/itemServices';
-import { useAddUserView } from '../../services/userViewServices';
 import { Breadcrumbs } from '../../components/common';
 import { getParentIssueIds } from '../../utils/getIssueX';
 import { useWorkspace } from '../../contexts/WorkspaceProvider';
@@ -55,23 +54,6 @@ const ProjectBoardIssueDetails = ({
 
   // Convert issueId to a number
   const numericIssueId = Number(issueId);
-
-  // Add a user view
-  const addUserViewMutation = useAddUserView();
-  useEffect(() => {
-    if (currentUser?.all?.id && currentUser?.all?.currentOrg && issueId) {
-      addUserViewMutation.mutate({
-        userId: currentUser?.all?.id,
-        orgId: currentUser?.all?.currentOrg,
-        viewData: {
-          itemId: numericIssueId,
-          userId: currentUser?.all?.id,
-          type: 'issue',
-          lastTime: new Date().toISOString(),
-        }
-      });
-    }
-  }, [issueId]);
 
   useEffect(() => {
     if (id.issueId) {

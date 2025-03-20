@@ -13,7 +13,7 @@ export function AsideMenuMain() {
         <>
           <div className='menu-item'>
             <div className='menu-content pt-8 pb-2'>
-              <span className='menu-section text-muted text-uppercase fs-8 ls-1'>Views history</span>
+              <span className='menu-section text-muted text-uppercase fs-8 ls-1'>Menu</span>
             </div>
           </div>
           {Array.from(pageSideMenu).slice(0, 10).map((item, index) => (

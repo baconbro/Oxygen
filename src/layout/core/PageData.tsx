@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, {FC, createContext, useContext, useEffect, useState} from 'react'
 import {WithChildren} from '../../utils'
 
