@@ -82,7 +82,7 @@ const LayoutProvider: FC<WithChildren> = ({children}) => {
           "layout": "default"
         },
         "toolbar": {
-          "display": true,
+          "display": false,
           "width": "fluid",
           "fixed": {
             "desktop": true,

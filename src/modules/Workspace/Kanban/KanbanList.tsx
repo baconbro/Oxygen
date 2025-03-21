@@ -74,7 +74,14 @@ const KanbanList = ({ list }: KanbanListProps) => {
 
                 </a>
                 {currentUser && (
-                    <AddItem status={findIdByName(list.title, project.config.issueStatus)} currentUserId={currentUser.all.uid} spaceId={project.spaceId} lastIssue={firstIssue()} />
+                    <AddItem 
+                        status={findIdByName(list.title, project.config.issueStatus)} 
+                        currentUserId={currentUser.all.uid} 
+                        spaceId={project.spaceId} 
+                        lastIssue={firstIssue()} 
+                        isSprint={false} 
+                        sprintId={null} 
+                    />
                 )}
             </div>
         </div>

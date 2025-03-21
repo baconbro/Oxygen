@@ -10,25 +10,34 @@ import { useQueryClient } from 'react-query';
 
 
 
-const AddItem = ({ status, currentUserId, spaceId, lastIssue }) => {
+const AddItem = ({ status, currentUserId, spaceId, lastIssue, isSprint, sprintId }) => {
     const [isFormOpen, setFormOpen] = useState(false);
     const [isCreating, setCreating] = useState(false);
     const [body, setBody] = useState('');
     const $textareaRef = useRef();
 
     const { currentUser } = useAuth();
-    const { project, updateProjectContext } = useWorkspace()
+    const { project, updateProjectContext, workspaceConfig } = useWorkspace()
     const addItemMutation = useAddItem();
     const queryClient = useQueryClient();
 
     // Move useGetItems to the component level
     const { data: items } = useGetItems(project.spaceId, currentUser?.all?.currentOrg);
+    
+    // Determine the correct status
+    const getItemStatus = () => {
+        if (isSprint && workspaceConfig?.issueStatus && workspaceConfig.issueStatus.length > 1) {
+            // Use the second status if in a sprint
+            return workspaceConfig.issueStatus[1]?.id || status;
+        }
+        return status;
+    };
 
     const handleSubmit = () => {
         if ($textareaRef.current.value.trim()) {
             const newItem = {
                 description: '',
-                status: status,
+                status: getItemStatus(),
                 projectId: spaceId,
                 listPosition: lastIssue,
                 type: 'task',
@@ -37,6 +46,8 @@ const AddItem = ({ status, currentUserId, spaceId, lastIssue }) => {
                 userIds: [],
                 priority: '',
                 users: [],
+                // Add sprintId if it exists
+                ...(sprintId && { sprintId: sprintId }),
             }
 
             addItemMutation({

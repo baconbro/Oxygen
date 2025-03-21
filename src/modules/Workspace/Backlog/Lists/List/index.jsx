@@ -33,7 +33,7 @@ const ProjectBoardList = ({ status, project, filters, currentUserId, isCollapsed
     }
     return 1;
   };
-
+console.log('sprint', sprint)
   return (
     <div
       className={classNames('kanban-column scrollbar', {
@@ -50,9 +50,13 @@ const ProjectBoardList = ({ status, project, filters, currentUserId, isCollapsed
                 style={{ "--bs-border-color": color || '#FF5733' }}
               >
                 <Header className="mb-0 kanban-column-title">
-                  <div >
+                  <div>
                     <>
-                      <span  >
+                      <span 
+                        onClick={isSprint ? handleShowModal : undefined}
+                        style={isSprint ? { cursor: 'pointer' } : {}}
+                        className={isSprint ? "text-primary" : ""}
+                      >
                         {columnName()}
                         <span className="kanban-title-badge badge badge-circle badge-secondary">
                           {workspaceConfig?.workspaceConfig?.board?.columnHeaderBadge === 'storypoint' ? (
@@ -71,9 +75,6 @@ const ProjectBoardList = ({ status, project, filters, currentUserId, isCollapsed
                 </Header>
                 {isSprint && (
                   <>
-                    <button className="hover-actions  btn btn-sm" onClick={handleShowModal}>
-                      <i className="bi bi-three-dots"></i>
-                    </button>
                     <Modal show={showModal} onHide={handleCloseModal} centered>
                       <Modal.Header closeButton>
                         <Modal.Title>
@@ -100,7 +101,19 @@ const ProjectBoardList = ({ status, project, filters, currentUserId, isCollapsed
               </div>
             </div>
             <div className="kanban-items-container d-flex flex-column flex-grow-1">
-              <AddItem status={status} currentUserId={currentUserId} spaceId={project.spaceId} lastIssue={firstIssue(allListIssues)} />
+              {isSprint && (
+                <div className="text-center mb-3">
+                  <span className='badge badge-secondary'>{new Date(sprint.startDate).toLocaleDateString()} - {new Date(sprint.endDate).toLocaleDateString()}</span>
+                </div>
+              )}
+              <AddItem 
+                status={status} 
+                currentUserId={currentUserId} 
+                spaceId={project.spaceId} 
+                lastIssue={firstIssue(allListIssues)} 
+                isSprint={isSprint} 
+                sprintId={sprint?.id}
+              />
               <Issues
                 {...provided.droppableProps}
                 ref={provided.innerRef}

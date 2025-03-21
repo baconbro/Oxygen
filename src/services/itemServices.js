@@ -82,7 +82,7 @@ const addItem = async (orgId, item, userId) => {
     // Generate the new ID by incrementing the maximum ID
     const newId = maxId + 1;
 
-    // Create the new item object
+    // Create the new item object with base properties
     const newItem = {
       createdAt: Math.floor(Date.now()),
       updatedAt: Math.floor(Date.now()),
@@ -99,11 +99,17 @@ const addItem = async (orgId, item, userId) => {
       id: newId
     };
 
-    // If the item has a parent, add it to the item object
-    if (item.parent) {
-      newItem.parent = item.parent;
-    }
+    // Add any additional properties from the item object (including sprintId if present)
+    Object.keys(item).forEach(key => {
+      if (!newItem.hasOwnProperty(key) && key !== 'id') {
+        newItem[key] = item[key];
+      }
+    });
 
+    // Note: The explicit parent check is no longer needed as it's handled by the code above
+    // but we're keeping the comment to show the intent of the original code
+    // If the item has a parent, add it to the item object (now handled dynamically)
+    
     // Add the new item to the collection
     const docRef = await addDoc(itemsColRef, newItem);
     
