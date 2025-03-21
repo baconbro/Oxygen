@@ -12,6 +12,7 @@ type Props = {
   fontIcon?: string
   hasBullet?: boolean
   isNew?: boolean
+  preserveFilters?: boolean
 }
 
 const AsideMenuItem: FC<Props & WithChildren> = ({
@@ -22,16 +23,40 @@ const AsideMenuItem: FC<Props & WithChildren> = ({
   fontIcon,
   hasBullet = false,
   isNew = false,
+  preserveFilters = true,
 }) => {
-  const { pathname } = useLocation()
+  const { pathname, search } = useLocation()
   const isActive = checkIsActive(pathname, to)
   const { config } = useLayout()
   const { aside } = config
 
+  // Preserve query parameters when navigating
+  const getDestination = () => {
+    if (!preserveFilters) return to
+    
+    // Don't transfer query params if going to a specific filter URL
+    if (to.includes('?')) return to
+    
+    // Extract filter-related parameters only
+    const searchParams = new URLSearchParams(search)
+    const filterParams = new URLSearchParams()
+    
+    // Copy only filter-related parameters
+    const filterKeys = ['search', 'users', 'recent', 'myOnly', 'types', 'status', 'hideOld', 'sprint', 'wpkg']
+    filterKeys.forEach(key => {
+      if (searchParams.has(key)) {
+        filterParams.set(key, searchParams.get(key)!)
+      }
+    })
+    
+    const newParams = filterParams.toString()
+    return newParams ? `${to}?${newParams}` : to
+  }
+
   return (
     <>
       <div className='menu-item'>
-      <Link className={clsx('menu-link without-sub', {active: isActive})} to={to}>
+      <Link className={clsx('menu-link without-sub', {active: isActive})} to={getDestination()}>
         {hasBullet && (
           <span className='menu-bullet'>
             <span className='bullet bullet-dot'></span>

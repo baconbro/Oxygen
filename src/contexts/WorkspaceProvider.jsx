@@ -1,4 +1,5 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import useMergeState from '../hooks/mergeState';
 const WorkspaceContext = React.createContext();
 
@@ -15,10 +16,7 @@ export function WorkspaceProvider({ children }) {
   const [highLevelWorkItems, setHighLevelWorkItems] = useState();
   const [workspaceConfig, setWorkspaceConfig] = useState();
   const [goals, setGoals] = useState([]);
-
-  const addCard = card => {
-    setCards([...cards, card]);
-  };
+  const location = useLocation();
 
   const defaultFilters = {
     searchTerm: '',
@@ -35,6 +33,30 @@ export function WorkspaceProvider({ children }) {
 
   const [filters, mergeFilters] = useMergeState(defaultFilters);
 
+  // Load filters from URL when location changes
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const urlFilters = {};
+    
+    if (searchParams.has('search')) urlFilters.searchTerm = searchParams.get('search');
+    if (searchParams.has('users')) urlFilters.userIds = searchParams.get('users').split(',');
+    if (searchParams.has('recent')) urlFilters.recent = searchParams.get('recent') === 'true';
+    if (searchParams.has('myOnly')) urlFilters.myOnly = searchParams.get('myOnly') === 'true';
+    if (searchParams.has('types')) urlFilters.viewType = searchParams.get('types').split(',');
+    if (searchParams.has('status')) urlFilters.viewStatus = searchParams.get('status').split(',');
+    if (searchParams.has('hideOld')) urlFilters.hideOld = parseInt(searchParams.get('hideOld'));
+    if (searchParams.has('sprint')) urlFilters.sprint = searchParams.get('sprint');
+    if (searchParams.has('wpkg')) urlFilters.wpkg = searchParams.get('wpkg');
+    
+    if (Object.keys(urlFilters).length > 0) {
+      mergeFilters(urlFilters);
+    }
+  }, [location.search]);
+
+  const addCard = card => {
+    setCards([...cards, card]);
+  };
+
   const assignCard = (cardId, userId) => {
     const updatedCards = cards.map(card => {
       if (card.id === cardId) {
@@ -47,6 +69,7 @@ export function WorkspaceProvider({ children }) {
     });
     setCards(updatedCards);
   };
+  
   const updateProjectContext = project => {
     setProject(project);
     setWorkspaceConfig(project.config);
@@ -73,7 +96,6 @@ export function WorkspaceProvider({ children }) {
     setProjectUsers,
     setWorkspaceConfig,
     setGoals,
-
   };
 
   return (

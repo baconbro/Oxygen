@@ -43,8 +43,20 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
   // Update URL with current filters
   const updateURLWithFilters = (updatedFilters) => {
     const currentFilters = { ...filters, ...updatedFilters };
-    const searchParams = new URLSearchParams();
+    const searchParams = new URLSearchParams(location.search);
     
+    // Preserve non-filter related params that might exist in the URL
+    const otherParams = [];
+    searchParams.forEach((value, key) => {
+      if (!['search', 'users', 'recent', 'myOnly', 'types', 'status', 'hideOld', 'sprint', 'wpkg'].includes(key)) {
+        otherParams.push([key, value]);
+      }
+    });
+    
+    // Clear existing params and set new ones
+    searchParams.forEach((_, key) => searchParams.delete(key));
+    
+    // Add filter params
     if (currentFilters.searchTerm) searchParams.set('search', currentFilters.searchTerm);
     if (currentFilters.userIds.length > 0) searchParams.set('users', currentFilters.userIds.join(','));
     if (currentFilters.recent) searchParams.set('recent', 'true');
@@ -54,6 +66,9 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
     if (currentFilters.hideOld !== 30) searchParams.set('hideOld', currentFilters.hideOld.toString());
     if (currentFilters.sprint) searchParams.set('sprint', currentFilters.sprint);
     if (currentFilters.wpkg) searchParams.set('wpkg', currentFilters.wpkg);
+    
+    // Restore other params
+    otherParams.forEach(([key, value]) => searchParams.set(key, value));
     
     navigate({ pathname: location.pathname, search: searchParams.toString() }, { replace: true });
   };
