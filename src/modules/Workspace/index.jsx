@@ -16,6 +16,7 @@ import { useGetSpace } from '../../services/workspaceServices';
 import { useGetItems } from '../../services/itemServices';
 import { useGetOrgUsers } from '../../services/userServices';
 import { useGetUserViews } from '../../services/userViewServices';
+import { useGetSprints } from '../../services/sprintServices';
 import { getIssueField } from '../../utils/getIssueX';
 import Insight from './Insight/Insight';
 
@@ -32,7 +33,8 @@ const Project = () => {
   const { data: spaceData, status, error } = useGetSpace(id.id, currentUser?.all?.currentOrg);
   const { data: items, status: itemsStatus, error: itemsError } = useGetItems(id.id, currentUser?.all?.currentOrg);
   const { data: orgusers, status: orgusersStatus, error: orgusersError } = useGetOrgUsers(currentUser?.all?.currentOrg);
-
+  const { data: sprintsData, status: sprintsStatus } = useGetSprints(id.id, currentUser?.all?.currentOrg);
+  const [activeSprintItems, setActiveSprintItems] = useState([]);
 
   //for the breadcrumbs
   const location = useLocation();
@@ -48,7 +50,20 @@ const Project = () => {
     currentUser?.all?.currentOrg
   );
 
-
+  useEffect(() => {
+    if (sprintsStatus === 'success' && sprintsData) {
+      // Filter to show only active and future sprints
+      const today = new Date();
+      const activeSprintsList = sprintsData
+        .filter(sprint => new Date(sprint.endDate) >= today)
+        .map(sprint => ({
+          title: sprint.name,
+          to: `/workspace/${id.id}/board?sprint=${sprint.id}`,
+          icon: 'bi-calendar-event',
+        }));
+      setActiveSprintItems(activeSprintsList);
+    }
+  }, [sprintsStatus, sprintsData, id.id]);
 
   useEffect(() => {
     if (data) {
@@ -206,6 +221,10 @@ const Project = () => {
       title: 'Board',
       to: `/workspace/${id.id}/board`,
       icon: 'bi-kanban',
+      submenu: activeSprintItems.length > 0 ? [
+        { title: 'All Issues', to: `/workspace/${id.id}/board`, icon: 'bi-card-list' },
+        ...activeSprintItems
+      ] : []
     },
     {
       position: 0,
