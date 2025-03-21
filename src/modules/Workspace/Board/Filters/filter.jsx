@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { xor } from 'lodash';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Filters,
   SearchInput,
@@ -29,12 +30,59 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
   const [showMembersModal, setShowMembersModal] = useState(false)
   const [showFilterModal, setShowFilterModal] = useState(false)
   const { project } = useWorkspace();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const { data } = useGetSprints(project.spaceId, project.org);
-  const { data: wpkgData } = useGetWorkPackages(project.spaceId, project.org);
+  const { data } = useGetSprints(project?.spaceId, project?.org);
+  const { data: wpkgData } = useGetWorkPackages(project?.spaceId, project?.org);
   const [sprints, setSprints] = useState([]);
   const [wpkgs, setWpkgs] = useState([]);
   const [activeSprints, setActiveSprints] = useState([]);
+  const [availableParameters, setAvailableParameters] = useState({});
+
+  // Update URL with current filters
+  const updateURLWithFilters = (updatedFilters) => {
+    const currentFilters = { ...filters, ...updatedFilters };
+    const searchParams = new URLSearchParams();
+    
+    if (currentFilters.searchTerm) searchParams.set('search', currentFilters.searchTerm);
+    if (currentFilters.userIds.length > 0) searchParams.set('users', currentFilters.userIds.join(','));
+    if (currentFilters.recent) searchParams.set('recent', 'true');
+    if (currentFilters.myOnly) searchParams.set('myOnly', 'true');
+    if (currentFilters.viewType.length > 0) searchParams.set('types', currentFilters.viewType.join(','));
+    if (currentFilters.viewStatus.length > 0) searchParams.set('status', currentFilters.viewStatus.join(','));
+    if (currentFilters.hideOld !== 30) searchParams.set('hideOld', currentFilters.hideOld.toString());
+    if (currentFilters.sprint) searchParams.set('sprint', currentFilters.sprint);
+    if (currentFilters.wpkg) searchParams.set('wpkg', currentFilters.wpkg);
+    
+    navigate({ pathname: location.pathname, search: searchParams.toString() }, { replace: true });
+  };
+
+  // Original mergeFilters with URL update
+  const mergeFiltersWithURL = (filterUpdates) => {
+    mergeFilters(filterUpdates);
+    updateURLWithFilters(filterUpdates);
+  };
+
+  // Read filters from URL on component mount
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const urlFilters = {};
+    
+    if (searchParams.has('search')) urlFilters.searchTerm = searchParams.get('search');
+    if (searchParams.has('users')) urlFilters.userIds = searchParams.get('users').split(',');
+    if (searchParams.has('recent')) urlFilters.recent = searchParams.get('recent') === 'true';
+    if (searchParams.has('myOnly')) urlFilters.myOnly = searchParams.get('myOnly') === 'true';
+    if (searchParams.has('types')) urlFilters.viewType = searchParams.get('types').split(',');
+    if (searchParams.has('status')) urlFilters.viewStatus = searchParams.get('status').split(',');
+    if (searchParams.has('hideOld')) urlFilters.hideOld = parseInt(searchParams.get('hideOld'));
+    if (searchParams.has('sprint')) urlFilters.sprint = searchParams.get('sprint');
+    if (searchParams.has('wpkg')) urlFilters.wpkg = searchParams.get('wpkg');
+    
+    if (Object.keys(urlFilters).length > 0) {
+      mergeFilters(urlFilters);
+    }
+  }, []);
 
   useEffect(() => {
     setSprints(data)
@@ -42,7 +90,7 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
 
   useEffect(() => {
     if (wpkgData) {
-   setWpkgs(wpkgData)
+      setWpkgs(wpkgData)
     }
   }, [wpkgData])
 
@@ -52,7 +100,17 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
     setActiveSprints(filteredSprints);
   }, [sprints]);
 
-  const areFiltersCleared = !searchTerm && userIds.length === 0 && !myOnly && !recent && viewType.length === 0 && viewStatus.length === 0 && hideOld === 30 && !sprint && !wpkg;
+  const calculateAvailableParams = async () => {
+    if (project?.issues) {
+      const params = findAvailableParameters(project.issues);
+      setAvailableParameters(params);
+    }
+  };
+
+  useEffect(() => {
+    // Only calculate if empty
+    if (Object.keys(availableParameters).length === 0) calculateAvailableParams();
+  }, [availableParameters]); // Run once on component mount
 
   useEffect(() => {
     //if projectMembers is not equal to projectUsers then set projectUsers to projectMembers
@@ -66,6 +124,8 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
       , 500);
   }, [projectUsers]);
 
+  const areFiltersCleared = !searchTerm && userIds.length === 0 && !myOnly && !recent && viewType.length === 0 && viewStatus.length === 0 && hideOld === 30 && !sprint && !wpkg;
+
   const closeModal = () => {
     setShowMembersModal(false)
     setShowFilterModal(false)
@@ -73,30 +133,18 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
 
   const handleTypeChange = type => {
     const typeIn = type.split(':')[0];
-    mergeFilters({ viewType: xor(viewType, [typeIn]) })
+    mergeFiltersWithURL({ viewType: xor(viewType, [typeIn]) });
   }
+  
   const handleStatusChange = status => {
     const statusIn = status.split(':')[0];
-    mergeFilters({ viewStatus: xor(viewStatus, [statusIn]) })
+    mergeFiltersWithURL({ viewStatus: xor(viewStatus, [statusIn]) });
   }
+  
   //reset filters
   const clearFilters = () => {
-    mergeFilters(defaultFilters);
+    mergeFiltersWithURL(defaultFilters);
   };
-
-  //For grouping
-  //-----------------find variables for grouping
-
-  const [availableParameters, setAvailableParameters] = useState({});
-
-  const calculateAvailableParams = async () => { // Use async if fetching issues asynchronously
-    const params = findAvailableParameters(project.issues);
-    setAvailableParameters(params);
-  };
-  useEffect(() => {
-    // Only calculate if empty
-    if (Object.keys(availableParameters).length === 0) calculateAvailableParams();
-  }, []); // Run once on component mount
 
   // Global validation
   if (!project || Object.keys(project).length === 0) {
@@ -108,7 +156,7 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
       <Filters data-testid="board-filters">
         <SearchInput
           value={searchTerm}
-          onChange={value => mergeFilters({ searchTerm: value })}
+          onChange={value => mergeFiltersWithURL({ searchTerm: value })}
           placeholder='Search'
           className="form-control"
         />
@@ -120,7 +168,7 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
                 name={user.name}
                 size={35}
                 className='avatar-circle'
-                onClick={() => mergeFilters({ userIds: xor(userIds, [user.id]) })}
+                onClick={() => mergeFiltersWithURL({ userIds: xor(userIds, [user.id]) })}
               />
             </AvatarIsActiveBorder>
           ))}
@@ -150,7 +198,7 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
           </div>
         </Modal>
         <button
-          onClick={() => mergeFilters({ recent: !recent })}
+          onClick={() => mergeFiltersWithURL({ recent: !recent })}
           className="btn btn-sm btn-flex bg-body btn-color-gray-700 btn-active-color-primary fw-bold ms-2"
         >
           Recently Updated
@@ -211,7 +259,7 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
               </div>
               <div className="mb-10">
                 <label className="form-label fw-semibold">Active and future sprints</label>
-                <select className="form-select" onChange={(e) => mergeFilters({ sprint: e.target.value })}>
+                <select className="form-select" onChange={(e) => mergeFiltersWithURL({ sprint: e.target.value })}>
                   <option value=''>
                     No sprint selected
                   </option>
@@ -224,7 +272,7 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
               </div>
               <div className="mb-10">
                 <label className="form-label fw-semibold">Work packages</label>
-                <select className="form-select" onChange={(e) => mergeFilters({ wpkg: e.target.value })}>
+                <select className="form-select" onChange={(e) => mergeFiltersWithURL({ wpkg: e.target.value })}>
                   <option value=''>
                     No work package selected
                   </option>
@@ -246,13 +294,13 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
           <i className={`bi bi-funnel${viewType.length != 0 || viewStatus.length != 0 ? '-fill' : ''} fs-6 text-muted p-0`}><span className="path1"></span><span className="path2"></span></i>
         </a>
         <button
-          onClick={() => mergeFilters({ hideOld: hideOld == 0 ? 30 : 0 })}
+          onClick={() => mergeFiltersWithURL({ hideOld: hideOld == 0 ? 30 : 0 })}
           className="btn btn-sm btn-flex bg-body btn-color-gray-700 btn-active-color-primary fw-bold ms-2"
         >
           Show old
         </button>
         {!areFiltersCleared && (
-          <ClearAll onClick={() => mergeFilters(defaultFilters)}>Clear all</ClearAll>
+          <ClearAll onClick={() => mergeFiltersWithURL(defaultFilters)}>Clear all</ClearAll>
         )}
       </Filters>
     </div>
