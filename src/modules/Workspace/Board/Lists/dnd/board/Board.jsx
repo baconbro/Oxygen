@@ -275,9 +275,9 @@ const Board = ({
                     />
                   )
                 ))} {provided.placeholder}
-                <div className="kanban-column scrollbar position-relative bg-transparent d-flex flex-column h-100 flex-center bg-body-hover">
-                  <button className="btn stretched-link btn-icon btn-icon bg-body-secondary rounded-circle mb-1" onClick={handleAddColumn}>
-                    <i className="bi bi-plus fs-3x"></i><i className="bi bi-kanban-fill fs-3x"></i>
+                <div className=" scrollbar position-relative bg-transparent d-flex flex-column h-100 bg-body-hover">
+                  <button className="btn btn-light stretched-link btn-icon mb-1" onClick={handleAddColumn}>
+                    <i className="bi bi-plus fs-3x"></i>
                   </button>
                 </div>
 

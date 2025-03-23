@@ -31,7 +31,14 @@ const Column = (props) => {
   const [showModal, setShowModal] = useState(false);
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
-  const [borderColor, setBorderColor] = useState(workspaceConfig.issueStatus[index].borderColor || "#FF5733");
+  
+  // Add null checks to safely access borderColor
+  const defaultBorderColor = "#FF5733";
+  const [borderColor, setBorderColor] = useState(
+    workspaceConfig?.issueStatus?.[index]?.borderColor || 
+    (project?.config?.issueStatus?.[index]?.borderColor) || 
+    defaultBorderColor
+  );
 
   const firstIssue = (allListIssues) => {
     const listPositions = allListIssues.map(({ listPosition }) => listPosition);
