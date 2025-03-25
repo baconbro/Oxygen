@@ -19,7 +19,7 @@ const getSpace = async (id, orgId) => {
   try {
     const spaceDocRef = doc(db, 'organisation', orgId, 'spaces', id)
     const workspace = await getDoc(spaceDocRef);
-  return workspace.data();
+    return workspace.data();
   } catch (error) {
     console.error('Error fetching workspace: ', error);
     throw new Error('Error fetching workspace');
@@ -42,9 +42,6 @@ const updateWorkspace = async (values, workspaceId, orgId) => {
     throw new Error('Error updating workspace');
   }
 };
-
-
-
 
 // React Query hooks
 export const useGetSpaces = (orgId) => {
@@ -70,3 +67,6 @@ export const useUpdateWorkspace = () => {
   });
   return mutation.mutate;
 }
+
+// Export the raw functions for use in other services
+export { getSpace, getSpaces, updateWorkspace };

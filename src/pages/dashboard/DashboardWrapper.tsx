@@ -1,6 +1,7 @@
 import { useIntl } from 'react-intl'
 import { PageTitle } from '../../layout/core'
 import { LastWeek } from './Components/LastWeek'
+import { MyWork } from './Components/MyWork'
 import { useAuth } from '../../modules/auth'
 import { Avatar } from '../../components/common'
 
@@ -41,6 +42,13 @@ const DashboardWrapper = () => {
               </p>
             </div>
           </div>
+        </div>
+      </div>
+      
+      {/* My Work section */}
+      <div className="row g-5 g-xl-10 mb-5 mb-xl-10">
+        <div className="col-12">
+          <MyWork />
         </div>
       </div>
       
