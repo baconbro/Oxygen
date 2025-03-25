@@ -54,8 +54,45 @@ const updateItem = async (orgId, field, itemId, workspaceId) => {
         }
       }
       
-      await setDoc(doc.ref, field, { merge: true });
-      await setDoc(doc.ref, { updatedAt: Math.floor(Date.now()) }, { merge: true });
+      // Deep clean function to recursively remove undefined values
+      const deepClean = (obj) => {
+        if (obj === null || obj === undefined) return null;
+        if (typeof obj !== 'object') return obj;
+        
+        if (Array.isArray(obj)) {
+          return obj
+            .filter(item => item !== undefined)
+            .map(item => deepClean(item))
+            .filter(item => item !== null);
+        }
+        
+        const cleanObj = {};
+        for (const key in obj) {
+          const value = deepClean(obj[key]);
+          if (value !== undefined && value !== null) {
+            cleanObj[key] = value;
+          }
+        }
+        return cleanObj;
+      };
+      
+      // Apply deep cleaning to fields
+      const cleanedField = deepClean(field);
+      console.log('Cleaned field for update:', cleanedField);
+      
+      // Only update if there are valid fields to update
+      if (cleanedField && Object.keys(cleanedField).length > 0) {
+        try {
+          await setDoc(doc.ref, cleanedField, { merge: true });
+          await setDoc(doc.ref, { updatedAt: Math.floor(Date.now()) }, { merge: true });
+        } catch (updateError) {
+          console.error('Error in setDoc operation:', updateError);
+          console.error('Document path:', doc.ref.path);
+          console.error('Update payload:', JSON.stringify(cleanedField));
+          throw updateError;
+        }
+      }
+      
       return 'Update successful';
     } else {
       return 'No matching document found';
