@@ -11,6 +11,7 @@ import {
   PriorityCellRenderer 
 } from "../../../components/common/List/CellRenderers";
 import { IssueStatusCopy, IssuePriorityCopy } from "../../../constants/issues";
+import { TaskCalendarView } from "./TaskCalendarView";
 
 export const MyWork = () => {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ export const MyWork = () => {
     priority: 'all',
     status: 'all'
   });
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'calendar'
   
   // Extract unique projects, priorities, and statuses for filter options
   const [filterOptions, setFilterOptions] = useState({
@@ -180,6 +182,10 @@ export const MyWork = () => {
     navigate(`/workspace/${row.original.projectId}/issues/${row.original.id}`);
   };
   
+  const handleTaskClick = (taskId, projectId) => {
+    navigate(`/workspace/${projectId}/issues/${taskId}`);
+  };
+  
   const EmptyAssignedTasks = () => (
     <div className="text-center py-10">
       <h3 className="fs-2 fw-bold mb-2">No tasks assigned to you</h3>
@@ -191,6 +197,10 @@ export const MyWork = () => {
     </div>
   );
   
+  const toggleViewMode = () => {
+    setViewMode(viewMode === 'list' ? 'calendar' : 'list');
+  };
+  
   return (
     <div className="card mb-5">
       <div className="card-header pt-7">
@@ -201,9 +211,26 @@ export const MyWork = () => {
           </h3>
           
           <div className="d-flex align-items-center my-1">
+            <div className="btn-group me-3" role="group">
+              <button 
+                type="button" 
+                className={`btn btn-sm ${viewMode === 'list' ? 'btn-primary' : 'btn-light'}`}
+                onClick={() => setViewMode('list')}
+              >
+                <i className="bi bi-list-ul me-1"></i>List
+              </button>
+              <button 
+                type="button" 
+                className={`btn btn-sm ${viewMode === 'calendar' ? 'btn-primary' : 'btn-light'}`}
+                onClick={() => setViewMode('calendar')}
+              >
+                <i className="bi bi-calendar3 me-1"></i>Calendar
+              </button>
+            </div>
+            
             {Object.values(filters).some(value => value !== 'all') && (
               <button 
-                className="btn btn-sm btn-light me-3"
+                className="btn btn-sm btn-light"
                 onClick={clearAllFilters}
               >
                 <i className="bi bi-x"></i> Clear Filters
@@ -280,11 +307,17 @@ export const MyWork = () => {
               <span className="visually-hidden">Loading...</span>
             </div>
           </div>
-        ) : (
+        ) : viewMode === 'list' ? (
           <GenericList
             data={filteredTasks || []}
             columns={columns}
             onRowClick={handleRowClick}
+            emptyComponent={EmptyAssignedTasks}
+          />
+        ) : (
+          <TaskCalendarView 
+            tasks={filteredTasks} 
+            onTaskClick={handleTaskClick}
             emptyComponent={EmptyAssignedTasks}
           />
         )}
