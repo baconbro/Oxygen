@@ -16,8 +16,9 @@ export const getAssignedTasks = async (userId, orgId) => {
     for (const task of tasks) {
       if (!projectDetails[task.projectId]) {
         const workspace = await getSpace(task.projectId, orgId);
+        console.log('workspace: ', workspace);
         projectDetails[task.projectId] = {
-          name: workspace?.name || 'Unknown Project',
+          name: workspace?.title || 'Unknown Project',
           id: task.projectId
         };
       }
