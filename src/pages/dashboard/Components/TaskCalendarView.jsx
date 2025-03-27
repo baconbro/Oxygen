@@ -5,6 +5,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import moment from 'moment';
 import { Dropdown } from 'react-bootstrap';
 import { IssuePriorityCopy, IssueStatusCopy } from '../../../constants/issues';
+import { end } from '@popperjs/core';
 
 export const TaskCalendarView = ({ tasks, onTaskClick, emptyComponent: EmptyComponent }) => {
   const [calendarView, setCalendarView] = useState('dayGridMonth');
@@ -41,7 +42,8 @@ export const TaskCalendarView = ({ tasks, onTaskClick, emptyComponent: EmptyComp
         return {
           id: task.id,
           title: task.title,
-          start: task.dueDate,
+          start: task.start,
+          end: task.dueDate,
           classNames: [priorityClass], // Apply priority class directly to event
           extendedProps: {
             projectId: task.projectId,
