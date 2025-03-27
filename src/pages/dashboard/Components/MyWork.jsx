@@ -167,27 +167,7 @@ export const MyWork = () => {
       cell: info => {
         const dueDate = info.getValue();
         if (!dueDate) return '';
-        
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        const dueDateObj = new Date(dueDate);
-        dueDateObj.setHours(0, 0, 0, 0);
-        
-        const nextWeek = new Date(today);
-        nextWeek.setDate(today.getDate() + 7);
-        
-        let dateStatus = '';
-        
-        if (dueDateObj < today) {
-          dateStatus = 'overdue';
-        } else if (dueDateObj.getTime() === today.getTime()) {
-          dateStatus = 'today';
-        } else if (dueDateObj < nextWeek) {
-          dateStatus = 'this-week';
-        }
-        
-        return <DateCellRenderer value={dueDate} status={dateStatus} />;
+        return <DateCellRenderer value={dueDate} />;
       },
     }),
   ];
