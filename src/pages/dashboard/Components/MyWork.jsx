@@ -168,22 +168,36 @@ export const MyWork = () => {
         const dueDate = info.getValue();
         if (!dueDate) return '';
         
-        const isOverdue = new Date(dueDate) < new Date();
-        return (
-          <span className={isOverdue ? 'text-danger' : ''}>
-            <DateCellRenderer value={dueDate} />
-          </span>
-        );
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const dueDateObj = new Date(dueDate);
+        dueDateObj.setHours(0, 0, 0, 0);
+        
+        const nextWeek = new Date(today);
+        nextWeek.setDate(today.getDate() + 7);
+        
+        let dateStatus = '';
+        
+        if (dueDateObj < today) {
+          dateStatus = 'overdue';
+        } else if (dueDateObj.getTime() === today.getTime()) {
+          dateStatus = 'today';
+        } else if (dueDateObj < nextWeek) {
+          dateStatus = 'this-week';
+        }
+        
+        return <DateCellRenderer value={dueDate} status={dateStatus} />;
       },
     }),
   ];
   
   const handleRowClick = (row) => {
-    navigate(`/workspace/${row.original.projectId}/issues/${row.original.id}`);
+    navigate(`/workspace/${row.original.projectId}/board/issues/${row.original.id}`);
   };
   
   const handleTaskClick = (taskId, projectId) => {
-    navigate(`/workspace/${projectId}/issues/${taskId}`);
+    navigate(`/workspace/${projectId}/board/issues/${taskId}`);
   };
   
   const EmptyAssignedTasks = () => (

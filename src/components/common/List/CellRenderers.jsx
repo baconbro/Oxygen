@@ -35,7 +35,28 @@ export const StatusCellRenderer = ({ value, statusMapping }) => {
 
 export const DateCellRenderer = ({ value }) => {
   if (!value) return '';
-  return <span className="badge badge-light">{formatDate(value)}</span>;
+  
+  // Calculate date status
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const dueDateObj = new Date(value);
+  dueDateObj.setHours(0, 0, 0, 0);
+  
+  const nextWeek = new Date(today);
+  nextWeek.setDate(today.getDate() + 7);
+  
+  let statusClass = 'badge-light'; // default styling
+  
+  if (dueDateObj < today) {
+    statusClass = 'badge-danger'; // overdue - red
+  } else if (dueDateObj.getTime() === today.getTime()) {
+    statusClass = 'badge-warning'; // due today - yellow
+  } else if (dueDateObj < nextWeek) {
+    statusClass = 'badge-success'; // due this week - green
+  }
+  
+  return <span className={`badge ${statusClass}`}>{formatDate(value)}</span>;
 };
 
 export const PriorityCellRenderer = ({ value, priorityMapping }) => {
