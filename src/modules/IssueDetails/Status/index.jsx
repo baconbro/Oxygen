@@ -10,6 +10,13 @@ const propTypes = {
 
 const ProjectBoardIssueDetailsStatus = ({ issue, updateIssue, customStatus, fieldName }) => {
   const { project } = useWorkspace()
+  
+  // Find border color for a status
+  const getBorderColor = (statusId) => {
+    // Try to find the status in project configuration
+    const statusConfig = project.config.issueStatus.find(status => status.id === statusId);
+    return statusConfig?.borderColor || '#FF5733'; // Default color if not found
+  };
 
   return (
     <>
@@ -31,13 +38,17 @@ const ProjectBoardIssueDetailsStatus = ({ issue, updateIssue, customStatus, fiel
             updateIssue({ [updateField]: status });
           }}
           renderValue={({ value: status }) => (
-            <Status isValue color={status} className={`btn btn-${customStatus.IssueStatusClass[status]}`}>
+            <Status isValue color={status} className={`btn btn-${customStatus.IssueStatusClass[status]}`}
+              style={{ borderLeft: `3px solid ${customStatus.IssueStatusClass[status] || '#FF5733'}` }}>
               <div>{customStatus.IssueStatusCopy[status]}</div>
               <i className='bi bi-chevron-down'></i>
             </Status>
           )}
           renderOption={({ value: status }) => (
-            <Status className={`btn btn-${customStatus.IssueStatusClass[status]}`} color={status}>{customStatus.IssueStatusCopy[status]}</Status>
+            <Status className={`btn btn-${customStatus.IssueStatusClass[status]}`} color={status}
+              style={{ borderLeft: `3px solid ${customStatus.IssueStatusClass[status] || '#FF5733'}` }}>
+              {customStatus.IssueStatusCopy[status]}
+            </Status>
           )}
         />) : (<Select
           variant="empty"
@@ -48,17 +59,24 @@ const ProjectBoardIssueDetailsStatus = ({ issue, updateIssue, customStatus, fiel
           options={Object.values(project.config.issueStatus).map(status => ({
             value: status.id,
             label: status.name,
+            borderColor: status.borderColor,
           }))}
           onChange={status => updateIssue({ status })}
-          renderValue={({ value: status }) => (
-            <Status isValue color={status}>
-              <div>{project.config.issueStatus.find(statusName => statusName.id === status).name}</div>
-              <i className='bi bi-chevron-down'></i>
+          renderValue={({ value: status }) => {
+            const statusConfig = project.config.issueStatus.find(s => s.id === status);
+            const borderColor = statusConfig?.borderColor || '#FF5733';
+            return (
+              <Status isValue color={status} 
+                style={{ borderLeft: `3px solid ${borderColor}` }}>
+                <div>{statusConfig?.name}</div>
+                <i className='bi bi-chevron-down'></i>
+              </Status>
+            );
+          }}
+          renderOption={({ value, label, borderColor }) => (
+            <Status color={value} style={{ borderLeft: `3px solid ${borderColor || '#FF5733'}` }}>
+              {label}
             </Status>
-
-          )}
-          renderOption={({ label: status }) => (
-            <Status color={status}>{status}</Status>
           )}
         />)}
 
