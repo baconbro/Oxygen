@@ -10,58 +10,86 @@ export const TaskCalendarView = ({ tasks, onTaskClick, emptyComponent: EmptyComp
   const [calendarView, setCalendarView] = useState('dayGridMonth');
   const [events, setEvents] = useState([]);
   
+  function getPriorityColor(priority) {
+    switch(priority) {
+      case '5': case 'highest': return '#D63031'; // Red
+      case '4': case 'high': return '#FF9F43'; // Orange
+      case '3': case 'medium': return '#FDCB6E'; // Yellow
+      case '2': case 'low': return '#00B894'; // Green
+      case '1': case 'lowest': return '#74B9FF'; // Blue
+      default: return '#A3A6B4'; // Gray
+    }
+  }
+  
+  // Get the priority class name
+  function getPriorityClass(priority) {
+    switch(priority) {
+      case '5': case 'highest': return 'priority-highest';
+      case '4': case 'high': return 'priority-high';
+      case '3': case 'medium': return 'priority-medium';
+      case '2': case 'low': return 'priority-low';
+      case '1': case 'lowest': return 'priority-lowest';
+      default: return 'priority-default';
+    }
+  }
+  
   useEffect(() => {
     if (tasks && tasks.length > 0) {
-      // Format tasks for the calendar
       const formattedEvents = tasks.map(task => {
-        const priorityColor = getPriorityColor(task.priority);
+        const priorityClass = getPriorityClass(task.priority);
         
         return {
           id: task.id,
           title: task.title,
           start: task.dueDate,
-          backgroundColor: priorityColor,
-          borderColor: priorityColor,
-          textColor: '#FFFFFF',
-          classNames: [`priority-${task.priority}`],
+          classNames: [priorityClass], // Apply priority class directly to event
           extendedProps: {
             projectId: task.projectId,
             priority: task.priority,
             status: task.status,
-            projectName: task.projectDetails?.name
+            projectName: task.projectDetails?.name,
+            priorityClass: priorityClass
           }
         };
       });
       
-      console.log('Formatted events with colors:', formattedEvents);
       setEvents(formattedEvents);
     } else {
       setEvents([]);
     }
   }, [tasks]);
   
-  function getPriorityColor(priority) {
-    console.log('Getting color for priority:', priority);
-    
-    switch(priority) {
-      case 'highest': return '#D63031'; // Red
-      case 'high': return '#FF9F43'; // Orange
-      case 'medium': return '#FDCB6E'; // Yellow
-      case 'low': return '#00B894'; // Green
-      case 'lowest': return '#74B9FF'; // Blue
-      default: return '#A3A6B4'; // Gray
-    }
-  }
-  
-  // Add CSS overrides for priority colors
+  // Add CSS for priority colors
   useEffect(() => {
     const style = document.createElement('style');
     style.innerHTML = `
-      .priority-highest { background-color: #D63031 !important; border-color: #D63031 !important; }
-      .priority-high { background-color: #FF9F43 !important; border-color: #FF9F43 !important; }
-      .priority-medium { background-color: #FDCB6E !important; border-color: #FDCB6E !important; }
-      .priority-low { background-color: #00B894 !important; border-color: #00B894 !important; }
-      .priority-lowest { background-color: #74B9FF !important; border-color: #74B9FF !important; }
+      .fc .fc-event.priority-highest {
+        background-color: #D63031 !important;
+        border-color: #D63031 !important;
+      }
+      .fc .fc-event.priority-high {
+        background-color: #FF9F43 !important;
+        border-color: #FF9F43 !important;
+      }
+      .fc .fc-event.priority-medium {
+        background-color: #FDCB6E !important;
+        border-color: #FDCB6E !important;
+      }
+      .fc .fc-event.priority-low {
+        background-color: #00B894 !important;
+        border-color: #00B894 !important;
+      }
+      .fc .fc-event.priority-lowest {
+        background-color: #74B9FF !important;
+        border-color: #74B9FF !important;
+      }
+      .fc .fc-event.priority-default {
+        background-color: #A3A6B4 !important;
+        border-color: #A3A6B4 !important;
+      }
+      .fc .fc-event {
+        color: #FFFFFF !important;
+      }
     `;
     document.head.appendChild(style);
     
@@ -69,7 +97,7 @@ export const TaskCalendarView = ({ tasks, onTaskClick, emptyComponent: EmptyComp
       document.head.removeChild(style);
     };
   }, []);
-  
+
   const handleEventClick = (info) => {
     onTaskClick(
       info.event.id, 
@@ -77,10 +105,12 @@ export const TaskCalendarView = ({ tasks, onTaskClick, emptyComponent: EmptyComp
     );
   };
   
-  // Creates a custom tooltip for events - simplified to match the working calendar
+  // Creates a custom tooltip for events with appropriate classes
   const renderEventContent = (eventInfo) => {
+    const priorityClass = eventInfo.event.extendedProps.priorityClass || 'priority-default';
+    
     return (
-      <div className="fc-event-title-container">
+      <div className={`fc-event-title-container ${priorityClass}`}>
         <div className="fc-event-title fc-sticky">{eventInfo.event.title}
           {eventInfo.event.extendedProps.projectName && (
             <small className="ms-1 text-white">
@@ -95,7 +125,6 @@ export const TaskCalendarView = ({ tasks, onTaskClick, emptyComponent: EmptyComp
   if (!tasks || tasks.length === 0) {
     return EmptyComponent ? <EmptyComponent /> : null;
   }
-  
   return (
     <div>
       <div className="d-flex justify-content-end mb-4">
@@ -130,6 +159,8 @@ export const TaskCalendarView = ({ tasks, onTaskClick, emptyComponent: EmptyComp
         nowIndicator={true}
         now={moment().startOf('day').format('YYYY-MM-DD')}
         dayMaxEvents={true}
+        eventColor="#A3A6B4" // Default color
+        eventDisplay="block" // Use block display to show more color
       />
       
       <div className="mt-4 d-flex flex-wrap gap-3">
