@@ -36,6 +36,10 @@ export const MyWork = () => {
     statuses: []
   });
   
+  // Add status mapping and colors state
+  const [statusMapping, setStatusMapping] = useState({});
+  const [statusColors, setStatusColors] = useState({});
+  
   useEffect(() => {
     if (assignedTasks && assignedTasks.length > 0) {
       // Extract unique filter options
@@ -48,6 +52,24 @@ export const MyWork = () => {
         priorities,
         statuses
       });
+      
+      // Create status mapping and colors from task data
+      const newStatusMapping = {};
+      const newStatusColors = {};
+      
+      assignedTasks.forEach(task => {
+        console.log(task);
+        if (task.status && task.projectDetails?.statusConfig) {
+          const statusConfig = task.projectDetails.statusConfig.find(s => s.id === task.status);
+          if (statusConfig) {
+            newStatusMapping[task.status] = statusConfig.name;
+            newStatusColors[task.status] = statusConfig.borderColor || '#FF5733';
+          }
+        }
+      });
+      
+      setStatusMapping(newStatusMapping);
+      setStatusColors(newStatusColors);
       
       // Apply filters
       applyFilters(assignedTasks);
@@ -156,7 +178,12 @@ export const MyWork = () => {
     }),
     columnHelper.accessor('status', {
       header: () => <span>Status</span>,
-      cell: info => <StatusCellRenderer value={info.getValue()} statusMapping={IssueStatusCopy} />,
+      cell: info => 
+      <StatusCellRenderer 
+                value={info.renderValue()} 
+                statusMapping={{...IssueStatusCopy, ...statusMapping}} 
+                statusColors={statusColors}
+              />,
     }),
     columnHelper.accessor('priority', {
       header: 'Priority',

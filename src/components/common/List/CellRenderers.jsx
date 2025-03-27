@@ -25,9 +25,15 @@ export const TypeCellRenderer = ({ value, projectConfig }) => {
   );
 };
 
-export const StatusCellRenderer = ({ value, statusMapping }) => {
+export const StatusCellRenderer = ({ value, statusMapping, statusColors }) => {
+  const borderColor = statusColors && statusColors[value] ? statusColors[value] : '#FF5733';
+  
   return (
-    <Status className={`btn btn-${statusMapping[value]}`} color={value}>
+    <Status 
+      className={`btn btn-${statusMapping[value]}`} 
+      color={value}
+      style={{ borderLeft: `3px solid ${borderColor}` }}
+    >
       {statusMapping[value]}
     </Status>
   );

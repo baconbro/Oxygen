@@ -2,7 +2,6 @@ import { collection, getDocs, updateDoc, doc, query, where, getDoc} from 'fireba
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { db } from '../services/firestore';
 
-
 const getSpaces = async (orgId) => {
   try {
     const itemsColRef = query(collection(db, 'organisation', orgId, 'spaces'));
@@ -23,6 +22,28 @@ const getSpace = async (id, orgId) => {
   } catch (error) {
     console.error('Error fetching workspace: ', error);
     throw new Error('Error fetching workspace');
+  }
+};
+
+// New function to fetch only space configuration
+const getSpaceConfig = async (id, orgId) => {
+  try {
+    const spaceDocRef = doc(db, 'organisation', orgId, 'spaces', id);
+    const workspaceSnapshot = await getDoc(spaceDocRef);
+    
+    if (!workspaceSnapshot.exists()) {
+      throw new Error('Workspace not found');
+    }
+    
+    const workspaceData = workspaceSnapshot.data();
+    // Return only the configuration part, not all the issues
+    return {
+      title: workspaceData.title,
+      config: workspaceData.config || {}
+    };
+  } catch (error) {
+    console.error('Error fetching workspace config: ', error);
+    throw new Error('Error fetching workspace config');
   }
 };
 
@@ -69,4 +90,4 @@ export const useUpdateWorkspace = () => {
 }
 
 // Export the raw functions for use in other services
-export { getSpace, getSpaces, updateWorkspace };
+export { getSpace, getSpaces, updateWorkspace, getSpaceConfig };

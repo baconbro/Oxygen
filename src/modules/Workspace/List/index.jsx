@@ -28,6 +28,17 @@ const List = () => {
   const [showPrioritization, setShowPrioritization] = useState(project.config.workspaceConfig?.board?.rice || false);
   const [data, setData] = useState([]);
   
+  // Create a comprehensive statusMapping object from project configuration
+  const statusMapping = {};
+  const statusColors = {};
+  
+  if (project && project.config && project.config.issueStatus) {
+    project.config.issueStatus.forEach(status => {
+      statusMapping[status.id] = status.name;
+      statusColors[status.id] = status.borderColor || '#FF5733'; // Default color if not specified
+    });
+  }
+  
   const filteredIssues = filterIssues(project.issues, filters, currentUser?.all?.uid);
 
   const reloadGoals = () => {
@@ -85,7 +96,13 @@ const List = () => {
     }),
     columnHelper.accessor('status', {
       header: () => <span>Status</span>,
-      cell: info => <StatusCellRenderer value={info.renderValue()} statusMapping={IssueStatusCopy} />,
+      cell: info => (
+        <StatusCellRenderer 
+          value={info.renderValue()} 
+          statusMapping={{...IssueStatusCopy, ...statusMapping}} 
+          statusColors={statusColors}
+        />
+      ),
     }),
     columnHelper.accessor('id', {
       header: 'Key',
