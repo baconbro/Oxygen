@@ -16,7 +16,7 @@ export const UserAvatar = styled(Avatar)`
 `;
 
 export const Right = styled.div`
-  padding-left: 44px;
+  padding-left: 64px;
 `;
 
 export const FakeTextarea = styled.div`

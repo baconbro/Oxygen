@@ -32,7 +32,7 @@ const ProjectBoardIssueDetailsCommentsBodyForm = ({
     <>
       <Textarea
         autoFocus
-        placeholder="Add a comment..."
+        placeholder="Add a new..."
         value={value}
         onChange={onChange}
         ref={$textareaRef}

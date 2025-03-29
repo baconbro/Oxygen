@@ -54,7 +54,7 @@ const CommentsCreate = ({ issue, updateIssue, object }) => {
           />
         ) : (
           <>
-            <FakeTextarea onClick={() => setFormOpen(true)}>Add a comment...</FakeTextarea>
+            <FakeTextarea onClick={() => setFormOpen(true)}>Add a new...</FakeTextarea>
           </>
         )}
       </Right>
