@@ -75,10 +75,7 @@ export const zIndexValues = {
 };
 
 export const font = {
-  regular: 'font-family: "Roboto"; font-weight: 400;',
-  medium: 'font-family: "Roboto"; font-weight: 500;',
-  bold: 'font-family: "Roboto"; font-weight: 700;',
-  black: 'font-family: "Roboto"; font-weight: 900;',
+ 
   size: size => `font-size: ${size}px;`,
 };
 
