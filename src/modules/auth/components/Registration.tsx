@@ -18,7 +18,7 @@ const initialValues = {
 
 const registrationSchema = Yup.object().shape({
   firstname: Yup.string()
-    .min(3, 'Minimum 3 symbols')
+    .min(2, 'Minimum 2 symbols')
     .max(50, 'Maximum 50 symbols')
     .required('First name is required'),
   email: Yup.string()
@@ -27,7 +27,7 @@ const registrationSchema = Yup.object().shape({
     .max(50, 'Maximum 50 symbols')
     .required('Email is required'),
   lastname: Yup.string()
-    .min(3, 'Minimum 3 symbols')
+    .min(1, 'Minimum 1 symbols')
     .max(50, 'Maximum 50 symbols')
     .required('Last name is required'),
   password: Yup.string()
