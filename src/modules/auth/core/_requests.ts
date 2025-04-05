@@ -78,6 +78,7 @@ export async function getUserByToken(token: string | null) { // get user info fr
   if (Object.keys(p1).length === 0 ) {
     setTimeout(() => {
       window.location.reload();
+      console.log('User not found, reloading...')
     }, 1000);
   }
   const data = {user:{api_token: token,
