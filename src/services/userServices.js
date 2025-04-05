@@ -15,13 +15,11 @@ const getOrgUsers = async (orgId) => {
 };
 
 export const getUser = async (userEmail, userId) => {
-  console.log('userEmail: ', userEmail, 'userId: ', userId);
   try {
     let q;
     if (userId) {
       q = query(collection(db, "users"), where("uid", "==", userId));
     } else {
-      console.log('userEmail: ', userEmail);
       q = query(collection(db, "users"), where("email", "==", userEmail));
     }
     const querySnapshot = await getDocs(q);
