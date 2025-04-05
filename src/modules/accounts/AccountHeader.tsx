@@ -5,7 +5,7 @@ import { useLocation } from 'react-router'
 import { useAuth } from '../auth'
 import { Avatar } from '../../components/common'
 import ImageInput from './components/ImageInput'
-import * as FirestoreService from '../../services/firestore'
+import { editUser } from '../../services/userServices'
 
 const AccountHeader: React.FC = () => {
   const location = useLocation()
@@ -15,7 +15,7 @@ const AccountHeader: React.FC = () => {
   const handleImageSelected = (base64Data: string) => {
     setSelectedImage(base64Data);
     const who = { email: currentUser?.email }
-    FirestoreService.editUser(who, { photoURL: base64Data ?? "" })
+    editUser(who, { photoURL: base64Data ?? "" })
   };
 
 

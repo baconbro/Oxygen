@@ -411,6 +411,7 @@ export const deleteSpace = async (spaceId, orgId) => {
 
 
 //User
+// DEPRECATED: Use the version from userServices.js instead
 export const editUser = async (values, fields) => {
     if (!fields) { fields = {} }
 
@@ -427,6 +428,7 @@ export const editUser = async (values, fields) => {
     // Call the editOrgUser function after updating the user
     await editOrgUser(updatedDocs.map(doc => doc.data()), updatedDocs.map(doc => doc.data()));
 };
+
 export const basicEditUser = async (values) => {
     const update = await updateProfile(auth.currentUser, values)
         .then(async value => {
