@@ -25,13 +25,8 @@ const AccountHeader: React.FC = () => {
       <div className='card-body pt-9 pb-0'>
         <div className='d-flex flex-wrap flex-sm-nowrap mb-3'>
           <div className='me-7 mb-4'>
-            <div className='avatar avatar-100px avatar-lg-160px avatar-fixed position-relative'>
-
-
-
-
-              <div className="image-input image-input-empty" //data-xgn-image-input="true"
-              >
+            <div className='avatar avatar-100px avatar-fixed position-relative'>
+              <div className="image-input image-input-empty">
 
                 <div className="image-input-wrapper w-100px h-100px">
                   <Avatar name={currentUser?.all?.fName} avatarUrl={selectedImage} size={100} className={''} />
@@ -68,7 +63,7 @@ const AccountHeader: React.FC = () => {
               </div>
 
 
-              <div className='position-absolute translate-middle bottom-0 start-100 mb-6 bg-success rounded-circle border border-4 border-white h-20px w-20px'></div>
+             
             </div>
           </div>
 
