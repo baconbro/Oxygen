@@ -8,33 +8,34 @@ import { useAuth } from "../../../modules/auth";
 
 
 export const LastWeek = () => {
-    const [doneItemsFromLastWeek, setDoneItemsFromLastWeek] = useState()
-    const [editedItemsFromLastWeek, setEditedItemsFromLastWeek] = useState()
-    const [newItemsFromLastWeek, setNewItemsFromLastWeek] = useState()
+    const [doneItemsFromLastWeek, setDoneItemsFromLastWeek] = useState(0)
+    const [editedItemsFromLastWeek, setEditedItemsFromLastWeek] = useState(0)
+    const [newItemsFromLastWeek, setNewItemsFromLastWeek] = useState(0)
     const { currentUser } = useAuth();
-    const idr = currentUser?.all.currentOrg ?? currentUser?.orgs[0]
+    const idr = currentUser?.all?.currentOrg ?? (currentUser?.orgs && currentUser?.orgs[0])
 
 
     useEffect(() => {
-        refreshData()
-    }, []);
+        if (idr) {
+            refreshData();
+        }
+    }, [idr]);
 
     const refreshData = () => {
+        if (!idr) return;
 
         getDoneItemsFromLastWeek(idr)
             .then((numberOfItems) => {
-                setDoneItemsFromLastWeek(numberOfItems)
+                setDoneItemsFromLastWeek(numberOfItems || 0)
             });
-            getEditedItemsFromLastWeek(idr)
+        getEditedItemsFromLastWeek(idr)
             .then((numberOfItems) => {
-                setEditedItemsFromLastWeek(numberOfItems)
+                setEditedItemsFromLastWeek(numberOfItems || 0)
             });
-            getNewItemsFromLastWeek(idr)
+        getNewItemsFromLastWeek(idr)
             .then((numberOfItems) => {
-                setNewItemsFromLastWeek(numberOfItems)
+                setNewItemsFromLastWeek(numberOfItems || 0)
             });
-
-
     }
 
     return (

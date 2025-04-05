@@ -17,9 +17,13 @@ export const MyWork = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const userId = currentUser?.all?.uid;
-  const orgId = currentUser?.all?.currentOrg || currentUser?.orgs[0];
+  const orgId = currentUser?.all?.currentOrg || (currentUser?.orgs && currentUser?.orgs[0]);
   
-  const { data: assignedTasks, isLoading } = useGetAssignedTasks(userId, orgId);
+  const { data: assignedTasks, isLoading } = useGetAssignedTasks(
+    userId || "", 
+    orgId || "", 
+    { enabled: !!userId && !!orgId }
+  );
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [filters, setFilters] = useState({
     dueDate: 'all',
