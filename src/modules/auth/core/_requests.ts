@@ -1,6 +1,8 @@
 import axios from 'axios'
 import {AuthModel, UserModel} from './_models'
 import * as FirestoreService from '../../../services/firestore'
+// Add import for userServices
+import { getUser } from '../../../services/userServices'
 
 const API_URL = process.env.REACT_APP_API_URL
 
@@ -65,22 +67,69 @@ export async function getUserByToken(token: string | null) { // get user info fr
     photoURL?:string; 
     email?:string | undefined;
     name?:string | undefined;
-
   };
-  let p1:user = {}
-  await FirestoreService.getUserInfo(token)
-  .then(querySnapshot => {
-    querySnapshot.forEach((doc) => {
-      p1 = doc.data();
-    });
-  })
-  //check if user is logged else reload page
-  if (Object.keys(p1).length === 0 ) {
-    setTimeout(() => {
-      window.location.reload();
-      console.log('User not found, reloading...')
-    }, 1000);
-  }
+  
+  // Maximum number of retry attempts
+  const maxRetries = 5;
+  // Initial delay (longer to allow for Firebase initialization)
+  let retryDelay = 2000; 
+  // Exponential backoff factor
+  const backoffFactor = 1.5;
+  
+  // Function to try getting user info
+  const tryGetUserInfo = async (attempt: number): Promise<user> => {
+    let p1: user = {};
+    
+    try {
+      // Use userServices.getUser instead of FirestoreService.getUserInfo
+      // Assuming 'token' might be either an email or userId
+      const querySnapshot = await getUser(token);
+      
+      querySnapshot.forEach((doc) => {
+        p1 = doc.data();
+      });
+      
+      if (Object.keys(p1).length === 0) {
+        if (attempt < maxRetries) {
+          // Implement exponential backoff
+          retryDelay = Math.floor(retryDelay * backoffFactor);
+          
+          return new Promise(resolve => {
+            setTimeout(async () => {
+              resolve(await tryGetUserInfo(attempt + 1));
+            }, retryDelay);
+          });
+        } else {
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+          return p1;
+        }
+      }
+      
+      return p1;
+    } catch (error) {
+      if (attempt < maxRetries) {
+        // Also retry on errors, with exponential backoff
+        retryDelay = Math.floor(retryDelay * backoffFactor);
+        
+        return new Promise(resolve => {
+          setTimeout(async () => {
+            resolve(await tryGetUserInfo(attempt + 1));
+          }, retryDelay);
+        });
+      } else {
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+        return {};
+      }
+    }
+  };
+  
+  // Start the retry process
+  const p1 = await tryGetUserInfo(1);
+  
   const data = {user:{api_token: token,
   created_at: "novalue",
   email: p1.email,
@@ -93,9 +142,7 @@ export async function getUserByToken(token: string | null) { // get user info fr
   password:'novalue',
   photoURL: p1.photoURL,
   all : p1, 
-}}
+  }}
+  
   return data
-/*   return axios.post<UserModel>(GET_USER_BY_ACCESSTOKEN_URL, {
-    api_token: token,
-  }) */
 }
