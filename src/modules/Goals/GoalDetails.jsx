@@ -230,7 +230,7 @@ const GoalDetails = ({
       </div>
       <div className='card-body py-9'>
         <div className='row g-5 g-xl-10'>
-          <div className='col-xl-8 mb-5 mb-xl-10'>
+          <div className='col'>
             <div className=" flex-wrap d-grid gap-5 px-9 mb-5">
               <h3 className="card-title fw-bolder text-gray-800">
                 <Title issue={issue} updateIssue={updateIssue} InStyle={{}} /></h3>
@@ -246,6 +246,50 @@ const GoalDetails = ({
                 <div className="flex-wrap gap-5 px-9 mb-5">
                   <Description issue={issue} updateIssue={updateIssue} />
                 </div>
+
+                <div className="separator my-10"></div>
+                
+                <div className='px-9 mb-5'>
+                  <div className="mb-3 row">
+                    <label className="col-sm-2 col-form-label fw-bold">Status</label>
+                    <div className="col-sm-10">
+                      <Status issue={issue} updateIssue={updateIssue} customStatus={customStatus} />
+                    </div>
+                  </div>
+                  
+                  <div className="mb-3 row">
+                    <label className="col-sm-2 col-form-label fw-bold">Score</label>
+                    <div className="col-sm-10">
+                      <span className={`fs-4hx badge badge-light-${getScoreColor(issue.score)} fs-base`}>
+                        {isEditing ? (
+                          renderHourInput('score', issue, updateIssue, handleInputBlur)) : (<span onClick={handleTextClick}>{issue.score}</span>)
+                        }
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-3 row">
+                    <label className="col-sm-2 col-form-label fw-bold">Reporter</label>
+                    <div className="col-sm-10">
+                      <ProjectBoardIssueDetailsReporter issue={issue} updateIssue={updateIssue} projectUsers={orgUsersArray} />
+                    </div>
+                  </div>
+                  
+                  <div className="mb-3 row">
+                    <label className="col-sm-2 col-form-label fw-bold">Cadence</label>
+                    <div className="col-sm-10">
+                      {DateSelector()}
+                    </div>
+                  </div>
+                  
+                  <div className="mb-3 row">
+                    <label className="col-sm-2 col-form-label fw-bold">Tags</label>
+                    <div className="col-sm-10">
+                      <TagsComponent issue={issue} updateIssue={updateIssue} />
+                    </div>
+                  </div>
+                </div>
+
                 {issue.type === 'kr' && (
                   <>
                     <div className="separator my-10"></div>
@@ -362,58 +406,6 @@ const GoalDetails = ({
                 </Tab>
               )}
             </Tabs>
-          </div>
-          <div className='col-xl-4 mb-xl-10'>
-            <div className='card'>
-              <div className='card-body pt-6'>
-                <div className="me-md-2">
-                  <Status issue={issue} updateIssue={updateIssue} customStatus={customStatus} />
-                </div>
-              </div>
-            </div>
-            <div className='card card-flush bgi-no-repeat bgi-size-contain bgi-position-x-end '
-              style={{
-                backgroundPosition: 'right',
-                backgroundImage: `url("${toAbsoluteUrl('/media/svg/shapes/wave-bg-dark.svg')}")`,
-              }}
-            >
-              <div className='card-body pt-6'>
-                <div className="me-md-2">
-                  <h3 className="fw-bold mb-1">Score</h3>
-                  <span className={`fs-4hx badge badge-light-${getScoreColor(issue.score)} fs-base`}>
-                    {isEditing ? (
-                      renderHourInput('score', issue, updateIssue, handleInputBlur)) : (<span onClick={handleTextClick}>{issue.score}</span>)
-                    }
-                  </span>
-                </div>
-
-              </div>
-            </div>
-            <div className='card'>
-              <div className='card-body pt-6'>
-                <div className="">
-                </div>
-                <div className="me-md-2">
-                  <ProjectBoardIssueDetailsReporter issue={issue} updateIssue={updateIssue} projectUsers={orgUsersArray} />
-                </div>
-
-              </div>
-            </div>
-            <div className='card'>
-              <div className='card-body pt-6'>
-                <div className="">
-                  <h3 className="fw-bold mb-1">Cadence</h3>
-                  {DateSelector()}
-
-                </div>
-
-              </div>
-            </div>
-            <div className='card'>
-              <div className='card-body pt-6'>
-                <TagsComponent issue={issue} updateIssue={updateIssue} />
-              </div>
-            </div>
           </div>
         </div>
 
