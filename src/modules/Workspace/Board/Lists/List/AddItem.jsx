@@ -42,7 +42,7 @@ const AddItem = ({ status, currentUserId, spaceId, lastIssue, isSprint, sprintId
                 listPosition: lastIssue,
                 type: 'task',
                 title: body,
-                reporterId: currentUser.id,
+                reporterId: currentUser.all.id,
                 userIds: [],
                 priority: '',
                 users: [],

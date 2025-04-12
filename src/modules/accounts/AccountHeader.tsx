@@ -14,7 +14,9 @@ const AccountHeader: React.FC = () => {
 
   const handleImageSelected = (base64Data: string) => {
     setSelectedImage(base64Data);
-    const who = { email: currentUser?.email }
+    const who = currentUser
+    console.log("base64Data", base64Data)
+    console.log("currentUser", currentUser?.all)
     editUser(who, { photoURL: base64Data ?? "" })
   };
 

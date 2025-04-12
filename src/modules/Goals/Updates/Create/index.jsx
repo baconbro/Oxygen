@@ -22,7 +22,7 @@ const UpdatesCreate = ({ issue, updateIssue, object }) => {
         issueId: issue.id,
         id: id,
         createdAt: date,
-        user: currentUser.email,
+        user: currentUser.all.email,
         newScore: newScore,
         newStatus: newStatus,
         //if issue.status is not equal to newStatus, then add old status
@@ -47,7 +47,7 @@ const UpdatesCreate = ({ issue, updateIssue, object }) => {
 
   return (
     <Create>
-      {currentUser && <UserAvatar name={currentUser.first_name} avatarUrl={currentUser.photoURL} />}
+      {currentUser && <UserAvatar name={currentUser.all.fName} avatarUrl={currentUser.all.photoURL} />}
       <Right>
         {isFormOpen ? (
           <BodyForm

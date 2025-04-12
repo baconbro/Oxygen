@@ -83,7 +83,7 @@ const Goals = () => {
   const { data: okrs, status, error } = useFetchOKRs(currentUser?.all?.currentOrg);
   const match = useLocation();
   const navigate = useNavigate();
-  const { setCurrentGoal, setOrgUsers, setHighLevelWorkItems, orgUsers, filters, setGoals } = useWorkspace();
+  const { setCurrentGoal, orgUsers, filters, setGoals } = useWorkspace();
   const [refreshData, setRefreshData] = React.useState(true);
   const [filteredIssues, setFilteredIssues] = useState([]);
   const [data, setData] = useState(() => [...defaultData])
@@ -140,47 +140,7 @@ const Goals = () => {
       //reloadGoals();
       setRefreshData(false); // Reset the state after fetching data
     }
-    const orgUsers = FirestoreService.getOrgUsers(currentUser?.all?.currentOrg)
-      .then((data) => {
-        if (data.exists()) {
-          const desiredResult = Object.entries(data.data().users).map(([id, { email }]) => ({ id, email }));
-          let orgUsersInfos = []
-          desiredResult.forEach(async (user) => {
-            const userInfo = await FirestoreService.getUserInfo(user.email, user.id);
-            userInfo.forEach(async (doc) => {
-              const userInfo = doc.data();
-              user.name = userInfo.name;
-              user.avatarUrl = userInfo.avatarUrl;
-              orgUsersInfos = [...orgUsersInfos, user];
-            });
-            setOrgUsers(orgUsersInfos);
-          });
-        } else {
-          console.log("No such document!");
-        }
-      }
-      )
-      .catch((err) => {
-        console.log(err);
-      }
-      );
-    const HighLevelWorkItems = FirestoreService.getHighLevelWorkItems(currentUser?.all?.currentOrg,
-      (querySnapshot) => {
-        const items =
-          querySnapshot.docs.map(docSnapshot => docSnapshot.data());
-        setHighLevelWorkItems(items);
-      },
-      (error) => console.log(error)
 
-
-
-
-
-    )
-      .catch((err) => {
-        console.log(err);
-      }
-      );
   }, [refreshData]);
 
 
@@ -264,17 +224,27 @@ const Goals = () => {
   ]
 
 
-  //get the owner name 
   const OwnerName = ({ reporterId }) => {
-    const foundItem = orgUsers.find(item => item.id === reporterId);
-    let name = ''
-    if (foundItem) {
-      name = foundItem.name;
+    let name = '';
+    let avatarUrl = '';
+    
+    // Check if orgUsers and users exist
+    if (orgUsers && orgUsers.users) {
+      // Iterate through all users to find the one with matching id
+      // Convert reporterId to number for comparison with user.id
+      const reporterIdNum = Number(reporterId);
+      
+      Object.values(orgUsers.users).forEach(user => {
+        if (user.id === reporterIdNum) {
+          // Use name property with fallbacks to other name properties
+          name = user.name || user.displayName || user.fName || '';
+          avatarUrl = user.photoURL || '';
+        }
+      });
     }
-
-    return <Avatar avatarUrl='' name={name} size={25} />
-  }
-
+  
+    return <Avatar avatarUrl={avatarUrl} name={name} size={25} />;
+  };
 
 
   const Score = ({ score }) => {

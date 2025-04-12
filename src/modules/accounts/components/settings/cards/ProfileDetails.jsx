@@ -7,13 +7,6 @@ import { useAuth } from '../../../../auth'
 const profileDetailsSchema = Yup.object().shape({
   fName: Yup.string().required('First name is required'),
   lName: Yup.string().required('Last name is required'),
-  company: Yup.string().required('Company name is required'),
-  contactPhone: Yup.string().required('Contact phone is required'),
-  companySite: Yup.string().required('Company site is required'),
-  country: Yup.string().required('Country is required'),
-  language: Yup.string().required('Language is required'),
-  timeZone: Yup.string().required('Time zone is required'),
-  currency: Yup.string().required('Currency is required'),
 })
 
 const ProfileDetails = () => {
@@ -81,23 +74,6 @@ const ProfileDetails = () => {
       <div id='xgn_account_profile_details' className='collapse show'>
         <form onSubmit={formik.handleSubmit} noValidate className='form'>
           <div className='card-body border-top p-9'>
-            {/*  <div className='row mb-6'>
-              <label className='col-lg-4 col-form-label fw-bold fs-6'>Avatar</label>
-              <div className='col-lg-8 fv-row'>
-                <input
-                  type='text'
-                  className='form-control form-control-lg form-control-solid'
-                  placeholder='Avatar url'
-                  {...formik.getFieldProps('photoURL')}
-                />
-                {formik.touched.photoURL && formik.errors.photoURL && (
-                  <div className='fv-plugins-message-container'>
-                    <div className='fv-help-block'>{formik.errors.photoURL}</div>
-                  </div>
-                )}
-              </div>
-            </div> */}
-
             <div className='row mb-6'>
               <label className='col-lg-4 col-form-label required fw-bold fs-6'>Full Name</label>
 
@@ -135,7 +111,7 @@ const ProfileDetails = () => {
             </div>
 
             <div className='row mb-6'>
-              <label className='col-lg-4 col-form-label required fw-bold fs-6'>Role</label>
+              <label className='col-lg-4 col-form-label  fw-bold fs-6'>Role</label>
 
               <div className='col-lg-8 fv-row'>
                 <input
@@ -153,7 +129,7 @@ const ProfileDetails = () => {
             </div>
 
             <div className='row mb-6'>
-              <label className='col-lg-4 col-form-label required fw-bold fs-6'>Company</label>
+              <label className='col-lg-4 col-form-label fw-bold fs-6'>Company</label>
 
               <div className='col-lg-8 fv-row'>
                 <input
@@ -172,7 +148,7 @@ const ProfileDetails = () => {
 
             <div className='row mb-6'>
               <label className='col-lg-4 col-form-label fw-bold fs-6'>
-                <span className='required'>Contact Phone</span>
+                <span className=''>Contact Phone</span>
               </label>
 
               <div className='col-lg-8 fv-row'>
@@ -192,7 +168,7 @@ const ProfileDetails = () => {
 
             <div className='row mb-6'>
               <label className='col-lg-4 col-form-label fw-bold fs-6'>
-                <span className='required'>Company Site</span>
+                <span className=''>Company Site</span>
               </label>
 
               <div className='col-lg-8 fv-row'>
@@ -212,7 +188,7 @@ const ProfileDetails = () => {
 
             <div className='row mb-6'>
               <label className='col-lg-4 col-form-label fw-bold fs-6'>
-                <span className='required'>Work location</span>
+                <span className=''>Work location</span>
               </label>
 
               <div className='col-lg-8 fv-row'>
@@ -232,7 +208,7 @@ const ProfileDetails = () => {
 
             <div className='row mb-6'>
               <label className='col-lg-4 col-form-label fw-bold fs-6'>
-                <span className='required'>Country</span>
+                <span className=''>Country</span>
               </label>
 
               <div className='col-lg-8 fv-row'>
@@ -498,7 +474,7 @@ const ProfileDetails = () => {
             </div>
 
             <div className='row mb-6'>
-              <label className='col-lg-4 col-form-label required fw-bold fs-6'>Language</label>
+              <label className='col-lg-4 col-form-label fw-bold fs-6'>Language</label>
               <div className='col-lg-8 fv-row'>
                 <select
                   className='form-select form-select-solid form-select-lg'
@@ -565,7 +541,7 @@ const ProfileDetails = () => {
             </div>
 
             <div className='row mb-6'>
-              <label className='col-lg-4 col-form-label required fw-bold fs-6'>Time Zone</label>
+              <label className='col-lg-4 col-form-label  fw-bold fs-6'>Time Zone</label>
 
               <div className='col-lg-8 fv-row'>
                 <select
@@ -736,7 +712,7 @@ const ProfileDetails = () => {
             </div>
 
             <div className='row mb-6'>
-              <label className='col-lg-4 col-form-label required fw-bold fs-6'>Currency</label>
+              <label className='col-lg-4 col-form-label fw-bold fs-6'>Currency</label>
 
               <div className='col-lg-8 fv-row'>
                 <select

@@ -26,6 +26,7 @@ const ProjectBoard = ({ fetchProject, updateLocalProjectIssues, refreshData }) =
 
   //if id.id is different from project.id then refresh the data
   useEffect(() => {
+    console.log('project', project)
     const projectUsers = (project.members ? project.users.concat(project.members) : project.users)
     setProjectUsers(projectUsers)
   }, [id.id]);

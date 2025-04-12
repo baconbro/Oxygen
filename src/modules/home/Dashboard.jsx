@@ -29,7 +29,7 @@ const DashboardPage = () => {
 	const { currentUser } = useAuth()
 
 	useEffect(() => {
-		FirestoreService.getOrgs(currentUser.email)
+		FirestoreService.getOrgs(currentUser.all.email)
 			.then(getOrgs => {
 				let a = []
 				getOrgs.forEach((doc) => {

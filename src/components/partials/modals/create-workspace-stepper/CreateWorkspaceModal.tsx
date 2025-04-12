@@ -84,11 +84,13 @@ const CreateWorkspaceModal = ({show, handleClose}: Props) => {
   }
 
   const submit = async () => {
+    console.log('currentUser', currentUser)
     const values = {
       org : currentUser?.all?.currentOrg ?? currentUser?.all?.orgs[0],
       title : data.appBasic.appName,
       config : data.appConfig ,
     }
+    console.log('values', values)
     try {
       const newSpace = await createSpace(values, currentUser);
       if(newSpace){

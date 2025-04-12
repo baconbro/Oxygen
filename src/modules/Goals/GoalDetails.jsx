@@ -59,8 +59,8 @@ const GoalDetails = ({
 
 
   //transform orgUsers into an array of objects
-  const orgUsersArray = Object.keys(orgUsers).map((key) => {
-    return { ...orgUsers[key] }
+  const orgUsersArray = Object.values(orgUsers?.users || {}).map((user) => {
+    return { ...user }
   })
 
   //get params from the url

@@ -34,7 +34,7 @@ const UpdateProfile = () => {
             <div className="toolbar mb-5 mb-lg-7" id="xgn_toolbar">
               <div className="page-title d-flex flex-column me-3">
                 <h1 className="d-flex text-dark fw-bolder my-1 fs-3">Account Settings</h1>
-                <Breadcrumbs items={['People', currentUser.fName, 'profile']} />
+                <Breadcrumbs items={['People', currentUser.all.fName, 'profile']} />
               </div>
               <div className="d-flex align-items-center py-2 py-md-1">
                 <button className='btn btn-danger fw-bold' onClick={logout}>

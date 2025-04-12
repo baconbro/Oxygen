@@ -25,7 +25,7 @@ const CommentsCreate = ({ issue, updateIssue, object }) => {
         issueId: issue.id,
         id: Math.floor(Math.random() * 1000000000000) + 1, // unique Id for the comment
         createdAt: Math.floor(Date.now()),
-        user: currentUser.email
+        user: currentUser.all.email
       };
 
       // Update the issue with the new comment
@@ -42,7 +42,7 @@ const CommentsCreate = ({ issue, updateIssue, object }) => {
 
   return (
     <Create>
-      {currentUser && <UserAvatar name={currentUser.first_name} avatarUrl={currentUser.photoURL} />}
+      {currentUser && <UserAvatar name={currentUser.all.fName} avatarUrl={currentUser.all.photoURL} />}
       <Right>
         {isFormOpen ? (
           <BodyForm

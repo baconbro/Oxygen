@@ -2,7 +2,8 @@ import axios from 'axios'
 import {AuthModel, UserModel} from './_models'
 import * as FirestoreService from '../../../services/firestore'
 // Add import for userServices
-import { getUser } from '../../../services/userServices'
+import { getUser, getOrgUsers } from '../../../services/userServices'
+
 
 const API_URL = process.env.REACT_APP_API_URL
 
@@ -62,11 +63,15 @@ export function requestPassword(email: string) {
   }) */
 }
 
-export async function getUserByToken(token: string | null) { // get user info from user tab
+export async function getUserByToken(token: string | null, setOrgUsersFunc: ((orgUsers: any) => void) | null = null) { // get user info from user tab
   type user = {
     photoURL?:string; 
     email?:string | undefined;
     name?:string | undefined;
+    orgs?: string[];
+    currentOrg?: string;
+    orgUserData?: any;
+    // Add other possible user properties
   };
   
   // Maximum number of retry attempts
@@ -78,18 +83,48 @@ export async function getUserByToken(token: string | null) { // get user info fr
   
   // Function to try getting user info
   const tryGetUserInfo = async (attempt: number): Promise<user> => {
-    let p1: user = {};
+    let userInfo: user = {};
+    let orgUsers = null;
     
     try {
-      // Use userServices.getUser instead of FirestoreService.getUserInfo
-      // Assuming 'token' might be either an email or userId
+      // Use userServices.getUser to get user data
       const querySnapshot = await getUser(token);
       
       querySnapshot.forEach((doc) => {
-        p1 = doc.data();
+        userInfo = doc.data();
       });
       
-      if (Object.keys(p1).length === 0) {
+      // If we found user data and they have organizations
+      if (userInfo && userInfo.orgs && userInfo.orgs.length > 0) {
+        const firstOrgId = userInfo.currentOrg || userInfo.orgs[0];
+        
+        try {
+          // Get all users from the organization
+          const orgUsersResult = await getOrgUsers(firstOrgId);
+          orgUsers = orgUsersResult;
+          
+          // Set org users in context if function was provided
+          if (setOrgUsersFunc && typeof setOrgUsersFunc === 'function') {
+            setOrgUsersFunc(orgUsers);
+          }
+          
+          // If user exists in org users, enhance user data with org user data
+          if (orgUsers?.users && userInfo.email) {
+            // Find the user in org users by email
+            const orgUserEntries = Object.entries(orgUsers.users);
+            const matchingOrgUser = orgUserEntries.find(([_, userData]) => userData.email === userInfo.email);
+            
+            if (matchingOrgUser) {
+              // Merge org user data with user data
+              userInfo =  matchingOrgUser[1]
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching organization users:', error);
+        }
+      }
+      
+      if (Object.keys(userInfo).length === 0) {
         if (attempt < maxRetries) {
           // Implement exponential backoff
           retryDelay = Math.floor(retryDelay * backoffFactor);
@@ -103,11 +138,11 @@ export async function getUserByToken(token: string | null) { // get user info fr
           setTimeout(() => {
             window.location.reload();
           }, 1000);
-          return p1;
+          return userInfo;
         }
       }
       
-      return p1;
+      return userInfo;
     } catch (error) {
       if (attempt < maxRetries) {
         // Also retry on errors, with exponential backoff
@@ -128,21 +163,12 @@ export async function getUserByToken(token: string | null) { // get user info fr
   };
   
   // Start the retry process
-  const p1 = await tryGetUserInfo(1);
+  const userInfo = await tryGetUserInfo(1);
   
-  const data = {user:{api_token: token,
-  created_at: "novalue",
-  email: p1.email,
-  email_verified_at: "novalue",
-  first_name: p1.name,
-  id: 0,
-  last_name: "Stark",
-  updated_at: "novalue",
-  username:'novalue',
-  password:'novalue',
-  photoURL: p1.photoURL,
-  all : p1, 
-  }}
-  
+  const data = {
+    user:{
+      all: userInfo,
+    }
+  }
   return data
 }

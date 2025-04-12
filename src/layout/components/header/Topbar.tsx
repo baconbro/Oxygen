@@ -35,7 +35,7 @@ const Topbar = () => {
           data-xgn-menu-placement='bottom-end'
           data-xgn-menu-flip='bottom'
         >
-          <Avatar name={currentUser?.all?.fName} avatarUrl={currentUser?.photoURL} size={30} className={''} />
+          <Avatar name={currentUser?.all?.fName} avatarUrl={currentUser?.all?.photoURL} size={30} className={''} />
 
         </div>
         <HeaderUserMenu />

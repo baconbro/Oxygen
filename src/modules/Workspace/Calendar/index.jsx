@@ -18,7 +18,7 @@ const Calendar = () => {
   const { currentUser } = useAuth();
   const editItemMutation = useUpdateItem();
   const navigate = useNavigate();
-  const filterItems = filterIssues(items, filters, currentUser.id);
+  const filterItems = filterIssues(items, filters, currentUser.all.id);
 
   useEffect(() => {
     setItems(project.issues)

@@ -1,17 +1,88 @@
-import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where, setDoc, deleteDoc, getDoc, batch, deleteField } from 'firebase/firestore';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { db } from '../services/firestore';
-import { editOrgUser } from '../services/firestore';
 
-
-const getOrgUsers = async (orgId) => {
+// New function to migrate users from old structure to subcollection
+export const migrateOrgUsers = async (orgId) => {
   try {
-    const docRef = doc(db, "organisation", orgId);
-    const org = await getDoc(docRef)
-    return org.data();
+    // First, check if the organization document has a users field
+    const orgRef = doc(db, "organisation", orgId);
+    const orgDoc = await getDoc(orgRef);
+    
+    if (!orgDoc.exists()) {
+      console.warn(`Organization with ID ${orgId} does not exist.`);
+      return false;
+    }
+    
+    const orgData = orgDoc.data();
+    const usersInOrgDoc = orgData.users;
+    
+    if (!usersInOrgDoc || Object.keys(usersInOrgDoc).length === 0) {
+      // No users in the old structure, nothing to migrate
+      return false;
+    }
+    
+    console.log(`Found ${Object.keys(usersInOrgDoc).length} users to migrate in org ${orgId}`);
+    
+    // Create a batch for atomic operations
+    const batchWrite = db.batch();
+    
+    // Check if users already exist in subcollection to avoid duplicates
+    const usersColRef = collection(db, "organisation", orgId, "users");
+    const existingUsersSnapshot = await getDocs(usersColRef);
+    const existingUserIds = new Set();
+    
+    existingUsersSnapshot.forEach(doc => {
+      existingUserIds.add(doc.id);
+    });
+    
+    // Transfer each user to the subcollection
+    let migratedCount = 0;
+    for (const [userId, userData] of Object.entries(usersInOrgDoc)) {
+      if (!existingUserIds.has(userId)) {
+        const userDocRef = doc(db, "organisation", orgId, "users", userId);
+        batchWrite.set(userDocRef, userData);
+        migratedCount++;
+      }
+    }
+    
+    if (migratedCount > 0) {
+      // After migrating all users, remove the users field from the org document
+      batchWrite.update(orgRef, { users: deleteField() });
+      
+      // Commit the batch
+      await batchWrite.commit();
+      console.log(`Successfully migrated ${migratedCount} users to subcollection for org ${orgId}`);
+      return true;
+    } else {
+      console.log("No new users to migrate");
+      return false;
+    }
   } catch (error) {
-    console.error('Error fetching items: ', error);
-    throw new Error('Error fetching items');
+    console.error("Error migrating users:", error);
+    return false;
+  }
+};
+
+export const getOrgUsers = async (orgId) => {
+  try {
+    // First, try to migrate any users from the old structure
+    await migrateOrgUsers(orgId);
+    
+    // Then fetch from the subcollection
+    const usersColRef = collection(db, "organisation", orgId, "users");
+    const querySnapshot = await getDocs(usersColRef);
+    
+    // Transform into an object with uid as keys for backward compatibility
+    const users = {};
+    querySnapshot.forEach((doc) => {
+      users[doc.id] = doc.data();
+    });
+    
+    return { users };
+  } catch (error) {
+    console.error('Error fetching users: ', error);
+    throw new Error('Error fetching users');
   }
 };
 
@@ -35,18 +106,26 @@ export const getUser = async (userEmail, userId) => {
 export const editUser = async (values, fields) => {
   if (!fields) { fields = {} }
 
-  const q = query(collection(db, "users"), where("email", "==", values.email));
+  // Exit the function if no currentOrg is provided
+  if (!values.all.currentOrg) {
+      console.warn("No currentOrg provided. Exiting editOrgUser.");
+      return;
+  }
+
+  const orgId = values.all.currentOrg;
+  const userEmail = values.all.email;
+  
+  // Find user with matching email in the subcollection
+  const usersColRef = collection(db, "organisation", orgId, "users");
+  const q = query(usersColRef, where("email", "==", userEmail));
   const querySnapshot = await getDocs(q);
-
-  const userUpdates = querySnapshot.docs.map(async doc => {
-      await setDoc(doc.ref, fields, { merge: true });
-      return getDoc(doc.ref); // Re-fetch the updated document
+  
+  // Update the user document with the new fields
+  const updates = querySnapshot.docs.map(doc => {
+      return setDoc(doc.ref, { ...fields }, { merge: true });
   });
-
-  const updatedDocs = await Promise.all(userUpdates);
-
-  // Call the editOrgUser function after updating the user
-  await editOrgUser(updatedDocs.map(doc => doc.data()), updatedDocs.map(doc => doc.data()));
+  
+  return Promise.all(updates);
 };
 
 // React Query hooks

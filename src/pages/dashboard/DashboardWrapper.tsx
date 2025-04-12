@@ -4,10 +4,26 @@ import { LastWeek } from './Components/LastWeek'
 import { MyWork } from './Components/MyWork'
 import { useAuth } from '../../modules/auth'
 import { Avatar } from '../../components/common'
+import { useWorkspace } from '../../contexts/WorkspaceProvider'
+import { useGetOrgUsers } from '../../services/userServices'
+import { useEffect } from 'react'
+
 
 const DashboardWrapper = () => {
   const intl = useIntl()
   const { currentUser } = useAuth()
+  const {setOrgUsers} = useWorkspace();
+
+  // Fetch organization users silently in the background
+  const { data: orgUsers, status } = useGetOrgUsers(currentUser?.all?.currentOrg)
+
+  // Update org users when data is available
+  useEffect(() => {
+    if (orgUsers) {
+      setOrgUsers(orgUsers)
+    }
+  }, [orgUsers, setOrgUsers])
+
   
   // Function to determine greeting based on time of day
   const getGreeting = () => {
@@ -28,7 +44,7 @@ const DashboardWrapper = () => {
             <div className="symbol symbol-70px me-5">
               <Avatar 
                 name={currentUser?.all?.fName} 
-                avatarUrl={currentUser?.photoURL} 
+                avatarUrl={currentUser?.all.photoURL} 
                 size={70} 
                 className="" 
               />

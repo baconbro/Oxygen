@@ -37,8 +37,7 @@ import { getAnalytics } from "firebase/analytics";
 import { async } from "@firebase/util";
 import { defaultWorkspaceConfig } from "../constants/defaultConfig";
 import { useFirestoreQuery } from "@react-query-firebase/firestore";
-
-
+import { migrateOrgUsers } from './userServices';
 
 const firebaseConfig = {
     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -90,60 +89,70 @@ export const registerWithEmailAndPassword = async (name, email, password, lastna
     }).then(() => {
 
     }).catch((error) => {
-
+        console.error("Error updating profile:", error);
     });
+    
     const userData = {
-        uid: auth.currentUser.uid,
+        uid: user.uid, // Use uid from the creation result
         name: name,
-        email: email,
+        email: user.email, // Use email from the creation result
         displayName: name,
-        id: Math.floor(Math.random() * 1000000000000) + 1, //number, because it needed somwhere in the code. Maybe not valuable
+        id: Math.floor(Math.random() * 1000000000000) + 1, // Consider if this custom ID is necessary
         lastlogin: serverTimestamp(),
         lastname: lastname,
         lName: lastname,
         fName: name
     };
-    //check if user exists then update with new data else create new user
+
+    // Add userData to the user object under the 'all' property
+    user.all = userData;
+    
+    
+    // Check if user exists then update with new data else create new user
     const q = query(collection(db, "users"), where("email", "==", user.email));
     const querySnapshot = await getDocs(q);
+    
     if (querySnapshot.empty) {
-        await addDoc(collection(db, "users"), userData);
-        await createOrg({ title: name + ' team' }, user)
+        try {
+            // Create user in users collection
+            await addDoc(collection(db, "users"), userData);
+            
+            // Create organization with the user in the subcollection
+            // Use try/catch and wait for the full resolution
+            const orgResult = await createOrg({ title: name + ' team' }, user);
+            
+            // Only log after the operation is fully complete
+            console.log("Organization creation result:", orgResult);
+        } catch (error) {
+            console.error("Error during organization creation:", error);
+        }
     } else {
+        // Update existing user
         querySnapshot.forEach(async (doc) => {
             setDoc(doc.ref, userData, { merge: true });
         });
-        //get the org where the user is a member and get the key of the user
-        const orgs = await getOrgs(user.email)
+        
+        // Get the organizations where the user is a member
+        const orgs = await getOrgs(user.email);
+        
+        // For each organization, add/update user in the subcollection
         orgs.forEach(async (org) => {
-            const orgData = org.data();
-            const orgUsers = org.data().users;
             const orgId = org.id;
-            const orgRef = doc(db, 'organisation', orgId);
-
-            // Find the user with the given email
-            const userKey = Object.keys(orgUsers).find(key => {
-                return orgUsers[key].email === user.email;
-            });
-
-            if (!userKey) {
-                console.error(`User with email ${user.email} does not exist.`);
-                return;
-            }
-
-            // Check if userKey is a number
-            if (!isNaN(parseInt(userKey))) {
-
-                // Convert userKey to the new key
-                orgUsers[user.uid] = orgUsers[userKey];
-                orgUsers[user.uid].status = "registered";
-                await setDoc(orgRef, { users: { [user.uid]: orgUsers[user.uid] } }, { merge: true });
-                await updateDoc(orgRef,
-                    { ["users." + userKey]: deleteField() }
-                )
-            }
-        })
+            
+            // Add or update user in the subcollection
+            const userDocRef = doc(db, "organisation", orgId, "users", user.uid);
+            await setDoc(userDocRef, { 
+                uid: user.uid,
+                email: user.email,
+                name: name,
+                displayName: name,
+                status: "registered",
+                role: "member",
+                joined: Math.floor(Date.now())
+            }, { merge: true });
+        });
     }
+    
     return res;
 };
 
@@ -181,10 +190,10 @@ export const addComment = async (orgId, body, issueId, currentUser) => {
         id: Math.floor(Math.random() * 1000000000000) + 1, //numer, unique Id for the issue to be shown
         createdAt: Math.floor(Date.now()),
         user: {
-            avatarUrl: currentUser.photoURL,
-            email: currentUser.email,
+            avatarUrl: currentUser.all.photoURL,
+            email: currentUser.all.email,
             //id:currentUser.id,
-            name: currentUser.first_name
+            name: currentUser.all.fName
         },
     }
     querySnapshot.forEach(async (doc) => {
@@ -343,10 +352,9 @@ export const createSpace = async (values, user) => {
     const itemsColRef = collection(db, 'organisation', values.org, 'spaces')
     let userPhotoURL = ""
     //if user.photoURL is null, use default image
-    if (user.photoURL === null) {
+    if (user.all.photoURL === null) {
         userPhotoURL = "media/logos/logo_oxy.png"
-    } else { userPhotoURL = user.photoURL }
-
+    } else { userPhotoURL = user.all.photoURL }
     const docRef = await addDoc(itemsColRef, {
         org: values.org,
         title: values.title,
@@ -354,8 +362,8 @@ export const createSpace = async (values, user) => {
         users: [{
             avatarUrl: "",
             id: user.all.uid,
-            email: user.email,
-            name: user.first_name,
+            email: user.all.email,
+            name: user.all.fName,
             role: 'owner'
         }],
         config: values.config || defaultWorkspaceConfig,
@@ -469,28 +477,20 @@ export const editOrgUser = async (values, fields) => {
         return;
     }
 
-    const orgRef = doc(db, "organisation", values[0].currentOrg);
-    const orgDoc = await getDoc(orgRef);
-
-    if (orgDoc.exists()) {
-        const orgData = orgDoc.data();
-        let users = orgData?.users || {};
-
-        // Find user with matching email and update their details
-        for (let uid in users) {
-            if (users[uid].email === values[0].email) {
-                users[uid] = {
-                    ...users[uid],
-                    ...fields[0]
-                };
-            }
-        }
-
-        // Update the organisation document with the modified users data
-        return await setDoc(orgRef, { users: users }, { merge: true });
-    } else {
-        console.error("Organisation not found");
-    }
+    const orgId = values[0].currentOrg;
+    const userEmail = values[0].email;
+    
+    // Find user with matching email in the subcollection
+    const usersColRef = collection(db, "organisation", orgId, "users");
+    const q = query(usersColRef, where("email", "==", userEmail));
+    const querySnapshot = await getDocs(q);
+    
+    // Update the user document with the new fields
+    const updates = querySnapshot.docs.map(doc => {
+        return setDoc(doc.ref, { ...fields[0] }, { merge: true });
+    });
+    
+    return Promise.all(updates);
 };
 
 
@@ -510,10 +510,21 @@ export const getOrgs = async (userEmail) => {
 }
 
 export const getOrgUsers = async (orgId) => {
-    const docRef = doc(db, "organisation", orgId);
-    const org = await getDoc(docRef)
-    return org;
-}
+    // First, try to migrate any users from the old structure using the function from userServices
+    await migrateOrgUsers(orgId);
+    
+    // Then fetch users from the subcollection
+    const usersColRef = collection(db, "organisation", orgId, "users");
+    const querySnapshot = await getDocs(usersColRef);
+    
+    // Transform into an object with uid as keys for backward compatibility
+    const users = {};
+    querySnapshot.forEach((doc) => {
+      users[doc.id] = doc.data();
+    });
+    
+    return { data: () => ({ users }) };
+};
 
 export const inviteUser = async (email, orgId) => {
     //check if user email exist
@@ -564,7 +575,6 @@ export const removeUserFromOrg = async (email, orgId) => {
 };
 
 export const addUserToOrg = async (email, orgId, uid) => {
-    const q = doc(db, 'organisation', orgId)
     //test if uid is a number
     if (isNaN(uid)) {
         var status = 'member'
@@ -579,15 +589,17 @@ export const addUserToOrg = async (email, orgId, uid) => {
         role: 'member',
         status: status,
     }
-    const org = await getDoc(q)
-    if (Object.keys(org.data().users).length < 10) {
-        return await setDoc(q, {
-            users: {
-                [uid]: feild
-            }
-        }, { merge: true })
+    
+    // Get the count of users to enforce limit
+    const usersColRef = collection(db, "organisation", orgId, "users");
+    const querySnapshot = await getDocs(usersColRef);
+    
+    if (querySnapshot.size < 10) {
+        // Add user to subcollection instead of org document
+        const userDocRef = doc(db, "organisation", orgId, "users", uid);
+        return await setDoc(userDocRef, feild);
     } else {
-        throw new Error("Free plan is limited to 10 users. Please upgrade plan.")
+        throw new Error("Free plan is limited to 10 users. Please upgrade plan.");
     }
 }
 
@@ -595,27 +607,36 @@ export const createOrg = async (values, user) => {
     const itemsColRef = collection(db, 'organisation')
     // Create a new user object with the user's information
     const newUser = {
-        email: user.email,
-        joined: Math.floor(Date.now()),
-        role: 'owner'
+        ...user.all, // Spread all properties from user.all
+        joined: Math.floor(Date.now()), // Add or overwrite the joined timestamp
+        role: 'owner' // Add or overwrite the role
     };
 
+    // Create the organization document
     const docRef = await addDoc(itemsColRef, {
-        name: values.title,
-        users: { [user.uid]: newUser }
-    })
+        name: values.title
+    });
+    
+    // Add the user to the users subcollection
+    const userDocRef = doc(db, "organisation", docRef.id, "users", user.uid);
+    await setDoc(userDocRef, newUser);
+    
     let userRef = []
     const q = query(collection(db, "users"), where("email", "==", user.email));
     await getDocs(q)
         .then(async querySnapshot => {
             const snapshot = querySnapshot.docs[0]
             userRef = snapshot.ref
-            //await delay(1000);
-        })
-    return await updateDoc(userRef, {
+        });
+    
+    await updateDoc(userRef, {
         orgs: arrayUnion(docRef.id),
         currentOrg: docRef.id,
     });
+    await updateDoc(userDocRef, {
+        currentOrg: docRef.id,
+    });
+    return docRef.id;
 };
 
 export const editOrg = async (feild, orgId) => {
@@ -625,15 +646,17 @@ export const editOrg = async (feild, orgId) => {
 };
 
 export const editUsers = async (user, orgId) => {
-    const q = doc(db, 'organisation', orgId)
-    const org = await getDoc(q)
-    if (Object.keys(org.data().users).length < 10) {
-        await updateDoc(q, {
-            ["users." + user.id]: deleteField()
-        })
-        return await removeUserFromOrg(user.email, orgId)
+    // Get the count of users
+    const usersColRef = collection(db, "organisation", orgId, "users");
+    const querySnapshot = await getDocs(usersColRef);
+    
+    if (querySnapshot.size < 10) {
+        // Delete the user document from subcollection
+        const userDocRef = doc(db, "organisation", orgId, "users", user.id);
+        await deleteDoc(userDocRef);
+        return await removeUserFromOrg(user.email, orgId);
     } else {
-        throw new Error("Free plan is limited to 10 users. Please upgrade plan.")
+        throw new Error("Free plan is limited to 10 users. Please upgrade plan.");
     }
 };
 export const getOrgData = (id) => {
@@ -720,14 +743,5 @@ export const getItemsByPriority = async (orgId, priorities) => {
 
         counts[priority] = querySnapshot.size;
     }
-
     return counts; // object with the number of items for each status
 };
-
-
-
-
-
-
-
-
