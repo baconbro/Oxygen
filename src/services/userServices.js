@@ -2,72 +2,10 @@ import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { db } from '../services/firestore';
 
-// New function to migrate users from old structure to subcollection
-export const migrateOrgUsers = async (orgId) => {
-  try {
-    // First, check if the organization document has a users field
-    const orgRef = doc(db, "organisation", orgId);
-    const orgDoc = await getDoc(orgRef);
-    
-    if (!orgDoc.exists()) {
-      console.warn(`Organization with ID ${orgId} does not exist.`);
-      return false;
-    }
-    
-    const orgData = orgDoc.data();
-    const usersInOrgDoc = orgData.users;
-    
-    if (!usersInOrgDoc || Object.keys(usersInOrgDoc).length === 0) {
-      // No users in the old structure, nothing to migrate
-      return false;
-    }
-    
-    console.log(`Found ${Object.keys(usersInOrgDoc).length} users to migrate in org ${orgId}`);
-    
-    // Create a batch for atomic operations
-    const batchWrite = db.batch();
-    
-    // Check if users already exist in subcollection to avoid duplicates
-    const usersColRef = collection(db, "organisation", orgId, "users");
-    const existingUsersSnapshot = await getDocs(usersColRef);
-    const existingUserIds = new Set();
-    
-    existingUsersSnapshot.forEach(doc => {
-      existingUserIds.add(doc.id);
-    });
-    
-    // Transfer each user to the subcollection
-    let migratedCount = 0;
-    for (const [userId, userData] of Object.entries(usersInOrgDoc)) {
-      if (!existingUserIds.has(userId)) {
-        const userDocRef = doc(db, "organisation", orgId, "users", userId);
-        batchWrite.set(userDocRef, userData);
-        migratedCount++;
-      }
-    }
-    
-    if (migratedCount > 0) {
-      // After migrating all users, remove the users field from the org document
-      batchWrite.update(orgRef, { users: deleteField() });
-      
-      // Commit the batch
-      await batchWrite.commit();
-      console.log(`Successfully migrated ${migratedCount} users to subcollection for org ${orgId}`);
-      return true;
-    } else {
-      console.log("No new users to migrate");
-      return false;
-    }
-  } catch (error) {
-    console.error("Error migrating users:", error);
-    return false;
-  }
-};
+
 
 export const getOrgUsers = async (orgId) => {
   try {
-    // First, try to migrate any users from the old structure
-    await migrateOrgUsers(orgId);
     
     // Then fetch from the subcollection
     const usersColRef = collection(db, "organisation", orgId, "users");

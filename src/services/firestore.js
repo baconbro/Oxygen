@@ -37,7 +37,7 @@ import { getAnalytics } from "firebase/analytics";
 import { async } from "@firebase/util";
 import { defaultWorkspaceConfig } from "../constants/defaultConfig";
 import { useFirestoreQuery } from "@react-query-firebase/firestore";
-import { migrateOrgUsers } from './userServices';
+
 
 const firebaseConfig = {
     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -510,8 +510,7 @@ export const getOrgs = async (userEmail) => {
 }
 
 export const getOrgUsers = async (orgId) => {
-    // First, try to migrate any users from the old structure using the function from userServices
-    await migrateOrgUsers(orgId);
+
     
     // Then fetch users from the subcollection
     const usersColRef = collection(db, "organisation", orgId, "users");

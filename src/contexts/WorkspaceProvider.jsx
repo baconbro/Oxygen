@@ -1,7 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import useMergeState from '../hooks/mergeState';
-import { migrateOrgUsers } from '../services/userServices';
 import { useAuth } from '../modules/auth';
 
 const WorkspaceContext = React.createContext();
@@ -57,20 +56,7 @@ export function WorkspaceProvider({ children }) {
     }
   }, [location.search]);
 
-  // Add effect to migrate users when currentUser changes
-  useEffect(() => {
-    if (currentUser?.all?.currentOrg) {
-      migrateOrgUsers(currentUser.all.currentOrg)
-        .then(migrated => {
-          if (migrated) {
-            console.log("Users migrated successfully");
-          }
-        })
-        .catch(err => {
-          console.error("Error during user migration:", err);
-        });
-    }
-  }, [currentUser?.all?.currentOrg]);
+
 
   const addCard = card => {
     setCards([...cards, card]);
