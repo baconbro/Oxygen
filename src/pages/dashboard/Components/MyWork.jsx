@@ -62,7 +62,6 @@ export const MyWork = () => {
       const newStatusColors = {};
       
       assignedTasks.forEach(task => {
-        console.log(task);
         if (task.status && task.projectDetails?.statusConfig) {
           const statusConfig = task.projectDetails.statusConfig.find(s => s.id === task.status);
           if (statusConfig) {
