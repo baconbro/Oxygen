@@ -83,40 +83,21 @@ export function Registration() {
       id='xgn_login_signup_form'
       onSubmit={formik.handleSubmit}
     >
-      {/* begin::Heading */}
       <div className='mb-10 text-center'>
-        {/* begin::Title */}
         <h1 className='text-dark mb-3'>Create an Account</h1>
         <p>Unlock the limitless possibilities – no strings attached! Begin your journey for free, no credit card required.</p>
-        {/* end::Title */}
 
-        {/* begin::Link */}
         <div className='text-gray-400 fw-bold fs-4'>
           Already have an account?
           <Link to='/auth/login' className='link-primary fw-bolder' style={{ marginLeft: '5px' }}>
             Sign in
           </Link>
         </div>
-        {/* end::Link */}
       </div>
-      {/* end::Heading */}
 
-      {/* begin::Action */}
-      {/*       <button type='button' className='btn btn-light-primary fw-bolder w-100 mb-10'>
-        <img
-          alt='Logo'
-          src={toAbsoluteUrl('/media/svg/brand-logos/google-icon.svg')}
-          className='h-20px me-3'
-        />
-        Sign in with Google
-      </button>
-
-
-      <div className='d-flex align-items-center mb-10'>
-        <div className='border-bottom border-gray-300 mw-50 w-100'></div>
-        <span className='fw-bold text-gray-400 fs-7 mx-2'>OR</span>
-        <div className='border-bottom border-gray-300 mw-50 w-100'></div>
-      </div> */}
+      <div className='alert alert-info mb-10' role='alert'>
+        <strong>You're Using an Active Development Beta!</strong> We're thrilled to have you use the application fully. Because this version is constantly evolving, robust security hardening and guaranteed data backups are part of the ongoing work, not yet finalized. Please bear this in mind, especially with sensitive data. Enjoy the early access!
+      </div>
 
       {formik.status && (
         <div className='mb-lg-15 alert alert-danger'>
@@ -124,7 +105,6 @@ export function Registration() {
         </div>
       )}
 
-      {/* begin::Form group Firstname */}
       <div className='row fv-row mb-7'>
         <div className='col-xl-6'>
           <label className='form-label fw-bolder text-dark fs-6'>First name</label>
@@ -176,7 +156,6 @@ export function Registration() {
             </div>
           )}
         </div>
-
       </div>
 
       <div className='fv-row mb-7'>
@@ -240,7 +219,6 @@ export function Registration() {
             <div className='flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2'></div>
             <div className='flex-grow-1 bg-secondary bg-active-success rounded h-5px'></div>
           </div>
-
         </div>
         <div className='text-muted'>
           Use 8 or more characters with a mix of letters, numbers & symbols.
@@ -326,7 +304,6 @@ export function Registration() {
           </button>
         </Link>
       </div>
-
     </form>
   )
 }
