@@ -167,15 +167,7 @@ export const logout = () => {
 
 //Items
 
-
-export const streamSubItem = (orgId, itemId, snapshot, error) => {
-    const subColRef = collection(db, "organisation", orgId, "items");
-    const itemsQuery = query(subColRef, where("id", "==", parseInt(itemId)))
-    return onSnapshot(itemsQuery, snapshot, error);
-};
-
-
-
+// streamSubItem function has been moved to itemServices.js
 
 
 

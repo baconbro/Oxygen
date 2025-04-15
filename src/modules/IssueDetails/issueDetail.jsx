@@ -1,16 +1,10 @@
-import { useEffect,useState } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
-
-import useMergeState from '../../hooks/mergeState';
-//import { Breadcrumbs, Modal } from '../../../../components/common';
+import { useParams } from 'react-router-dom';
 import IssueDetails from '.';
-import { getAnalytics, logEvent } from "firebase/analytics";
-
 
 const propTypes = {
   project: PropTypes.object.isRequired,
-  //fetchProject: PropTypes.func.isRequired,
   updateLocalProjectIssues: PropTypes.func.isRequired,
 };
 
@@ -22,42 +16,28 @@ const defaultFilters = {
 };
 
 const IssueDetailsPage = ({ project, fetchProject, updateLocalProjectIssues, refreshData }) => {
-  const analytics = getAnalytics();
-  logEvent(analytics, 'screen_view', {
-    firebase_screen: project.title + " - workspace - kanban board",
-    firebase_screen_class: "screenClass"
-  });
-  
-  const match = useLocation();
-  const history = useNavigate();
+
   var id = useParams()
 
-  const [filters, mergeFilters] = useMergeState(defaultFilters);
   const projectUsers = (project.members ? project.users.concat(project.members) : project.users)
   const [showCreateAppModal, setShowCreateAppModal] = useState(true)
-  const closeModal = () =>{
-    setShowCreateAppModal(false)
-    history(-1)
-  }
+
 
   useEffect(() => {
     refreshData()
-
-
   }, []);
 
   return (
     <>
 
-                  <IssueDetails
-                    issueId={id.issueId}
-                    projectUsers={projectUsers}
-                    //fetchProject={fetchProject}
-                    updateLocalProjectIssues={updateLocalProjectIssues}
-                    modalClose={() => setShowCreateAppModal(false)}
-                    issueProps={project.issues}
-                  />
- 
+      <IssueDetails
+        issueId={id.issueId}
+        projectUsers={projectUsers}
+        updateLocalProjectIssues={updateLocalProjectIssues}
+        modalClose={() => setShowCreateAppModal(false)}
+        issueProps={project.issues}
+      />
+
     </>
   );
 };

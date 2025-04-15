@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, query, where, setDoc, deleteDoc, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where, setDoc, deleteDoc, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { db } from '../services/firestore';
 import { recordStatusChange } from './issueHistoryServices';
@@ -197,6 +197,36 @@ const getItem = async (goalId, orgId) => {
   }
 };
 
+// Stream an individual item with real-time updates
+export const streamSubItem = (orgId, itemId, workspaceId, snapshot, error) => {
+  try {
+    const subColRef = collection(db, "organisation", orgId, "items");
+    const itemsQuery = query(
+      subColRef, 
+      where("id", "==", parseInt(itemId)),
+      where("projectId", "==", workspaceId)
+    );
+    
+    return onSnapshot(itemsQuery, 
+      (querySnapshot) => {
+        if (querySnapshot.empty) {
+          console.log(`No item found with id: ${itemId} in workspace: ${workspaceId}`);
+          snapshot(querySnapshot);
+        } else {
+          snapshot(querySnapshot);
+        }
+      }, 
+      (err) => {
+        console.error(`Error streaming item ${itemId} in workspace ${workspaceId}:`, err);
+        error(err);
+      }
+    );
+  } catch (err) {
+    console.error(`Setup error for streaming item ${itemId} in workspace ${workspaceId}:`, err);
+    error(err);
+    return () => {}; // Return empty function as fallback
+  }
+};
 
 // React Query hooks
 export const useGetItems = (id, orgId) => {

@@ -24,6 +24,7 @@ import TshirtSizeInput from './Size/TshirtSize/TshirtSize';
 import Checklist from './Checklist';
 
 import * as FirestoreService from '../../services/firestore';
+import { streamSubItem } from '../../services/itemServices';
 
 import { useAuth } from '../auth';
 import { useParams } from 'react-router-dom';
@@ -33,7 +34,6 @@ import { getParentIssueIds } from '../../utils/getIssueX';
 import { useWorkspace } from '../../contexts/WorkspaceProvider';
 import PackageDetail from './Package/package';
 import GoalIssueLink from './GoalLink/goalLink';
-
 
 const ProjectBoardIssueDetails = ({
   issueId,
@@ -57,22 +57,30 @@ const ProjectBoardIssueDetails = ({
 
   useEffect(() => {
     if (id.issueId) {
-      const unsubscribe = FirestoreService.streamSubItem(currentUser?.all?.currentOrg, id.issueId,
+      const unsubscribe = streamSubItem(
+        currentUser?.all?.currentOrg,
+        id.issueId,
+        project.spaceId, // Pass the workspace/project ID
         (querySnapshot) => {
-          const singleItem =
-            querySnapshot.docs.map(docSnapshot => docSnapshot.data());
-          setData({
-            issue: {
-              ...singleItem[0],
-              users: initUsers, comments: singleItem[0].comments
-            }
-          });
+          if (!querySnapshot.empty) {
+            const singleItem = querySnapshot.docs.map(docSnapshot => docSnapshot.data());
+            setData({
+              issue: {
+                ...singleItem[0],
+                users: initUsers, 
+                comments: singleItem[0]?.comments || []
+              }
+            });
+          } else {
+            // Handle the case where no item was found
+            console.log(`No item found with id ${id.issueId} in workspace ${project.id}`);
+          }
         },
-        (error) => console.log('single item fail')
+        (error) => console.error('Error fetching item:', error)
       );
       return unsubscribe;
     }
-  }, [issueId]);
+  }, [id.issueId, currentUser?.all?.currentOrg, project.id]); // Add dependencies
 
   useEffect(() => {
     const fetchParentIssueIds = () => {
