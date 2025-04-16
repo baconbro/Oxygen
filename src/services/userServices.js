@@ -1,8 +1,7 @@
-import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where, setDoc, deleteDoc, getDoc, batch, deleteField } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where, setDoc, deleteDoc, getDoc, batch, deleteField, serverTimestamp, arrayUnion } from 'firebase/firestore';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { db } from '../services/firestore';
-
-
+import { auth } from '../services/firestore';
 
 export const getOrgUsers = async (orgId) => {
   try {
@@ -65,6 +64,74 @@ export const editUser = async (values, fields) => {
   
   return Promise.all(updates);
 };
+
+export const inviteUser = async (email, orgId) => {
+    //check if user email exist
+    const q = query(collection(db, "users"), where("email", "==", email));
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.docs.length > 0) {
+        const docRef = doc(db, "users", querySnapshot.docs[0].id);
+        const user = await getDoc(docRef)
+        const orgs = user.data().orgs
+        const uid = user.data().uid
+        if (orgs.includes(orgId)) {
+            throw new Error("User is already a member of this organisation.")
+        } else {
+            orgs.push(orgId)
+            await setDoc(docRef, { orgs: orgs }, { merge: true })
+            return await addUserToOrg(email, orgId, uid)
+        }
+    } else {
+        //user do not exist
+        //create an empty user
+        const userData = await addDoc(collection(db, "users"), {
+            uid: '',
+            email: email,
+            id: Math.floor(Math.random() * 1000000000000) + 1, //number, because it needed somwhere in the code. Maybe not valuable
+            lastlogin: serverTimestamp(),
+            invited: serverTimestamp(),
+            invitedBy: auth.currentUser.email,
+            currentOrg: orgId,
+            orgs: [orgId],
+        });
+
+        const falsUid = Math.floor(Math.random() * 1000000000000) + 1;
+        return await addUserToOrg(email, orgId, falsUid)
+    }
+};
+
+export const addUserToOrg = async (email, orgId, uid) => {
+    //test if uid is a number
+    if (isNaN(uid)) {
+        var status = 'member'
+    } else {
+        var status = 'unregistered'
+    }
+
+    const feild =
+    {
+        email: email,
+        joined: Math.floor(Date.now()),
+        role: 'member',
+        status: status,
+    }
+    
+    // Get the count of users to enforce limit
+    const usersColRef = collection(db, "organisation", orgId, "users");
+    const querySnapshot = await getDocs(usersColRef);
+    
+    if (querySnapshot.size < 10) {
+      // Create a document reference with the specific UID
+      const userDocRef = doc(db, "organisation", orgId, "users", uid.toString());
+      
+      // Use setDoc instead of addDoc to ensure the document is created with the specific UID
+      await setDoc(userDocRef, feild);
+      
+      return { success: true, uid };
+    } else {
+        throw new Error("Free plan is limited to 10 users. Please upgrade plan.");
+    }
+}
 
 // React Query hooks
 export const useGetOrgUsers= (orgId) => {

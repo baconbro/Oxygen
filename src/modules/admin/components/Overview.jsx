@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Modal } from 'react-bootstrap'
 import { Avatar } from '../../../components/common';
 import { formatDateTime } from '../../../utils/dateTime';
 
 import * as FirestoreService from '../../../services/firestore';
+import { getOrgUsers, inviteUser } from '../../../services/userServices';
 
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
@@ -12,44 +13,26 @@ import clsx from 'clsx'
 import toast from '../../../utils/toast';
 
 import Plan from './Plan';
-import { getAnalytics, logEvent } from "firebase/analytics";
 import Accountpage from './Account';
 import { useAuth } from '../../auth';
 
 const AdminOverview = () => {
-    const analytics = getAnalytics();
-    logEvent(analytics, 'screen_view', {
-        firebase_screen: "Manage user",
-        firebase_screen_class: "screenClass"
-    });
+
     const { currentUser } = useAuth()
     const [orgId, setOrgId] = useState(currentUser?.all?.currentOrg);
     const [org, setOrg] = useState();
     const [users, setUsers] = useState([]);
     useEffect(() => {
         refreshData();
-        /*   const script = document.createElement('script');
-          script.src = "";
-          script.async = true;
-          document.body.appendChild(script);
-          return () => {
-              document.body.removeChild(script);
-          } */
-
     }, []);
 
     const refreshData = () => {
-        FirestoreService.getOrgUsers(orgId)
-            .then(getOrg => {
-                if (getOrg.exists()) {
-                    setOrg(getOrg.data());
-                    setUsers(getOrg.data().users);
-                } else {
-                    console.log("No such document!");
-                }
+        getOrgUsers(orgId)
+            .then(response => {
+                setUsers(response.users);
+                setOrg({ users: response.users });
             })
             .catch((error) => console.log(error));
-
     }
 
     const [show, setShow] = useState(false);
@@ -92,7 +75,7 @@ const AdminOverview = () => {
 
     const login = (email) => {
         if (email) {
-            FirestoreService.inviteUser(email, orgId)
+            inviteUser(email, orgId)
                 .then((userCredential) => {
                     handleClose()
                     setLoading(false)
@@ -102,7 +85,6 @@ const AdminOverview = () => {
                     handleClose()
                     toast.error(Error.message);
                     setLoading(false)
-
                 })
         }
     }
@@ -309,4 +291,4 @@ const AdminOverview = () => {
 
 
 
-export default AdminOverview 
+export default AdminOverview

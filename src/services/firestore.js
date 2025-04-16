@@ -139,7 +139,22 @@ export const registerWithEmailAndPassword = async (name, email, password, lastna
         orgs.forEach(async (org) => {
             const orgId = org.id;
             
-            // Add or update user in the subcollection
+            // First check if a user with this email exists in the subcollection
+            const orgUsersRef = collection(db, "organisation", orgId, "users");
+            const orgUserQuery = query(orgUsersRef, where("email", "==", user.email));
+            const orgUserSnapshot = await getDocs(orgUserQuery);
+            
+            if (!orgUserSnapshot.empty) {
+                // If a user with this email exists in the org, we need to:
+                // 1. Delete the existing document (which uses a temporary uid)
+                // 2. Create a new document with the real Firebase uid
+                for (const orgUserDoc of orgUserSnapshot.docs) {
+                    // Delete the old document with temp uid
+                    await deleteDoc(orgUserDoc.ref);
+                }
+            }
+            
+            // Add or update user in the subcollection with real Firebase UID
             const userDocRef = doc(db, "organisation", orgId, "users", user.uid);
             await setDoc(userDocRef, { 
                 uid: user.uid,
@@ -148,7 +163,13 @@ export const registerWithEmailAndPassword = async (name, email, password, lastna
                 displayName: name,
                 status: "registered",
                 role: "member",
-                joined: Math.floor(Date.now())
+                joined: Math.floor(Date.now()),
+                currentOrg: orgId,
+                orgs: [orgId],
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+                fName: name,
+                id: Math.floor(Math.random() * 1000000000000) + 1,
             }, { merge: true });
         });
     }
