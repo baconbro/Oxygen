@@ -20,10 +20,28 @@ const Calendar = () => {
   const navigate = useNavigate();
   const filterItems = filterIssues(items, filters, currentUser.all.id);
 
+  // Process issues to use dueDate as start when start is missing
+  const processIssuesForCalendar = (issues) => {
+    return issues.map(issue => {
+      // If issue has no start but has dueDate, use dueDate as start
+      if (!issue.start && issue.dueDate) {
+        return {
+          ...issue,
+          start: issue.dueDate
+        };
+      }
+      return issue;
+    });
+  };
+
   useEffect(() => {
-    setItems(project.issues)
-  }
-    , [project])
+    if (project.issues) {
+      const processedIssues = processIssuesForCalendar(project.issues);
+      setItems(processedIssues);
+    } else {
+      setItems([]);
+    }
+  }, [project])
 
   const handleEventClick = (info) => {
     navigate(`issue/${info.event.id}`)
@@ -32,11 +50,12 @@ const Calendar = () => {
 
     // Convert start date to milliseconds since the Unix epoch
     const startInMilliseconds = info.event.start.getTime();
-    const endInMilliseconds = info.event.end.getTime();
+    const endInMilliseconds = info.event.end ? info.event.end.getTime() : startInMilliseconds;
 
     const updatedFields = {
       start: startInMilliseconds,
       end: endInMilliseconds,
+      dueDate: endInMilliseconds, // Update dueDate to match the end date
     }
     const data = {
       orgId: currentUser?.all?.currentOrg,
