@@ -53,7 +53,7 @@ export function Registration() {
       setLoading(true)
       try {
         const auth = await register(
-          values.email,
+          values.email.toLowerCase(), // Convert email to lowercase
           values.firstname,
           values.lastname,
           values.password,
