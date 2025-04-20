@@ -28,16 +28,37 @@ const DatePicker = ({ className, withTime, value, onChange, ...inputProps }) => 
 
   useOnOutsideClick($containerRef, isDropdownOpen, () => setDropdownOpen(false));
 
+  const handleClearDate = (e) => {
+    e.stopPropagation();
+    onChange(0);
+  };
+
   return (
     <StyledDatePicker ref={$containerRef}>
-      <Input
-        icon="calendar"
-        {...inputProps}
-        className={className}
-        autoComplete="off"
-        value={getFormattedInputValue(value, withTime)}
-        onClick={() => setDropdownOpen(true)}
-      />
+      <div className="position-relative w-100">
+        <Input
+          icon="calendar"
+          {...inputProps}
+          className={className}
+          autoComplete="off"
+          value={getFormattedInputValue(value, withTime)}
+          onClick={() => setDropdownOpen(true)}
+          hasRightIcon={value !== 0}
+        />
+        {value !== 0 && (
+          <i
+            className="bi bi-x-circle position-absolute"
+            style={{
+              top: '50%',
+              right: '10px',
+              transform: 'translateY(-50%)',
+              cursor: 'pointer',
+              color: '#6c757d'
+            }}
+            onClick={handleClearDate}
+          ></i>
+        )}
+      </div>
       {isDropdownOpen && (
         <Dropdown withTime={withTime}>
           <DateSection

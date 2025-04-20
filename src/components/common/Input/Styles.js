@@ -15,6 +15,7 @@ export const InputElement = styled.input`
   ${font.regular}
   ${font.size(15)}
   ${props => props.hasIcon && 'padding-left: 32px;'}
+  ${props => props.hasRightIcon && 'padding-right: 32px;'}
   &:hover {
     background: ${color.backgroundLight};
   }
@@ -40,4 +41,16 @@ export const StyledIcon = styled(Icon)`
   left: 8px;
   pointer-events: none;
   color: ${color.textMedium};
+`;
+
+export const StyledRightIcon = styled(Icon)`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: ${color.textMedium};
+  cursor: pointer;
+  
+  &:hover {
+    color: ${color.textDark};
+  }
 `;
