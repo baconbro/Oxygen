@@ -1,8 +1,7 @@
-import React from 'react';
 import { Avatar } from '../index';
 import { Status } from '../../../modules/IssueDetails/Status/Styles';
 import { Type, TypeLabel } from '../../../modules/IssueDetails/Type/Styles';
-import { User, Username } from '../../../modules/IssueDetails/Reporter/Styles';
+import { User } from '../../../modules/IssueDetails/Reporter/Styles';
 import { Priority, Label } from '../../../modules/IssueDetails/Priority/Styles';
 import { IssueTypeIcon, IssuePriorityIcon } from '../index';
 import { IconComponent, IconText } from '../IssueIconComponent';
@@ -74,14 +73,26 @@ export const PriorityCellRenderer = ({ value, priorityMapping }) => {
   );
 };
 
-export const UserCellRenderer = ({ value, users }) => {
-  const user = users.find(user => user.id === value);
-  const name = user ? user.name : '';
+export const UserCellRenderer = ({ value, users, orgUsers }) => {
+  let name = '';
+  let avatarUrl = '';
+  
+  if (orgUsers && value) {
+    const orgUser = orgUsers.users ? orgUsers.users[value] : null;
+    if (orgUser) {
+      name = orgUser.name || orgUser.displayName || orgUser.email;
+      avatarUrl = orgUser.photoURL || "";
+    }
+  } else if (users) {
+    // Fallback to projectUsers if orgUsers not available
+    const user = users.find(user => user.id === value);
+    name = user ? user.name : '';
+    avatarUrl = user ? user.photoURL : '';
+  }
   
   return (
     <User isSelectValue={false} withBottomMargin={false}>
-      <Avatar avatarUrl={''} name={name} size={25} />
-      <Username>{name}</Username>
+      <Avatar avatarUrl={avatarUrl} name={name} size={25} className='avatar-circle' />
     </User>
   );
 };

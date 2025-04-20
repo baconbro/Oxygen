@@ -23,7 +23,7 @@ const List = () => {
   const { currentUser } = useAuth();
   const match = useLocation();
   const navigate = useNavigate();
-  const { project, setCurrentGoal, projectUsers, defaultFilters, filters, mergeFilters } = useWorkspace();
+  const { project, setCurrentGoal, projectUsers, orgUsers, defaultFilters, filters, mergeFilters } = useWorkspace();
   const [refreshData, setRefreshData] = useState(true);
   const [showPrioritization, setShowPrioritization] = useState(project.config.workspaceConfig?.board?.rice || false);
   const [data, setData] = useState([]);
@@ -86,7 +86,7 @@ const List = () => {
     }),
     columnHelper.accessor('reporterId', {
       id: 'Reporter',
-      cell: info => <UserCellRenderer value={info.getValue()} users={projectUsers} />,
+      cell: info => <UserCellRenderer value={info.getValue()} orgUsers={orgUsers} />,
       header: () => <span>Owner</span>,
     }),
     columnHelper.accessor('title', {

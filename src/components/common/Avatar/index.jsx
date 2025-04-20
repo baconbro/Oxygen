@@ -18,12 +18,15 @@ const Avatar = ({ className, avatarUrl, name, size, ...otherProps }) => {
   const sharedProps = {
     className: combinedClassName,
     size,
+    title: name, // Add title attribute for tooltip
     'data-testid': name ? `avatar:${name}` : 'avatar',
     ...otherProps,
-  };  return (
-    <div className={combinedClassName}>
+  };  
+  
+  return (
+    <div className={combinedClassName} title={name}>
       {avatarUrl ? (
-        <img src={avatarUrl} alt={name} {...sharedProps} />
+        <img src={avatarUrl} alt={name} title={name} {...sharedProps} />
       ) : (
         <Letter color={getColorFromName(name)} {...sharedProps}>
         <span 
