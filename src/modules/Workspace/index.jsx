@@ -15,7 +15,6 @@ import List from './List';
 import { useGetSpace } from '../../services/workspaceServices';
 import { useGetItems } from '../../services/itemServices';
 import { useGetOrgUsers } from '../../services/userServices';
-import { useGetUserViews } from '../../services/userViewServices';
 import { useGetSprints } from '../../services/sprintServices';
 import { getIssueField } from '../../utils/getIssueX';
 import Insight from './Insight/Insight';
@@ -44,11 +43,7 @@ const Project = () => {
   const time = new Date().getTime();
   const [timeout, setTimeout] = useState(time);
 
-  // Get user views for the side menu
-  const { data: userViews, isLoading } = useGetUserViews(
-    currentUser?.all?.id,
-    currentUser?.all?.currentOrg
-  );
+
 
   useEffect(() => {
     if (sprintsStatus === 'success' && sprintsData) {
@@ -203,16 +198,7 @@ const Project = () => {
     }));
   };
 
-  // set workspaceSideMenu with userViews.data
-  // Sort userViews by lastTime in descending order
-  const sortedUserViews = userViews?.sort((a, b) => new Date(b.lastTime) - new Date(a.lastTime)) || [];
 
-  const workspaceSideMenu = sortedUserViews.map((view, index) => ({
-    position: index,
-    title: getIssueField(project.issues, view.itemId, 'title'),
-    to: `/workspace/${id.id}/issue/${view.itemId}`,
-    icon: '', // Assuming view has an icon property
-  })) || [];
 
   //set the inner navigation of the workspace
   const workspaceInnerNavigation = [

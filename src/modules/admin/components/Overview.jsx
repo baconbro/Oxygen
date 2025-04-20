@@ -4,8 +4,12 @@ import { Modal } from 'react-bootstrap'
 import { Avatar } from '../../../components/common';
 import { formatDateTime } from '../../../utils/dateTime';
 
-import * as FirestoreService from '../../../services/firestore';
-import { getOrgUsers, inviteUser } from '../../../services/userServices';
+// Import services from userServices
+import { 
+  getOrgUsers, 
+  inviteUserToOrganization, 
+  removeUserFromOrganization 
+} from '../../../services/userServices';
 
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
@@ -38,7 +42,6 @@ const AdminOverview = () => {
     const [show, setShow] = useState(false);
     const [loading, setLoading] = useState(false)
 
-
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
@@ -67,44 +70,38 @@ const AdminOverview = () => {
         validationSchema: loginSchema,
         onSubmit: (values, { setStatus, setSubmitting }) => {
             setLoading(true)
-            setTimeout(() => {
-                login(values.email, values.password)
-            }, 1000)
+            sendInvite(values.email);
         },
     })
 
-    const login = (email) => {
+    const sendInvite = (email) => {
         if (email) {
-            inviteUser(email, orgId)
-                .then((userCredential) => {
+            inviteUserToOrganization(email, orgId)
+                .then((result) => {
                     handleClose()
                     setLoading(false)
+                    toast.success(result.message);
                     refreshData()
                 })
-                .catch((Error) => {
+                .catch((error) => {
                     handleClose()
-                    toast.error(Error.message);
+                    toast.error(error.message);
                     setLoading(false)
                 })
         }
     }
 
-
     const removeUser = (user) => {
-        FirestoreService.editUsers(user, orgId)
-            .then((userCredential) => {
-                handleClose()
-                setLoading(false)
-                refreshData()
+        removeUserFromOrganization(user, orgId)
+            .then((result) => {
+                toast.success(result.message);
+                refreshData();
             })
-            .catch((Error) => {
-                handleClose()
-                console.log(Error)
-                toast.error(Error.message);
-                setLoading(false)
-
-            })
+            .catch((error) => {
+                toast.error(error.message);
+            });
     }
+
     //test if org.users is not empty
     const usersArray = org?.users && Object.keys(org.users).map((key) => {
         return { id: key, ...org.users[key] };

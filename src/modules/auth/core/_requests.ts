@@ -87,37 +87,27 @@ export async function getUserByToken(token: string | null, setOrgUsersFunc: ((or
     let orgUsers = null;
     
     try {
-      // Use userServices.getUser to get user data
-      const querySnapshot = await getUser(token);
+      // Get user data from combined sources
+      const userData = await getUser(token);
       
-      querySnapshot.forEach((doc) => {
-        userInfo = doc.data();
-      });
+      if (!userData || userData.length === 0) {
+        throw new Error("User data not found");
+      }
       
-      // If we found user data and they have organizations
-      if (userInfo && userInfo.orgs && userInfo.orgs.length > 0) {
-        const firstOrgId = userInfo.currentOrg || userInfo.orgs[0];
+      userInfo = userData[0].data();
+      
+      // If we found user data and they have an organization
+      if (userInfo && userInfo.currentOrg) {
+        const orgId = userInfo.currentOrg;
         
         try {
           // Get all users from the organization
-          const orgUsersResult = await getOrgUsers(firstOrgId);
+          const orgUsersResult = await getOrgUsers(orgId);
           orgUsers = orgUsersResult;
           
           // Set org users in context if function was provided
           if (setOrgUsersFunc && typeof setOrgUsersFunc === 'function') {
             setOrgUsersFunc(orgUsers);
-          }
-          
-          // If user exists in org users, enhance user data with org user data
-          if (orgUsers?.users && userInfo.email) {
-            // Find the user in org users by email
-            const orgUserEntries = Object.entries(orgUsers.users);
-            const matchingOrgUser = orgUserEntries.find(([_, userData]) => userData.email === userInfo.email);
-            
-            if (matchingOrgUser) {
-              // Merge org user data with user data
-              userInfo =  matchingOrgUser[1]
-            }
           }
         } catch (error) {
           console.error('Error fetching organization users:', error);
@@ -169,6 +159,6 @@ export async function getUserByToken(token: string | null, setOrgUsersFunc: ((or
     user:{
       all: userInfo,
     }
-  }
-  return data
+  };
+  return data;
 }

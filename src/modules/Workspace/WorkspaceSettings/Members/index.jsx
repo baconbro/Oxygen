@@ -1,86 +1,53 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Select, Avatar, Icon } from '../../../../components/common';
-
 import { SectionTitle } from '../../../IssueDetails/Styles';
 import { User, Username } from '../../../IssueDetails/AssigneesReporter/Styles';
 import * as FirestoreService from '../../../../services/firestore';
-import { useGetOrgUsers } from '../../../../services/userServices';
+import { useWorkspace } from '../../../../contexts/WorkspaceProvider';
 
 const SpaceMembers = ({ project, spaceId }) => {
-
-  const projectUsers = (project.members ? project.users.concat(project.members) : project.users)
+  const { orgUsers } = useWorkspace();
   const owner = project.users.find(user => user.role === 'owner');
-  const filteredProjectUsers = projectUsers.filter(user => user.status !== 'unregistered');
-  const [orgUser, setOrgUser] = useState(filteredProjectUsers);
   const [spaceMembers, setSpaceMembers] = useState((project.members ? project.members : []));
 
-  const orgUsers = useGetOrgUsers(project.org);
+  // Transform orgUsers from object to array for usage in the component
+  const [usersArray, setUsersArray] = useState([]);
 
   useEffect(() => {
-    if (orgUsers.data.users) {
-      Object.values(orgUsers.data.users).forEach(async (user) => {
-        getUserInfo(user.email);
+    if (orgUsers && orgUsers.users) {
+      // Convert the orgUsers.users object to an array
+      const usersList = Object.keys(orgUsers.users).map(userId => {
+        const userData = orgUsers.users[userId];
+        return {
+          id: userId,
+          value: userId,
+          ...userData,
+          name: userData.name || userData.displayName || userData.email
+        };
       });
-    } else {
-      console.log("No such document!");
+      setUsersArray(usersList);
     }
-  }, [orgUsers.data.users]);
+  }, [orgUsers]);
 
-  const getUserInfo = (userEmail) => {
-    FirestoreService.getUserInfo(userEmail)
-      .then(userInfo => {
-        userInfo.forEach(async (doc) => {
-          let updatedOrgUser = [...orgUser];
-          let updatedSpaceMembers = [...spaceMembers];
-          updatedOrgUser = updatedOrgUser.map(user => {
-            if (user.id === doc.id && user.avatarUrl === "") {
-              return { ...user, avatarUrl: doc.data().photoURL || "" };
-            }
-            return user;
-          });
+  const getUserById = userId => usersArray.find(user => user.id === userId);
 
-          updatedSpaceMembers = updatedSpaceMembers.map(member => {
-            if (member.id === doc.id && member.avatarUrl === "") {
-              return { ...member, avatarUrl: doc.data().photoURL || "" };
-            }
-            return member;
-          });
+  // Create allUsers array from the transformed usersArray
+  const allUsers = usersArray.map(user => ({
+    value: user.id,
+    label: user.name || user.email,
+    status: user.status
+  }));
 
-          setOrgUser(updatedOrgUser);
-          setSpaceMembers(updatedSpaceMembers);
-
-          if (
-            doc.data().name &&
-            !orgUser.find(user => user.id === doc.id) &&
-            !spaceMembers.find(user => user.id === doc.id) &&
-            doc.id !== owner.id &&
-            doc.data().status !== 'unregistered' &&
-            doc.data().email !== owner.email
-          ) {
-            setOrgUser(prevOrgUser => [...prevOrgUser, {
-              id: doc.data().uid,
-              name: doc.data().name,
-              avatarUrl: doc.data().avatarUrl || ""
-            }]);
-          }
-        });
-      })
-      .catch((error) => console.log(error));
-  }
-
-  const getUserById = userId => orgUser.find(user => user.id === userId);
-
-
-  const allUsers = orgUser.map(user => ({ value: user.id, label: user.name }));
   const userOptions = spaceMembers.map(({ id }) => id);
-  //filter out the owner from the allUsers and then filter out the spaceMembers from the allUsers
-  const allUser = allUsers.filter(user => user.value !== owner.id).filter(user => !userOptions.includes(user.value));
 
-
+  // Filter out the owner and users already in the workspace
+  const allUser = allUsers.filter(user =>
+    user.value !== owner.id && !userOptions.includes(user.value)
+  );
 
   const updateIssue = (members, spaceId) => {
-    //if their is a member in the members array, then for each member, if the avatarUrl is undefined, then change it for a space 
-    if (members.members.length > 0) {
+    // Ensure all members have avatarUrl property
+    if (members.members && members.members.length > 0) {
       members.members.forEach(member => {
         if (member.avatarUrl === undefined) {
           member.avatarUrl = ""
@@ -88,14 +55,30 @@ const SpaceMembers = ({ project, spaceId }) => {
       })
     }
 
-
-
+    // This is workspace-specific so keep using FirestoreService
     FirestoreService.addUserToSpace(members, project.org)
       .then(userInfo => {
         setSpaceMembers(members.members)
-        //remove or add the user to userOptions
       })
       .catch((error) => console.log(error));
+  };
+
+  // Custom render option that shows status indicator
+  const renderOption = ({ value: userId }) => {
+    const user = getUserById(userId);
+    if (!user) return null; // Guard against undefined users
+
+    return (
+      <User>
+        <Avatar avatarUrl={user.avatarUrl} name={user.name || user.email} size={25} />
+        <Username>
+          {user.name || user.email}
+          {user.status === 'unregistered' && (
+            <span className="badge badge-light-warning ms-2">Pending</span>
+          )}
+        </Username>
+      </User>
+    );
   };
 
   return (
@@ -114,8 +97,7 @@ const SpaceMembers = ({ project, spaceId }) => {
           renderOption={({ value: userId }) => renderUser(getUserById(userId))}
         /></span>
       <SectionTitle>Members</SectionTitle>
-      {/* if there is a minimum of one user in OrgUser   */}
-      {orgUser.length > 1 && <Select
+      {usersArray.length > 1 && <Select
         isMulti
         variant="empty"
         dropdownWidth={343}
@@ -130,7 +112,7 @@ const SpaceMembers = ({ project, spaceId }) => {
         renderValue={({ value: userId, removeOptionValue }) =>
           renderUser(getUserById(userId), true, removeOptionValue)
         }
-        renderOption={({ value: userId }) => renderUser(getUserById(userId), false)}
+        renderOption={renderOption}
       />
       }
     </>
@@ -138,6 +120,8 @@ const SpaceMembers = ({ project, spaceId }) => {
 };
 
 const renderUser = (user, isSelectValue, removeOptionValue) => {
+  if (!user) return null; // Guard against undefined users
+
   return (
     <User
       key={user.id}
@@ -145,12 +129,16 @@ const renderUser = (user, isSelectValue, removeOptionValue) => {
       withBottomMargin={!!removeOptionValue}
       onClick={() => removeOptionValue && removeOptionValue()}
     >
-      <Avatar avatarUrl={user.avatarUrl} name={user.name} size={25} />
-      <Username>{user.name}</Username>
+      <Avatar avatarUrl={user.avatarUrl} name={user.name || user.email} size={25} />
+      <Username>
+        {user.name || user.email}
+        {user.status === 'unregistered' && isSelectValue && (
+          <span className="badge badge-light-warning ms-2">Pending</span>
+        )}
+      </Username>
       {removeOptionValue && <Icon type="close" top={1} />}
     </User>
   );
 }
-
 
 export default SpaceMembers;

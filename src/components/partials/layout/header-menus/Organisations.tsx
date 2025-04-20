@@ -7,7 +7,7 @@ import { useState } from 'react'
 import { editUser } from '../../../../services/firestore'
 import { string } from 'yup'
 import { getOrgs } from '../../../../services/firestore'
-import { DocumentData } from 'firebase/firestore'
+import { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore'
 
 
 
@@ -21,7 +21,7 @@ const Organisations: FC = () => {
     getOrgs(currentUser?.email)
       .then(spaceData => {
         if (spaceData) {
-          spaceData.forEach((doc) => {
+          spaceData.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
             a.push({ [doc.id]: doc.data() })
           });
 /*           const orgName = spaceData.data()

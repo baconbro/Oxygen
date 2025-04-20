@@ -5,8 +5,7 @@ import { auth } from '../services/firestore';
 
 export const getOrgUsers = async (orgId) => {
   try {
-    
-    // Then fetch from the subcollection
+    // Fetch from the subcollection
     const usersColRef = collection(db, "organisation", orgId, "users");
     const querySnapshot = await getDocs(usersColRef);
     
@@ -25,15 +24,51 @@ export const getOrgUsers = async (orgId) => {
 
 export const getUser = async (userEmail, userId) => {
   try {
-    let q;
+    // First try to get the user from users collection (for routing info)
+    let userRef;
     if (userId) {
-      q = query(collection(db, "users"), where("uid", "==", userId));
+      userRef = doc(db, "users", userId);
     } else {
-      q = query(collection(db, "users"), where("email", "==", userEmail));
+      const q = query(collection(db, "users"), where("email", "==", userEmail));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        userRef = querySnapshot.docs[0].ref;
+      } else {
+        throw new Error('User not found');
+      }
     }
-    const querySnapshot = await getDocs(q);
-    // Return the querySnapshot directly
-    return querySnapshot;
+    
+    const userDoc = await getDoc(userRef);
+    if (!userDoc.exists()) {
+      throw new Error('User not found');
+    }
+    
+    const userData = userDoc.data();
+    
+    // Then enhance with data from org subcollection if available
+    if (userData.currentOrg) {
+      const orgUserRef = doc(db, "organisation", userData.currentOrg, "users", userDoc.id);
+      const orgUserDoc = await getDoc(orgUserRef);
+      
+      if (orgUserDoc.exists()) {
+        // Create a new snapshot-like object with combined data
+        const enhancedData = {
+          ...userData,
+          ...orgUserDoc.data()
+        };
+        
+        return [{
+          data: () => enhancedData,
+          id: userDoc.id
+        }];
+      }
+    }
+    
+    // Return original user data if we couldn't enhance it
+    return [{
+      data: () => userData,
+      id: userDoc.id
+    }];
   } catch (error) {
     console.error('Error fetching user: ', error);
     throw new Error('Error fetching user');
@@ -44,94 +79,122 @@ export const editUser = async (values, fields) => {
   if (!fields) { fields = {} }
 
   // Exit the function if no currentOrg is provided
-  if (!values.all.currentOrg) {
-      console.warn("No currentOrg provided. Exiting editOrgUser.");
+  if (!values.all?.currentOrg) {
+      console.warn("No currentOrg provided. Exiting editUser.");
       return;
   }
 
   const orgId = values.all.currentOrg;
   const userEmail = values.all.email;
+  const userId = values.all.uid;
   
-  // Find user with matching email in the subcollection
-  const usersColRef = collection(db, "organisation", orgId, "users");
-  const q = query(usersColRef, where("email", "==", userEmail));
-  const querySnapshot = await getDocs(q);
-  
-  // Update the user document with the new fields
-  const updates = querySnapshot.docs.map(doc => {
-      return setDoc(doc.ref, { ...fields }, { merge: true });
-  });
-  
-  return Promise.all(updates);
+  try {
+    // Update the user in the organization subcollection (main source of truth)
+    const orgUserRef = doc(db, "organisation", orgId, "users", userId);
+    await setDoc(orgUserRef, fields, { merge: true });
+    
+    // Only update routing-relevant fields in the users collection
+    if (fields.email || fields.displayName || fields.photoURL) {
+      const userRef = doc(db, "users", userId);
+      const updateFields = {};
+      
+      if (fields.email) updateFields.email = fields.email;
+      if (fields.displayName) updateFields.displayName = fields.displayName;
+      if (fields.photoURL) updateFields.photoURL = fields.photoURL;
+      
+      await setDoc(userRef, updateFields, { merge: true });
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating user: ', error);
+    throw new Error('Error updating user');
+  }
 };
 
 export const inviteUser = async (email, orgId) => {
-    //check if user email exist
-    const q = query(collection(db, "users"), where("email", "==", email));
-    const querySnapshot = await getDocs(q);
-    if (querySnapshot.docs.length > 0) {
-        const docRef = doc(db, "users", querySnapshot.docs[0].id);
-        const user = await getDoc(docRef)
-        const orgs = user.data().orgs
-        const uid = user.data().uid
-        if (orgs.includes(orgId)) {
-            throw new Error("User is already a member of this organisation.")
-        } else {
-            orgs.push(orgId)
-            await setDoc(docRef, { orgs: orgs }, { merge: true })
-            return await addUserToOrg(email, orgId, uid)
-        }
-    } else {
-        //user do not exist
-        //create an empty user
-        const userData = await addDoc(collection(db, "users"), {
-            uid: '',
-            email: email,
-            id: Math.floor(Math.random() * 1000000000000) + 1, //number, because it needed somwhere in the code. Maybe not valuable
-            lastlogin: serverTimestamp(),
-            invited: serverTimestamp(),
-            invitedBy: auth.currentUser.email,
-            currentOrg: orgId,
-            orgs: [orgId],
-        });
-
-        const falsUid = Math.floor(Math.random() * 1000000000000) + 1;
-        return await addUserToOrg(email, orgId, falsUid)
+  email = email.toLowerCase().trim();
+  
+  try {
+    // Check if user already exists
+    const userQuery = query(collection(db, "users"), where("email", "==", email));
+    const userSnapshot = await getDocs(userQuery);
+    
+    // Check if there's an existing invitation within this organization
+    const orgInvitesRef = collection(db, "organisation", orgId, "invitations");
+    const existingOrgInviteQuery = query(orgInvitesRef, where("email", "==", email));
+    const existingOrgInviteSnapshot = await getDocs(existingOrgInviteQuery);
+    
+    if (!existingOrgInviteSnapshot.empty) {
+      throw new Error("This user already has a pending invitation to this organization.");
     }
+    
+    // If user exists
+    if (!userSnapshot.empty) {
+      const userData = userSnapshot.docs[0].data();
+      
+      // If user already belongs to any org, they can't join another
+      if (userData.orgs && userData.orgs.length > 0) {
+        throw new Error("User already belongs to an organization.");
+      }
+    }
+    
+    // Get the total count of users in the organization
+    const usersColRef = collection(db, "organisation", orgId, "users");
+    const usersSnapshot = await getDocs(usersColRef);
+    
+    if (usersSnapshot.size >= 10) {
+      throw new Error("Free plan is limited to 10 users. Please upgrade plan.");
+    }
+    
+    // Create invitation in organization subcollection
+    const invitationData = {
+      email: email,
+      invitedAt: serverTimestamp(),
+      invitedBy: auth.currentUser.email,
+      role: 'member',
+      status: 'pending'
+    };
+    
+    // Create invitation record
+    await addDoc(collection(db, "organisation", orgId, "invitations"), invitationData);
+    
+    // Create a small reference in the global email-invitations lookup for quick searching
+    await addDoc(collection(db, "email-invitations"), {
+      email: email,
+      orgId: orgId,
+      createdAt: serverTimestamp()
+    });
+    
+    // Generate a temporary UID for the invited user
+    const temporaryUid = `temp-${Math.floor(Math.random() * 1000000000000)}`;
+    
+    // Create an unregistered user entry in the organization's users subcollection
+    const userDocRef = doc(db, "organisation", orgId, "users", temporaryUid);
+    await setDoc(userDocRef, {
+      email: email,
+      role: 'member',
+      status: 'unregistered',
+      joined: Math.floor(Date.now()),
+      invitedAt: serverTimestamp(),
+      invitedBy: auth.currentUser.email
+    });
+    
+    return { 
+      success: true,
+      temporaryUid,
+      message: "Invitation sent successfully!" 
+    };
+  } catch (error) {
+    console.error('Error inviting user: ', error);
+    throw error;
+  }
 };
 
+// Simplified - use inviteUser instead
 export const addUserToOrg = async (email, orgId, uid) => {
-    //test if uid is a number
-    if (isNaN(uid)) {
-        var status = 'member'
-    } else {
-        var status = 'unregistered'
-    }
-
-    const feild =
-    {
-        email: email,
-        joined: Math.floor(Date.now()),
-        role: 'member',
-        status: status,
-    }
-    
-    // Get the count of users to enforce limit
-    const usersColRef = collection(db, "organisation", orgId, "users");
-    const querySnapshot = await getDocs(usersColRef);
-    
-    if (querySnapshot.size < 10) {
-      // Create a document reference with the specific UID
-      const userDocRef = doc(db, "organisation", orgId, "users", uid.toString());
-      
-      // Use setDoc instead of addDoc to ensure the document is created with the specific UID
-      await setDoc(userDocRef, feild);
-      
-      return { success: true, uid };
-    } else {
-        throw new Error("Free plan is limited to 10 users. Please upgrade plan.");
-    }
-}
+  return inviteUser(email, orgId);
+};
 
 // React Query hooks
 export const useGetOrgUsers= (orgId) => {
@@ -176,4 +239,56 @@ export const useEditUser = () => {
       },
     }
   );
+};
+
+/**
+ * Removes a user from an organization
+ * @param {Object} user - The user to remove
+ * @param {string} orgId - The organization ID
+ * @returns {Promise<Object>} - Result of the operation
+ */
+export const removeUserFromOrganization = async (user, orgId) => {
+  try {
+    // Check if user is not the owner
+    if (user.role === 'owner') {
+      throw new Error("Cannot remove the owner of the organization");
+    }
+    
+    // Get reference to the user document in org subcollection
+    const userDocRef = doc(db, "organisation", orgId, "users", user.id);
+    
+    // Delete the user from org
+    await deleteDoc(userDocRef);
+    
+    // Update the user's root document to remove org reference
+    const userRef = doc(db, "users", user.id);
+    await updateDoc(userRef, {
+      currentOrg: deleteField(),
+      orgs: []
+    });
+    
+    return { success: true, message: "User removed from organization" };
+  } catch (error) {
+    console.error('Error removing user from organization:', error);
+    throw error;
+  }
+};
+
+/**
+ * Invites a user to join an organization with improved error handling
+ * @param {string} email - Email of the user to invite
+ * @param {string} orgId - Organization ID
+ * @returns {Promise<Object>} - Result of the invitation
+ */
+export const inviteUserToOrganization = async (email, orgId) => {
+  try {
+    const result = await inviteUser(email, orgId);
+    return {
+      success: true,
+      message: "Invitation sent successfully!"
+    };
+  } catch (error) {
+    console.error('Error inviting user to organization:', error);
+    throw error;
+  }
 };
