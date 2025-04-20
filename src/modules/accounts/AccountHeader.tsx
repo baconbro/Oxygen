@@ -10,7 +10,7 @@ import { editUser } from '../../services/userServices'
 const AccountHeader: React.FC = () => {
   const location = useLocation()
   const { currentUser, logout } = useAuth()
-  const [selectedImage, setSelectedImage] = useState(currentUser?.photoURL);
+  const [selectedImage, setSelectedImage] = useState(currentUser?.all.photoURL);
 
   const handleImageSelected = (base64Data: string) => {
     setSelectedImage(base64Data);

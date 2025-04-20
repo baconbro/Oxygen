@@ -65,14 +65,48 @@ function Item(props) {
   const { item, isDragging, isGroupedOver, provided, style, isClone, index } = props;
 
   const [assig, setAssig] = useState([]);
-  const { projectUsers, project } = useWorkspace()
+  const { projectUsers, project, orgUsers } = useWorkspace();
   const [parentIssue, setParentIssue] = useState(null);
+  const [enhancedUsers, setEnhancedUsers] = useState([]);
 
-  // Watch for changes in projectUsers and update assig accordingly
+  // Enhanced logic to map orgUsers data with projectUsers
   useEffect(() => {
-    const newAssig = item.userIds.map(userId => projectUsers.find(user => user.id === userId));
-    setAssig(newAssig);
-  }, [projectUsers, item.userIds]);
+    if (orgUsers && orgUsers.users && projectUsers) {
+      // Map project users to full user data from orgUsers
+      const mappedUsers = projectUsers.map(projectUser => {
+        const userId = typeof projectUser.id === "number" ? projectUser.id.toString() : projectUser.id;
+        // Find matching user in orgUsers by uid
+        const orgUserData = orgUsers.users[userId];
+        
+        if (orgUserData) {
+          return {
+            ...projectUser,
+            ...orgUserData,
+            id: userId,
+            name: orgUserData.name || orgUserData.displayName || orgUserData.email,
+            photoURL: orgUserData.photoURL || orgUserData.avatarUrl
+          };
+        } else {
+          return {
+            ...projectUser,
+            id: userId
+          };
+        }
+      });
+      
+      setEnhancedUsers(mappedUsers);
+    }
+  }, [orgUsers, projectUsers]);
+
+  // Watch for changes in enhancedUsers and update assignees
+  useEffect(() => {
+    if (enhancedUsers.length > 0 && item.userIds) {
+      const newAssig = item.userIds.map(userId => 
+        enhancedUsers.find(user => user.id === userId)
+      );
+      setAssig(newAssig);
+    }
+  }, [enhancedUsers, item.userIds]);
 
   // Find parent issue if item has a parent
   useEffect(() => {
@@ -83,13 +117,13 @@ function Item(props) {
   }, [item.parent, project.issues]);
 
   const anonymousUser = {
+    photoURL: "",
     avatarUrl: "",
     email: "anonymous@oxgneap.com",
-    id: 69420,
+    id: "anonymous",
     name: "Anonymous",
     role: "member"
-  }
-
+  };
 
   const assignees = Array.from(assig, v => v === undefined ? anonymousUser : v);
 
@@ -141,11 +175,6 @@ function Item(props) {
             {item.tsize && <div className="badge badge-light me-2"><i className="bi bi-rulers me-2"></i>{item.tsize}</div>}
             {item.storypoint && <div className="badge badge-light me-2"><i className="bi bi-ticket-fill me-2"></i>{item.storypoint}</div>}
           </div>
-          {/*                 <div className="d-flex mb-3">
-                  For counting the number of subtasks and the number of completed subtasks
-                  <div className="badge badge-light me-2" key={Object.values(issue.subtasks)}>{Object.values(issue.subtasks).length}</div>
-                  <div className="badge badge-light me-2" key={Object.values(issue.subtasks)}>{Object.values(issue.subtasks).filter(subtask => subtask.isCompleted === true).length}</div>
-                </div> */}
 
           {/* <div className="fs-6 fw-bold text-gray-600 mb-5"></div> content for image per exemple */}
 
@@ -155,8 +184,9 @@ function Item(props) {
                 <AssigneeAvatar
                   key={user.id}
                   size={25}
-                  avatarUrl={user.avatarUrl}
+                  avatarUrl={user.photoURL || user.avatarUrl || ''}
                   name={user.name}
+                  className='avatar-circle'
                 />
 
               ))}

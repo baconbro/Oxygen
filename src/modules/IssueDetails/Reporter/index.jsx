@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Avatar, Select, Icon } from '../../../components/common';
+import { useWorkspace } from '../../../contexts/WorkspaceProvider';
 import { SectionTitle } from '../Styles';
 import { User, Username } from './Styles';
 
@@ -11,49 +12,76 @@ const propTypes = {
 };
 
 const ProjectBoardIssueDetailsReporter = ({ issue, updateIssue, projectUsers }) => {
-
-//create a loading state
-const [loading, setLoading] = useState(true);
-
-  //In projectUsers, transform user.id in text if it is a number
-projectUsers.forEach(user => {
-  if(typeof user.id === "number"){
-    user.id = user.id.toString()
-  }
-})
-// Ensure that issue.userIds is an array
-if (!issue.userIds) {
-  issue.userIds = [];
-}
-//in issue.users, update data with projectUsers data based on issue.usersId
-issue.userIds.forEach(userId => {
-  const user = projectUsers.find(user => user.id === userId)
-  if(user){
-    issue.users.push(user)
-  }
-})
-//wait 5 seconds to set loading to false
-setTimeout(() => {
-setLoading(false)
-}, 500);
-
-// Ensure that issue.userIds is an array
-if (!issue.users) {
-  issue.users = [];
-}
-//make sure that name and avatarUrl are the one from projectUsers
-issue.users.forEach(user => {
-  const user2 = projectUsers.find(user2 => user2.id === user.id)
-  if(user2){
-    user.name = user2.name
-    user.avatarUrl = user2.avatarUrl
-  }
-})
-
-  const getUserById = userId => {
-  return projectUsers.find(user => user.id === userId)}
+  //create a loading state
+  const [loading, setLoading] = useState(true);
+  const { orgUsers } = useWorkspace();
+  const [standardizedProjectUsers, setStandardizedProjectUsers] = useState([]);
   
-  const userOptions = projectUsers.map(user => ({ value: user.id, label: user.name }));
+  useEffect(() => {
+    if (orgUsers && orgUsers.users && projectUsers) {
+      // Map project users to full user data from orgUsers
+      const mappedUsers = projectUsers.map(projectUser => {
+        const userId = typeof projectUser.id === "number" ? projectUser.id.toString() : projectUser.id;
+        // Find matching user in orgUsers by uid
+        const orgUserData = orgUsers.users[userId];
+        
+        if (orgUserData) {
+          return {
+            ...projectUser,
+            ...orgUserData,
+            id: userId,
+            name: orgUserData.name || orgUserData.displayName || orgUserData.email
+          };
+        } else {
+          // Fallback to project user data if not found in orgUsers
+          console.warn(`User with ID ${userId} not found in organization users`);
+          return {
+            ...projectUser,
+            id: userId
+          };
+        }
+      });
+      
+      setStandardizedProjectUsers(mappedUsers);
+    }
+  }, [orgUsers, projectUsers]);
+
+  // Ensure reporterId is initialized
+  if (!issue.reporterId) {
+    issue.reporterId = '';
+  }
+  
+  // Ensure reporter object is initialized
+  if (!issue.reporter) {
+    issue.reporter = null;
+  }
+
+  // Wait for component to load
+  setTimeout(() => {
+    setLoading(false)
+  }, 500);
+
+  // Safe getUserById function that never returns undefined
+  const getUserById = userId => {
+    const user = standardizedProjectUsers.find(user => user.id === userId);
+    if (!user) {
+      console.warn(`User with ID ${userId} not found`);
+      return null;
+    }
+    return user;
+  };
+  
+  const userOptions = standardizedProjectUsers.map(user => ({ value: user.id, label: user.name }));
+
+  const handleReporterChange = reporterId => {
+    if (!reporterId) return;
+    
+    const reporterUser = getUserById(reporterId);
+    updateIssue({ 
+      reporterId, 
+      reporter: reporterUser 
+    });
+  };
 
   return (
     <>
@@ -66,7 +94,7 @@ issue.users.forEach(user => {
         name="reporter"
         value={issue.reporterId}
         options={userOptions}
-        onChange={userId => updateIssue({ reporterId: userId })}
+        onChange={handleReporterChange}
         renderValue={({ value: userId }) => renderUser(getUserById(userId), true)}
         renderOption={({ value: userId }) => renderUser(getUserById(userId))}
       />}
@@ -75,30 +103,28 @@ issue.users.forEach(user => {
 };
 
 const renderUser = (user, isSelectValue, removeOptionValue) => {
-
-  //if user is undefined, set it to anonymous user  
+  // Provide a fallback user if none is found
   if(!user){  
     user = {
       avatarUrl: "",
+      photoURL: "",
       email: "anonymous@oxgneap.com",
-      id: 69420,
+      id: "anonymous",
       name: "Anonymous",
       role: "member"
     }
   }
 
   return (
-    <>
-      <User
-        key={user.id}
-        isSelectValue={isSelectValue}
-        withBottomMargin={!!removeOptionValue} 
-      >
-        <Avatar avatarUrl={user.avatarUrl} name={user.name} size={25} />
-        <Username>{user.name}</Username>
-        {removeOptionValue && <Icon type="close" top={1} onClick={() => removeOptionValue && removeOptionValue()} />}
-      </User>
-    </>
+    <User
+      key={user.id}
+      isSelectValue={isSelectValue}
+      withBottomMargin={!!removeOptionValue} 
+    >
+      <Avatar avatarUrl={user.photoURL || user.avatarUrl} name={user.name} size={25} />
+      <Username>{user.name}</Username>
+      {removeOptionValue && <Icon type="close" top={1} onClick={() => removeOptionValue && removeOptionValue()} />}
+    </User>
   );
 }
 

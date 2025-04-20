@@ -25,11 +25,11 @@ const propTypes = {
 };
 
 const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilters }) => {
-  const [projectMembers, setprojectMembers] = useState([]);
+  const [projectMembers, setProjectMembers] = useState([]);
   const { searchTerm, userIds, myOnly, recent, groupBy, viewType, viewStatus, hideOld, sprint, wpkg } = filters;
   const [showMembersModal, setShowMembersModal] = useState(false)
   const [showFilterModal, setShowFilterModal] = useState(false)
-  const { project } = useWorkspace();
+  const { project, orgUsers } = useWorkspace();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -39,6 +39,41 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
   const [wpkgs, setWpkgs] = useState([]);
   const [activeSprints, setActiveSprints] = useState([]);
   const [availableParameters, setAvailableParameters] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Map project users to full user data from orgUsers
+  useEffect(() => {
+    if (orgUsers && orgUsers.users && projectUsers) {
+      // Map project users to full user data from orgUsers
+      const mappedUsers = projectUsers.map(projectUser => {
+        const userId = typeof projectUser.id === "number" ? projectUser.id.toString() : projectUser.id;
+        // Find matching user in orgUsers by uid
+        const orgUserData = orgUsers.users[userId];
+        
+        if (orgUserData) {
+          return {
+            ...projectUser,
+            ...orgUserData,
+            uid: userId,  // Ensure uid is set for filter component
+            id: userId,
+            name: orgUserData.name || orgUserData.displayName || orgUserData.email,
+            photoURL: orgUserData.photoURL || orgUserData.avatarUrl
+          };
+        } else {
+          // Fallback to project user data if not found in orgUsers
+          console.warn(`User with ID ${userId} not found in organization users`);
+          return {
+            ...projectUser,
+            uid: userId,
+            id: userId
+          };
+        }
+      });
+      
+      setProjectMembers(mappedUsers);
+      setIsLoading(false);
+    }
+  }, [orgUsers, projectUsers]);
 
   // Update URL with current filters
   const updateURLWithFilters = (updatedFilters) => {
@@ -127,18 +162,6 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
     if (Object.keys(availableParameters).length === 0) calculateAvailableParams();
   }, [availableParameters]); // Run once on component mount
 
-  useEffect(() => {
-    //if projectMembers is not equal to projectUsers then set projectUsers to projectMembers
-    if (projectMembers != projectUsers) {
-      //setprojectMembers(projectUsers);
-    }
-    //wait here for 5 seconds
-    setTimeout(() => {
-      setprojectMembers(projectUsers);
-    }
-      , 500);
-  }, [projectUsers]);
-
   const areFiltersCleared = !searchTerm && userIds.length === 0 && !myOnly && !recent && viewType.length === 0 && viewStatus.length === 0 && hideOld === 30 && !sprint && !wpkg;
 
   const closeModal = () => {
@@ -179,7 +202,7 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
           {projectMembers && projectMembers.map(user => (
             <AvatarIsActiveBorder key={user.uid} isActive={userIds.includes(user.uid)}>
               <StyledAvatar
-                avatarUrl={user.photoUrl}
+                avatarUrl={user.photoURL || ""}
                 name={user.name}
                 size={35}
                 className='avatar-circle'
@@ -188,7 +211,7 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
             </AvatarIsActiveBorder>
           ))}
         </Avatars>
-        {projectMembers.length === 0 && <span className='spinner-border spinner-border-sm align-middle ms-2'></span>}
+        {isLoading && <span className='spinner-border spinner-border-sm align-middle ms-2'></span>}
 
         <a href="#" className="avatar avatar-35px avatar-circle" onClick={() => setShowMembersModal(true)} >
           <span className="avatar-label bg-secondary text-gray-300 fs-8 fw-bold"><i className="bi bi-person-plus-fill"></i> </span>
