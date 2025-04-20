@@ -104,7 +104,7 @@ const AdminOverview = () => {
 
     //test if org.users is not empty
     const usersArray = org?.users && Object.keys(org.users).map((key) => {
-        return { id: key, ...org.users[key] };
+        return { uid: key, ...org.users[key] };
     });
 
     return (
@@ -244,7 +244,7 @@ const AdminOverview = () => {
                             </thead>
                             <tbody className="text-gray-600 fw-bold">
                                 {org && usersArray.map((user, index) => (
-                                    <tr>
+                                    <tr key={user.uid}>
                                         <td className="d-flex align-items-center">
                                             <div className="avatar avatar-circle avatar-50px overflow-hidden me-3">
 

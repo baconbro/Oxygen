@@ -7,7 +7,7 @@ import { useWorkspace } from '../../../../contexts/WorkspaceProvider';
 
 const SpaceMembers = ({ project, spaceId }) => {
   const { orgUsers } = useWorkspace();
-  const owner = project.users.find(user => user.role === 'owner');
+  const [owner, setOwner] = useState(null);
   const [spaceMembers, setSpaceMembers] = useState((project.members ? project.members : []));
 
   // Transform orgUsers from object to array for usage in the component
@@ -19,30 +19,34 @@ const SpaceMembers = ({ project, spaceId }) => {
       const usersList = Object.keys(orgUsers.users).map(userId => {
         const userData = orgUsers.users[userId];
         return {
-          id: userId,
+          uid: userId,
           value: userId,
           ...userData,
           name: userData.name || userData.displayName || userData.email
         };
       });
       setUsersArray(usersList);
+      
+      // Find owner in the converted array
+      const foundOwner = usersList.find(user => user.role === 'owner');
+      setOwner(foundOwner);
     }
   }, [orgUsers]);
 
-  const getUserById = userId => usersArray.find(user => user.id === userId);
+  const getUserByUid = userId => usersArray.find(user => user.uid === userId);
 
   // Create allUsers array from the transformed usersArray
   const allUsers = usersArray.map(user => ({
-    value: user.id,
+    value: user.uid,
     label: user.name || user.email,
     status: user.status
   }));
 
-  const userOptions = spaceMembers.map(({ id }) => id);
+  const userOptions = spaceMembers.map(({ uid }) => uid);
 
   // Filter out the owner and users already in the workspace
   const allUser = allUsers.filter(user =>
-    user.value !== owner.id && !userOptions.includes(user.value)
+    owner && user.value !== owner.uid && !userOptions.includes(user.value)
   );
 
   const updateIssue = (members, spaceId) => {
@@ -65,7 +69,7 @@ const SpaceMembers = ({ project, spaceId }) => {
 
   // Custom render option that shows status indicator
   const renderOption = ({ value: userId }) => {
-    const user = getUserById(userId);
+    const user = getUserByUid(userId);
     if (!user) return null; // Guard against undefined users
 
     return (
@@ -81,6 +85,9 @@ const SpaceMembers = ({ project, spaceId }) => {
     );
   };
 
+  // If owner is not found yet, show loading
+  if (!owner) return <div>Loading...</div>;
+
   return (
     <>
       <SectionTitle>Owner</SectionTitle>
@@ -90,11 +97,11 @@ const SpaceMembers = ({ project, spaceId }) => {
           dropdownWidth={343}
           withClearValue={false}
           name="reporter"
-          value={owner.id}
-          options={[owner].map(user => ({ value: user.id, label: user.name }))}
+          value={owner.uid}
+          options={[owner].map(user => ({ value: user.uid, label: user.name }))}
           onChange={userId => updateIssue({ reporterId: userId })}
-          renderValue={({ value: userId }) => renderUser(getUserById(userId), true)}
-          renderOption={({ value: userId }) => renderUser(getUserById(userId))}
+          renderValue={({ value: userId }) => renderUser(getUserByUid(userId), true)}
+          renderOption={({ value: userId }) => renderUser(getUserByUid(userId))}
         /></span>
       <SectionTitle>Members</SectionTitle>
       {usersArray.length > 1 && <Select
@@ -107,10 +114,10 @@ const SpaceMembers = ({ project, spaceId }) => {
         value={userOptions}
         options={allUser}
         onChange={userIds => {
-          updateIssue({ members: userIds.map(getUserById), spaceId });
+          updateIssue({ members: userIds.map(getUserByUid), spaceId });
         }}
         renderValue={({ value: userId, removeOptionValue }) =>
-          renderUser(getUserById(userId), true, removeOptionValue)
+          renderUser(getUserByUid(userId), true, removeOptionValue)
         }
         renderOption={renderOption}
       />
@@ -124,7 +131,7 @@ const renderUser = (user, isSelectValue, removeOptionValue) => {
 
   return (
     <User
-      key={user.id}
+      key={user.uid}
       isSelectValue={isSelectValue}
       withBottomMargin={!!removeOptionValue}
       onClick={() => removeOptionValue && removeOptionValue()}
