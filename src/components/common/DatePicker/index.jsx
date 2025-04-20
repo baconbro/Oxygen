@@ -30,7 +30,15 @@ const DatePicker = ({ className, withTime, value, onChange, ...inputProps }) => 
 
   const handleClearDate = (e) => {
     e.stopPropagation();
-    onChange(0);
+    onChange("");
+  };
+
+  // Initialize with current date when value is empty to allow DateSection to work properly
+  const ensureValidDateValue = (val) => {
+    if (!val || val === "") {
+      return new Date().toISOString();
+    }
+    return val;
   };
 
   return (
@@ -43,9 +51,9 @@ const DatePicker = ({ className, withTime, value, onChange, ...inputProps }) => 
           autoComplete="off"
           value={getFormattedInputValue(value, withTime)}
           onClick={() => setDropdownOpen(true)}
-          hasRightIcon={value !== 0}
+          hasRightIcon={!!value && value !== ""}
         />
-        {value !== 0 && (
+        {!!value && value !== "" && (
           <i
             className="bi bi-x-circle position-absolute"
             style={{
@@ -63,12 +71,16 @@ const DatePicker = ({ className, withTime, value, onChange, ...inputProps }) => 
         <Dropdown withTime={withTime}>
           <DateSection
             withTime={withTime}
-            value={value}
+            value={ensureValidDateValue(value)}
             onChange={onChange}
             setDropdownOpen={setDropdownOpen}
           />
           {withTime && (
-            <TimeSection value={value} onChange={onChange} setDropdownOpen={setDropdownOpen} />
+            <TimeSection 
+              value={ensureValidDateValue(value)} 
+              onChange={onChange} 
+              setDropdownOpen={setDropdownOpen} 
+            />
           )}
         </Dropdown>
       )}
