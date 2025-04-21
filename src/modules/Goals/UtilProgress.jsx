@@ -5,17 +5,29 @@ import { useAuth } from "../auth";
 const GetItem = ({ item }) => {
     const { currentUser } = useAuth();
     //get the work linked to the KR
-    const { data: workItem, isLoading, error } = useGetItem(item.id, currentUser?.all?.currentOrg);
-    // wait durind data fetching
+    const { data: workItems, isLoading, error } = useGetItem(item.id, currentUser?.all?.currentOrg);
+    // wait during data fetching
     if (isLoading) {
         return null;
     }
     //if error or no work item is linked
-    if (error || !workItem) {
+    if (error || !workItems || workItems.length === 0) {
         return null;
     }
-    //calculate progress
-    return workItem.progress;
+    
+    // If there are multiple items linked, calculate the average progress
+    let totalProgress = 0;
+    let itemCount = 0;
+    
+    workItems.forEach(workItem => {
+        if (workItem.progress !== undefined && workItem.progress !== null) {
+            totalProgress += Number(workItem.progress);
+            itemCount++;
+        }
+    });
+    
+    // Return the average progress, or null if no valid progress values
+    return itemCount > 0 ? totalProgress / itemCount : null;
 };
 
 export const Progress = ({ item }) => {
@@ -167,6 +179,6 @@ const calculateKRWorkProgress = (item) => {
     if (!item) {
         return null;
     }
-    return GetItem({ item });
-
+    const progress = GetItem({ item });
+    return progress !== null ? progress : null;
 }
