@@ -1,10 +1,8 @@
 import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
-
 import useOnOutsideClick from '../../../hooks/onOutsideClick';
 import { KeyCodes } from '../../../constants/keyCodes';
 import Icon from '../Icon';
-
 import Dropdown from './Dropdown';
 import {
   StyledSelect,
@@ -15,8 +13,6 @@ import {
   ValueMultiItem,
   AddMore,
 } from './Styles';
-
-import * as FirestoreService from '../../../services/firestore';
 
 const propTypes = {
   className: PropTypes.string,
