@@ -29,11 +29,17 @@ const GoalIssueLink = ({ issue, updateIssue }) => {
             <Select
                 variant="empty"
                 dropdownWidth={343}
-                withClearValue={false}
+                withClearValue={true}
                 name="goalLink"
                 value={issue.goalLink}
                 options={goalsOptions}
-                onChange={goalId => updateIssue({ goalLink: goalId })}
+                onChange={goalId => {
+                    if (goalId) {
+                        updateIssue({ goalLink: goalId });
+                    } else {
+                        updateIssue({ goalLink: 0 });
+                    }
+                }}
                 renderValue={({ value: goalId }) => renderUser(getGoalById(goalId), true)}
                 renderOption={({ value: goalId }) => renderUser(getGoalById(goalId))}
             />

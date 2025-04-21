@@ -74,13 +74,20 @@ const ProjectBoardIssueDetailsReporter = ({ issue, updateIssue, projectUsers }) 
   const userOptions = standardizedProjectUsers.map(user => ({ value: user.id, label: user.name }));
 
   const handleReporterChange = reporterId => {
-    if (!reporterId) return;
-    
-    const reporterUser = getUserById(reporterId);
-    updateIssue({ 
-      reporterId, 
-      reporter: reporterUser 
-    });
+    // Allow clearing the reporter by accepting falsy reporterId
+    if (reporterId) {
+      const reporterUser = getUserById(reporterId);
+      updateIssue({ 
+        reporterId, 
+        reporter: reporterUser 
+      });
+    } else {
+      // Clear both reporterId and reporter when selection is cleared
+      updateIssue({
+        reporterId: 0,
+        reporter: 0
+      });
+    }
   };
 
   return (
@@ -90,7 +97,7 @@ const ProjectBoardIssueDetailsReporter = ({ issue, updateIssue, projectUsers }) 
       <Select
         variant="empty"
         dropdownWidth={343}
-        withClearValue={false}
+        withClearValue={true}
         name="reporter"
         value={issue.reporterId}
         options={userOptions}
