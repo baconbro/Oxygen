@@ -75,7 +75,7 @@ export const useGetSpaces = (orgId) => {
 export const useGetSpace = (id, orgId) => {
   return useQuery(['Workspace', id], () => getSpace(id, orgId), {
     enabled: !!id,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 1, // 1 minutes
   });
 };
 

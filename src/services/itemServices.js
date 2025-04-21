@@ -230,9 +230,9 @@ export const streamSubItem = (orgId, itemId, workspaceId, snapshot, error) => {
 
 // React Query hooks
 export const useGetItems = (id, orgId) => {
-  return useQuery(['Items', orgId], () => getItems(id, orgId), {
+  return useQuery(['Items', id], () => getItems(id, orgId), {
     enabled: !!orgId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 1, // 1 minutes
   });
 };
 
