@@ -33,6 +33,10 @@ const GoalIssueLink = ({ issue, updateIssue }) => {
                 name="goalLink"
                 value={issue.goalLink}
                 options={goalsOptions}
+                isSearchable={true}
+                filterOption={(option, inputValue) => {
+                    return option.label.toLowerCase().includes(inputValue.toLowerCase());
+                }}
                 onChange={goalId => {
                     if (goalId) {
                         updateIssue({ goalLink: goalId });

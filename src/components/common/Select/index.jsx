@@ -136,22 +136,6 @@ const Select = ({
 
   const isValueEmpty = isMulti ? !value.length : !getOption(value);
 
-  const testsearch = search => {
-    if (search != '') {
-      FirestoreService.searchMember(search)
-        .then((userCredential) => {
-          userCredential.forEach((doc) => {
-          });
-
-        })
-        .catch((error) => {
-          console.log(error)
-
-        })
-
-    }
-  }
-
   return (
     <StyledSelect
       className={className}
@@ -205,7 +189,7 @@ const Select = ({
           value={value}
           isValueEmpty={isValueEmpty}
           searchValue={searchValue}
-          setSearchValue={testsearch}//{setSearchValue}
+          setSearchValue={setSearchValue}
           $selectRef={$selectRef}
           $inputRef={$inputRef}
           deactivateDropdown={deactivateDropdown}
