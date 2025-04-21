@@ -186,10 +186,10 @@ const getItem = async (goalId, orgId) => {
     const q = query(collection(db, "organisation", orgId, "items"), where("goalLink", "==", goalId));
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      const itemDoc = querySnapshot.docs[0];
-      return { id: itemDoc.id, ...itemDoc.data() };
+      const items = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      return items;
     } else {
-      throw new Error('Item not found');
+      return []; // Return empty array instead of throwing an error
     }
   } catch (error) {
     console.error('Error fetching item: ', error);
