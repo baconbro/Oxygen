@@ -1,4 +1,4 @@
-import { getFirestore, collection, getDocs, addDoc, updateDoc, doc,query,where,setDoc ,deleteDoc} from 'firebase/firestore';
+import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where, setDoc, deleteDoc } from 'firebase/firestore';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { db } from '../services/firestore';
 import { useAuth } from '../modules/auth'
@@ -102,4 +102,31 @@ export const useDeleteOKR = () => {
   });
 
   return mutation.mutate;
+};
+
+// Replace the existing useFetchSingleOKR implementation with this:
+export const fetchSingleOKR = async (orgId, goalId) => {
+  try {
+    if (!orgId || !goalId) {
+      throw new Error('Organization ID and Goal ID are required');
+    }
+    
+    const q = query(collection(db, "organisation", orgId, "goals"), where("id", "==", parseInt(goalId)));
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+      return null; // No goal found with that ID
+    }
+    
+    // Return the first document that matches the ID
+    const doc = querySnapshot.docs[0];
+    return { id: doc.id, ...doc.data() };
+  } catch (error) {
+    console.error('Error fetching single OKR: ', error);
+    throw new Error('Error fetching single OKR');
+  }
+};
+
+export const useFetchSingleOKR = () => {
+  return fetchSingleOKR;
 };

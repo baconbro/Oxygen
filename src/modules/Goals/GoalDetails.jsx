@@ -24,7 +24,7 @@ import { isNil } from 'lodash';
 import DatePicker from '../../components/common/DatePicker';
 import { toAbsoluteUrl } from '../../utils'
 import { customStatus, getScoreColor, goalType } from '../../constants/custom';
-import { useUpdateOKR } from '../../services/okrServices';
+import { useUpdateOKR, fetchSingleOKR } from '../../services/okrServices';
 import { Avatar, Select, Icon } from '../../components/common';
 import { User, Username } from '../IssueDetails/Reporter/Styles';
 import CreateGoal from './createGoal';
@@ -34,7 +34,6 @@ import CommentsComponent from './Comments';
 import UpdatesComponent from './Updates';
 import WorkLink from './workLink';
 import KrGraph from './KrGraph';
-
 
 
 const GoalDetails = ({
@@ -56,6 +55,7 @@ const GoalDetails = ({
   const { currentUser } = useAuth();
   var id = useParams()
   const { search } = useLocation();
+  const [isLoading, setIsLoading] = useState(true);
 
 
   //transform orgUsers into an array of objects
@@ -66,30 +66,78 @@ const GoalDetails = ({
   //get params from the url
   const queryParams = new URLSearchParams(search);
   const goalId = queryParams.get('id');
-
+  
+  // Fetch a single OKR when needed
+  const fetchSingleGoal = async (goalId) => {
+    if (!goalId || !currentUser?.all?.currentOrg) return;
+    
+    try {
+      setIsLoading(true);
+      // Use the fetchSingleOKR function directly from services
+      const goalData = await fetchSingleOKR(currentUser.all.currentOrg, goalId);
+      if (goalData) {
+        setCurrentGoal(goalData);
+        setData(goalData);
+      }
+    } catch (error) {
+      console.error('Error fetching goal:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Set current goal based on URL id
   useEffect(() => {
-    if (goalId && goals.length > 0) {
-      const goal = goals.find(g => g.id === goalId);
-      if (goal) {
-        setCurrentGoal(goal);
+    if (goalId) {
+      if (goals && goals.length > 0) {
+        const goal = goals.find(g => g.id === goalId);
+        if (goal) {
+          setCurrentGoal(goal);
+          setData(goal);
+          setIsLoading(false);
+        } else {
+          // Goal not found in the current goals array, fetch it directly
+          fetchSingleGoal(goalId);
+        }
+      } else {
+        // No goals loaded yet, fetch the specific one
+        fetchSingleGoal(goalId);
       }
     }
-  }, [goalId, goals, setCurrentGoal]);
+  }, [goalId, goals]);
 
   // If currentGoal changes, update the data
   useEffect(() => {
-    setData(currentGoal);
+    if (currentGoal && Object.keys(currentGoal).length > 0) {
+      setData(currentGoal);
+      setIsLoading(false);
+    }
   }, [currentGoal]);
 
-  if (!data || data.length < 1) return (
+  if (isLoading) return (
     <div className='card card-flush border-0 h-md-100'>
-      fetching data...
-      <div className="spinner-border" role="status">
+      <div className="d-flex flex-column align-items-center justify-content-center p-10">
+        <div className="spinner-border text-primary mb-3" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <div className="text-gray-600">Loading goal details...</div>
       </div>
-      <Loader />
-    </div>)
+    </div>
+  );
+
+  if (!data || Object.keys(data).length < 1) return (
+    <div className='card card-flush border-0 h-md-100'>
+      <div className="d-flex flex-column align-items-center justify-content-center p-10">
+        <div className="text-gray-600">Goal not found or could not be loaded</div>
+        <button 
+          className="btn btn-sm btn-primary mt-3" 
+          onClick={() => navigate('/goals')}
+        >
+          Return to Goals List
+        </button>
+      </div>
+    </div>
+  );
 
   const issue = data;
 
