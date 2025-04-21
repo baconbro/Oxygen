@@ -3,8 +3,6 @@ import WorkspaceHeaderMenu from "../../layout/components/header/Workspace";
 import EmptyWorkspace from "../../components/common/emptyStates/emptyWorkspace";
 import { useGetSpaces } from "../../services/workspaceServices";
 
-
-
 export const Workspacehome = () => {
     const { currentUser } = useAuth();
     const { data: workspaces, status, error } = useGetSpaces(currentUser?.all?.currentOrg);
@@ -17,19 +15,19 @@ export const Workspacehome = () => {
             <div className="card shadow-sm">
                 <div className="card-body">
                     <div className="row">
-                        {workspaces && workspaces.length ? <WorkspaceHeaderMenu spaces={workspaces} /> : (
+                        {isLoading ? (
+                            <div className="col-12 text-center py-5">
+                                <span>Loading
+                                    <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
+                                </span>
+                            </div>
+                        ) : showNoWorkspaceFound ? (
                             <>
-                                {isLoading &&
-                                    <span>Loading
-                                        <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
-                                    </span>}
-                                {showNoWorkspaceFound && (
-                                    <>
-                                        <WorkspaceHeaderMenu spaces={workspaces} />
-                                        <EmptyWorkspace />
-                                    </>
-                                )}
+                                <WorkspaceHeaderMenu spaces={[]} />
+                                <EmptyWorkspace />
                             </>
+                        ) : (
+                            <WorkspaceHeaderMenu spaces={workspaces} />
                         )}
                     </div>
                 </div>

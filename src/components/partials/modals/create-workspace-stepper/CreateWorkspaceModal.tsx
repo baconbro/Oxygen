@@ -12,6 +12,7 @@ import {Step5} from './steps/Step5'
 import {createSpace} from '../../../../services/firestore'
 import {useAuth} from '../../../../modules/auth'
 import {useNavigate} from 'react-router-dom'
+import {useQueryClient} from 'react-query'
 
 type Props = {
   show: boolean
@@ -27,6 +28,7 @@ const CreateWorkspaceModal = ({show, handleClose}: Props) => {
   const [hasError, setHasError] = useState(false)
   const { currentUser } = useAuth()
   const navigate = useNavigate();
+  const queryClient = useQueryClient()
 
   const loadStepper = () => {
     stepper.current = StepperComponent.createInsance(stepperRef.current as HTMLDivElement)
@@ -94,6 +96,8 @@ const CreateWorkspaceModal = ({show, handleClose}: Props) => {
     try {
       const newSpace = await createSpace(values, currentUser);
       if(newSpace){
+        // Invalidate workspaces cache to reflect the new workspace
+        queryClient.invalidateQueries(['Workspaces', values.org])
         navigate(`/workspace/${newSpace}/board`, { replace: true });
       }
     } catch (error) {
