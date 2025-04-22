@@ -243,7 +243,7 @@ const Goals = () => {
       });
     }
   
-    return <Avatar avatarUrl={avatarUrl} name={name} size={25} />;
+    return <Avatar avatarUrl={avatarUrl} name={name} size={25} className='avatar-circle' />;
   };
 
 

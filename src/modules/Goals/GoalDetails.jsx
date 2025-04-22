@@ -60,6 +60,7 @@ const GoalDetails = ({
 
   //transform orgUsers into an array of objects
   const orgUsersArray = Object.values(orgUsers?.users || {}).map((user) => {
+    console.log(user)
     return { ...user }
   })
 
@@ -317,7 +318,7 @@ const GoalDetails = ({
                   </div>
                   
                   <div className="mb-3 row">
-                    <label className="col-sm-2 col-form-label fw-bold">Reporter</label>
+                    <label className="col-sm-2 col-form-label fw-bold">Owner</label>
                     <div className="col-sm-10">
                       <ProjectBoardIssueDetailsReporter issue={issue} updateIssue={updateIssue} projectUsers={orgUsersArray} />
                     </div>
