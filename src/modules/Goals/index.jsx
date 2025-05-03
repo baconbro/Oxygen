@@ -227,22 +227,20 @@ const Goals = () => {
   const OwnerName = ({ reporterId }) => {
     let name = '';
     let avatarUrl = '';
-    
+
     // Check if orgUsers and users exist
     if (orgUsers && orgUsers.users) {
       // Iterate through all users to find the one with matching id
-      // Convert reporterId to number for comparison with user.id
-      const reporterIdNum = Number(reporterId);
-      
+      // Compare reporterId (string) directly with user.uid (string)
       Object.values(orgUsers.users).forEach(user => {
-        if (user.id === reporterIdNum) {
+        if (user.uid === reporterId) {
           // Use name property with fallbacks to other name properties
           name = user.name || user.displayName || user.fName || '';
           avatarUrl = user.photoURL || '';
         }
       });
     }
-  
+
     return <Avatar avatarUrl={avatarUrl} name={name} size={25} className='avatar-circle' />;
   };
 
