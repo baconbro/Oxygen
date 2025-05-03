@@ -26,6 +26,7 @@ const CreateGoal = ({ modalClose, parent }) => {
                                 description: "",
                                 score: 0,
                                 status: "ontrack",
+                                reporterId: currentUser.all.uid,
                                 ...(parent && {
                                     parent: parent,
                                     type: 'kr'
