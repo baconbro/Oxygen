@@ -50,7 +50,7 @@ const ProjectBoardIssueDetails = ({
   const { project, goals } = useWorkspace();
   var id = useParams()
   const [breadcrumbItems, setBreadcrumbItems] = useState([]);
-  const [showPrioritization, setShowPrioritization] = useState(project.config.workspaceConfig?.board?.rice || false);
+  const [showPrioritization, setShowPrioritization] = useState(project.config.board?.rice || false);
 
   // Convert issueId to a number
   const numericIssueId = Number(issueId);
