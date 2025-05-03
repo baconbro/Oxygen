@@ -60,7 +60,6 @@ const GoalDetails = ({
 
   //transform orgUsers into an array of objects
   const orgUsersArray = Object.values(orgUsers?.users || {}).map((user) => {
-    console.log(user)
     return { ...user }
   })
 

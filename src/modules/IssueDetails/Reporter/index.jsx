@@ -21,7 +21,7 @@ const ProjectBoardIssueDetailsReporter = ({ issue, updateIssue, projectUsers }) 
     if (orgUsers && orgUsers.users && projectUsers) {
       // Map project users to full user data from orgUsers
       const mappedUsers = projectUsers.map(projectUser => {
-        const userId = typeof projectUser.id === "number" ? projectUser.id.toString() : projectUser.id;
+        const userId = typeof projectUser.id === "number" ? projectUser.id.toString() : projectUser.uid;
         // Find matching user in orgUsers by uid
         const orgUserData = orgUsers.users[userId];
         
@@ -63,7 +63,7 @@ const ProjectBoardIssueDetailsReporter = ({ issue, updateIssue, projectUsers }) 
 
   // Safe getUserById function that never returns undefined
   const getUserById = userId => {
-    const user = standardizedProjectUsers.find(user => user.id === userId);
+    const user = standardizedProjectUsers.find(user => user.uid === userId);
     if (!user) {
       console.warn(`User with ID ${userId} not found`);
       return null;
@@ -71,21 +71,20 @@ const ProjectBoardIssueDetailsReporter = ({ issue, updateIssue, projectUsers }) 
     return user;
   };
   
-  const userOptions = standardizedProjectUsers.map(user => ({ value: user.id, label: user.name }));
+  const userOptions = standardizedProjectUsers.map(user => ({ value: user.uid, label: user.name }));
 
   const handleReporterChange = reporterId => {
     // Allow clearing the reporter by accepting falsy reporterId
     if (reporterId) {
       const reporterUser = getUserById(reporterId);
+      console.log("reporterUser", reporterId);
       updateIssue({ 
         reporterId, 
-        reporter: reporterUser 
       });
     } else {
       // Clear both reporterId and reporter when selection is cleared
       updateIssue({
-        reporterId: 0,
-        reporter: 0
+        reporterId: 0
       });
     }
   };
