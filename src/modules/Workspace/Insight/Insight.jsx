@@ -8,7 +8,7 @@ import { db } from '../../../services/firestore';
 import ErrorBoundary from "../../../components/ErrorBoundary";
 
 // Import CSS
-import '../../../assets/css/insights.css';
+import '../../../styles/insights.css';
 
 const Insight = () => {
     const { project } = useWorkspace();
