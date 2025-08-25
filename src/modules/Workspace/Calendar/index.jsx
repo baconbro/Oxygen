@@ -10,6 +10,7 @@ import { useUpdateItem } from '../../../services/itemServices';
 import { useNavigate } from "react-router-dom";
 import { filterIssues } from '../../../utils/issueFilterUtils';
 import { useParams } from 'react-router-dom';
+import { useGetSprints } from '../../../services/sprintServices';
 
 const Calendar = () => {
 
@@ -23,6 +24,11 @@ const Calendar = () => {
   const filterItems = filterIssues(items, filters, currentUser.all.id);
   const externalListRef = useRef(null);
   const draggableRef = useRef(null);
+
+  // Load sprints for background highlighting
+  const spaceId = project?.spaceId ?? params?.id;
+  const orgId = currentUser?.all?.currentOrg;
+  const { data: sprints } = useGetSprints(spaceId, orgId);
 
   // Process issues to use dueDate as start when start is missing
   const processIssuesForCalendar = (issues) => {
@@ -212,6 +218,41 @@ const Calendar = () => {
     }));
   }, [filterItems]);
 
+  // Map sprints to background events
+  const sprintBackgroundEvents = useMemo(() => {
+    const toMs = (v) => {
+      if (!v && v !== 0) return undefined;
+      if (typeof v === 'number') return v;
+      if (typeof v === 'string') {
+        const d = new Date(v);
+        return isNaN(d.getTime()) ? undefined : d.getTime();
+      }
+      if (v && typeof v.toDate === 'function') {
+        // Firestore Timestamp
+        return v.toDate().getTime();
+      }
+      return undefined;
+    };
+    return (sprints || [])
+      .map((s) => {
+        const startMs = toMs(s.start ?? s.startDate ?? s.start_at);
+        const endMs = toMs(s.end ?? s.endDate ?? s.end_at ?? s.dueDate ?? s.finish_at);
+        if (!startMs || !endMs) return null;
+        return {
+          id: `sprint_${s.id}`,
+          title: s.title || s.name || 'Sprint',
+          start: new Date(startMs),
+          end: new Date(endMs),
+          display: 'background',
+          allDay: true,
+          backgroundColor: 'rgba(13,110,253,0.08)', // subtle primary tint
+          borderColor: 'rgba(13,110,253,0.24)',
+          overlap: true,
+        };
+      })
+      .filter(Boolean);
+  }, [sprints]);
+
   return (
     <>
       <div className="d-flex align-items-center py-2 py-md-1">
@@ -258,7 +299,7 @@ const Calendar = () => {
                 plugins={[dayGridPlugin, interactionPlugin]}
                 initialView='dayGridMonth'
                 weekends={false}
-                events={calendarEvents}
+                events={[...calendarEvents, ...sprintBackgroundEvents]}
                 eventContent={renderEventContent}
                 headerToolbar={{
                   left: 'prev,next today',
