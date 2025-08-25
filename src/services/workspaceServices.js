@@ -50,11 +50,30 @@ const getSpaceConfig = async (id, orgId) => {
 const updateWorkspace = async (values, workspaceId, orgId) => {
   console.log('values: ', values, 'workspaceId: ', workspaceId, 'orgId: ', orgId);
   try {
+    // Deep clean to remove undefined values Firestore doesn't accept
+    const deepClean = (obj) => {
+      if (obj === undefined) return undefined;
+      if (obj === null) return null;
+      if (typeof obj !== 'object') return obj;
+      if (Array.isArray(obj)) {
+        return obj
+          .filter((v) => v !== undefined)
+          .map((v) => deepClean(v))
+          .filter((v) => v !== undefined);
+      }
+      const clean = {};
+      for (const k in obj) {
+        const v = deepClean(obj[k]);
+        if (v !== undefined) clean[k] = v;
+      }
+      return clean;
+    };
+    const cleanedValues = deepClean(values);
     const q = query(collection(db, "organisation", orgId, "spaces"), where("spaceId", "==", workspaceId));
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
       const spaceDocRef = querySnapshot.docs[0].ref;
-      await updateDoc(spaceDocRef, values);
+      await updateDoc(spaceDocRef, cleanedValues);
     } else {
       throw new Error('Workspace not found');
     }

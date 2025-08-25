@@ -22,6 +22,7 @@ import BudgetTracking from './BudgetTracking';
 import StoryPointInput from './Size/Storypoints';
 import TshirtSizeInput from './Size/TshirtSize/TshirtSize';
 import Checklist from './Checklist';
+import CustomFields from './CustomFields';
 
 import * as FirestoreService from '../../services/firestore';
 import { streamSubItem } from '../../services/itemServices';
@@ -348,6 +349,15 @@ const ProjectBoardIssueDetails = ({
             <label className="col-sm-2 col-form-label fw-bold">Tags</label>
             <div className="col-sm-10">
               <TagsComponent issue={issue} updateIssue={updateIssue} />
+            </div>
+          </div>
+        </div>
+
+        <div className='px-4 mb-5'>
+          <div className="mb-3 row">
+            <label className="col-sm-2 col-form-label fw-bold">Custom Fields</label>
+            <div className="col-sm-10">
+              <CustomFields issue={issue} updateIssue={updateIssue} />
             </div>
           </div>
         </div>
