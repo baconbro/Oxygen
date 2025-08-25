@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Avatar } from "../../../components/common";
 import { Link } from 'react-router-dom'
 import { CreateWorkspaceModal } from "../../../components/partials"
+import { getWorkspaceAvatarSrcById } from '../../../utils/avatars';
 
 const WorkspaceHeaderMenu = ({ spaces }) => {
     const [showCreateModal, setShowCreateModal] = useState(false)
@@ -13,7 +14,7 @@ const WorkspaceHeaderMenu = ({ spaces }) => {
                     <div className="menu-item p-0 m-0">
                         <Link to={space.acronym ? `/w/${space.acronym}` : `/workspace/${space.id}`} className="menu-link" >
                             <span className="menu-custom-icon d-flex flex-center flex-shrink-0 rounded w-40px h-40px me-3">
-                                <Avatar avatarUrl="" name={space.title} size={50} className='me-5' />
+                                <Avatar avatarUrl={space.avatarUrl || getWorkspaceAvatarSrcById(space.avatarId) || ''} name={space.title} size={50} className='me-5' />
                             </span>
                             <span className="d-flex flex-column">
                                 <span className="fs-6 fw-bold text-gray-800">{space.title}</span>

@@ -178,24 +178,25 @@ const Project = () => {
         issues: updateArrayItemById(currentData.project.issues, issueId, updatedFields),
       },
     }));
-    updateProjectContext(currentData => ({
-
-      ...currentData,
-      issues: updateArrayItemById(currentData.issues, issueId, updatedFields),
-    }));
+    // Ensure context receives an object, not an updater function
+    updateProjectContext({
+      ...project,
+      issues: updateArrayItemById(project.issues, issueId, updatedFields),
+    });
   };
 
   const updateLocalProjectConfig = (updatedFields) => {
     setLocalData(currentData => ({
       project: {
-        ...currentData.project, ...updatedFields
+        ...currentData.project,
+        ...updatedFields,
       },
     }));
-    updateProjectContext(currentData => ({
-
-      ...currentData, ...updatedFields
-
-    }));
+    // Ensure context receives an object, not an updater function
+    updateProjectContext({
+      ...project,
+      ...updatedFields,
+    });
   };
 
 

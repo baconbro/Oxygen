@@ -36,6 +36,7 @@ import {
     connectAuthEmulator
 } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { async } from "@firebase/util";
 import { defaultWorkspaceConfig } from "../constants/defaultConfig";
 import { useFirestoreQuery } from "@react-query-firebase/firestore";
@@ -54,6 +55,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app)
 export const auth = getAuth();
+export const storage = getStorage(app);
 
 // Connect to the emulators if running locally
 if (window.location.hostname === 'localhost') {
@@ -463,6 +465,26 @@ export const deleteSpace = async (spaceId, orgId) => {
 
     };
 }
+
+// Storage helpers for workspace avatars
+export const uploadWorkspaceAvatar = async (orgId, spaceId, file) => {
+    if (!file) throw new Error('No file provided');
+    const path = `organisation/${orgId}/spaces/${spaceId}/avatar/${Date.now()}_${file.name}`;
+    const ref = storageRef(storage, path);
+    const snapshot = await uploadBytes(ref, file);
+    const url = await getDownloadURL(snapshot.ref);
+    return { url, path };
+};
+
+export const deleteWorkspaceAvatarByPath = async (path) => {
+    if (!path) return;
+    const ref = storageRef(storage, path);
+    try {
+        await deleteObject(ref);
+    } catch (e) {
+        console.warn('Failed to delete old avatar', e);
+    }
+};
 
 
 //User

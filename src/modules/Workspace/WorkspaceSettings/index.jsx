@@ -1,5 +1,7 @@
 import toast from '../../../utils/toast';
 import { Form } from '../../../components/common';
+import Avatar from '../../../components/common/Avatar';
+import { getWorkspaceAvatarSrcById } from '../../../utils/avatars';
 
 import { FormCont, FormElement, ActionButton } from './Styles';
 import ProjectMembers from './Members'
@@ -11,6 +13,7 @@ import CustomObject from './CustomObject';
 import BoardSettings from './BoardSettings';
 import { useAuth } from '../../auth';
 import { isAcronymAvailable } from '../../../services/workspaceServices';
+import WorkspaceAvatar from './WorkspaceAvatar';
 
 
 const ProjectSettings = ({ project, spaceId, updateLocalProjectConfig }) => {
@@ -23,7 +26,8 @@ const ProjectSettings = ({ project, spaceId, updateLocalProjectConfig }) => {
 
   return (
     <>
-      <div className='card mb-5 mb-xl-10'>
+  <WorkspaceAvatar project={project} updateLocalProjectConfig={updateLocalProjectConfig} />
+  <div className='card mb-5 mb-xl-10'>
         <div className="card-header border-0 ">
           <div className="card-title m-0">
             <h3 className="fw-bolder m-0">Issue Key (Acronym)</h3>
@@ -84,6 +88,11 @@ const ProjectSettings = ({ project, spaceId, updateLocalProjectConfig }) => {
         <div className="card-header border-0 ">
           <div className="card-title m-0">
             <h3 className="fw-bolder m-0">Workspace Details</h3>
+          </div>
+          <div className="card-toolbar">
+            <div className='symbol symbol-40px'>
+              <Avatar avatarUrl={getWorkspaceAvatarSrcById(project?.avatarId) || ''} name={project?.title} size={40} />
+            </div>
           </div>
         </div>
         <div className='card-body border-top p-9'>

@@ -5,7 +5,6 @@ import TopBarProgress from 'react-topbar-progress-indicator'
 import { DashboardWrapper } from '../pages/dashboard/DashboardWrapper'
 import { getCSSVariableValue } from '../utils/index'
 import { WithChildren } from '../utils/index'
-import { WorkspaceProvider } from '../contexts/WorkspaceProvider'
 import { Workspacehome } from '../pages/Workspaces'
 import CreateWorkspace from '../modules/onboarding/CreateWorkspace'
 import Project from '../modules/Workspace'
@@ -45,21 +44,17 @@ const PrivateRoutes = () => {
         <Route
           path='workspace/'
           element={
-            <WorkspaceProvider>
-              <SuspensedView>
-                <Workspacehome />
-              </SuspensedView>
-            </WorkspaceProvider>
+            <SuspensedView>
+              <Workspacehome />
+            </SuspensedView>
           }
         />
         <Route
           path='workspace/:id/*'
           element={
-            <WorkspaceProvider>
-              <SuspensedView>
-                <Project />
-              </SuspensedView>
-            </WorkspaceProvider>
+            <SuspensedView>
+              <Project />
+            </SuspensedView>
           }
         />
 
