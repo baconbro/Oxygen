@@ -141,6 +141,7 @@ const GoalDetails = ({
 
   const issue = data;
 
+
   const updateLocalIssueDetails = fields =>
     setData(currentData => ({ ...currentData, ...fields }));
 

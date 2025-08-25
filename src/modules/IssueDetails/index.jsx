@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CopyLinkButton } from '../../components/common';
+import { CopyLinkButton, Avatar } from '../../components/common';
 import Loader from './Loader';
 import Type from './Type';
 import Delete from './Delete';
@@ -28,6 +28,7 @@ import { streamSubItem } from '../../services/itemServices';
 
 import { useAuth } from '../auth';
 import { useParams } from 'react-router-dom';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useUpdateItem } from '../../services/itemServices';
 import { Breadcrumbs } from '../../components/common';
 import { getParentIssueIds } from '../../utils/getIssueX';
@@ -47,7 +48,7 @@ const ProjectBoardIssueDetails = ({
   const [data, setData] = useState()
   const editItemMutation = useUpdateItem();
   const { currentUser } = useAuth();
-  const { project, goals } = useWorkspace();
+  const { project, goals, orgUsers } = useWorkspace();
   var id = useParams()
   const [breadcrumbItems, setBreadcrumbItems] = useState([]);
   const [showPrioritization, setShowPrioritization] = useState(project.config.board?.rice || false);
@@ -142,6 +143,64 @@ const ProjectBoardIssueDetails = ({
     );
   };
 
+  // Voting helpers
+  const getUserInfo = (uid) => {
+    if (!uid) return { name: 'Unknown', avatarUrl: '' };
+    const user = orgUsers?.users ? Object.values(orgUsers.users).find(u => u.uid === uid) : null;
+    const name = user?.name || user?.displayName || user?.fName || user?.email || 'Unknown';
+    const avatarUrl = user?.photoURL || user?.avatarUrl || '';
+    return { name, avatarUrl };
+  };
+
+  const renderVoters = (uids) => {
+    const list = Array.isArray(uids) ? uids : [];
+    if (!list.length) return <div className="text-muted">No votes yet</div>;
+    return (
+      <div>
+        {list.map((id) => {
+          const { name, avatarUrl } = getUserInfo(id);
+          return (
+            <div key={id} className="d-flex align-items-center mb-1">
+              <Avatar avatarUrl={avatarUrl} name={name} size={20} />
+              <span className="ms-2">{name}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const toggleVote = (type) => {
+    const uid = currentUser?.all?.uid;
+    if (!uid) return;
+    const up = Array.isArray(issue.votesUp) ? issue.votesUp : [];
+    const down = Array.isArray(issue.votesDown) ? issue.votesDown : [];
+
+    let newUp = up;
+    let newDown = down;
+
+    if (type === 'up') {
+      if (up.includes(uid)) {
+        newUp = up.filter(id => id !== uid);
+      } else {
+        newUp = [...up, uid];
+        newDown = down.filter(id => id !== uid);
+      }
+    } else if (type === 'down') {
+      if (down.includes(uid)) {
+        newDown = down.filter(id => id !== uid);
+      } else {
+        newDown = [...down, uid];
+        newUp = up.filter(id => id !== uid);
+      }
+    }
+
+    // Optimistic UI update
+    updateLocalIssueDetails({ votesUp: newUp, votesDown: newDown });
+    // Persist
+    updateIssue({ votesUp: newUp, votesDown: newDown });
+  };
+
   return (
     <div className='border-0 h-md-100' style={{ backgroundColor: 'white' }}>
       <div className="py-5" style={{ backgroundColor: issueTypeColors[issue.type] }}>
@@ -152,6 +211,46 @@ const ProjectBoardIssueDetails = ({
             <Type issue={issue} updateIssue={updateIssue} />
           </div>
           <div className='d-flex'>
+            {/* Vote controls */}
+            <div className='me-3 d-flex align-items-center gap-2'>
+              <OverlayTrigger
+                placement="bottom"
+                overlay={(props) => (
+                  <Tooltip {...props} style={{ ...props.style, maxWidth: 300 }}>
+                    {renderVoters(issue?.votesUp)}
+                  </Tooltip>
+                )}
+              >
+                <button
+                  type="button"
+                  className={`btn btn-sm ${Array.isArray(issue?.votesUp) && issue.votesUp.includes(currentUser?.all?.uid) ? 'btn-primary' : 'btn-light'}`}
+                  onClick={() => toggleVote('up')}
+                  aria-label="Vote up"
+                >
+                  <i className={`bi ${Array.isArray(issue?.votesUp) && issue.votesUp.includes(currentUser?.all?.uid) ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'}`}></i>
+                  <span className='ms-2'>{Array.isArray(issue?.votesUp) ? issue.votesUp.length : 0}</span>
+                </button>
+              </OverlayTrigger>
+
+              <OverlayTrigger
+                placement="bottom"
+                overlay={(props) => (
+                  <Tooltip {...props} style={{ ...props.style, maxWidth: 300 }}>
+                    {renderVoters(issue?.votesDown)}
+                  </Tooltip>
+                )}
+              >
+                <button
+                  type="button"
+                  className={`btn btn-sm ${Array.isArray(issue?.votesDown) && issue.votesDown.includes(currentUser?.all?.uid) ? 'btn-primary' : 'btn-light'}`}
+                  onClick={() => toggleVote('down')}
+                  aria-label="Vote down"
+                >
+                  <i className={`bi ${Array.isArray(issue?.votesDown) && issue.votesDown.includes(currentUser?.all?.uid) ? 'bi-hand-thumbs-down-fill' : 'bi-hand-thumbs-down'}`}></i>
+                  <span className='ms-2'>{Array.isArray(issue?.votesDown) ? issue.votesDown.length : 0}</span>
+                </button>
+              </OverlayTrigger>
+            </div>
             <div className='me-3'>
               <CopyLinkButton variant="empty" className="btn" />
             </div>
