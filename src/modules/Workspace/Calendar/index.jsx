@@ -2,8 +2,8 @@ import Filters from '../Board/Filters/filter';
 import { useWorkspace } from '../../../contexts/WorkspaceProvider';
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import { useEffect, useState } from 'react';
+import interactionPlugin, { Draggable } from '@fullcalendar/interaction'
+import { useEffect, useMemo, useRef, useState } from 'react';
 import moment from 'moment';
 import { useAuth } from '../../auth';
 import { useUpdateItem } from '../../../services/itemServices';
@@ -19,6 +19,8 @@ const Calendar = () => {
   const editItemMutation = useUpdateItem();
   const navigate = useNavigate();
   const filterItems = filterIssues(items, filters, currentUser.all.id);
+  const externalListRef = useRef(null);
+  const draggableRef = useRef(null);
 
   // Process issues to use dueDate as start when start is missing
   const processIssuesForCalendar = (issues) => {
@@ -43,6 +45,38 @@ const Calendar = () => {
     }
   }, [project])
 
+  // Issues without dates to show in the external list
+  const unscheduledIssues = useMemo(() => {
+    return (items || []).filter((issue) => !issue?.start && !issue?.dueDate);
+  }, [items]);
+
+  // Initialize FullCalendar Draggable for external issues list
+  useEffect(() => {
+    if (externalListRef.current) {
+      // Destroy previous instance if any
+      if (draggableRef.current) {
+  try { draggableRef.current.destroy(); } catch (_) { }
+      }
+      draggableRef.current = new Draggable(externalListRef.current, {
+        itemSelector: '.fc-draggable-issue',
+        eventData: function (eventEl) {
+          return {
+            id: eventEl.getAttribute('data-id'),
+            title: eventEl.getAttribute('data-title') || 'Issue',
+            // For month/dayGrid, treat as all-day one-day event by default
+            allDay: true,
+          }
+        }
+      });
+    }
+    return () => {
+      if (draggableRef.current) {
+  try { draggableRef.current.destroy(); } catch (_) { }
+        draggableRef.current = null;
+      }
+    }
+  }, [externalListRef.current, unscheduledIssues.length]);
+
   const handleEventClick = (info) => {
     navigate(`issue/${info.event.id}`)
   }
@@ -65,12 +99,92 @@ const Calendar = () => {
     }
 
     const mutation = await editItemMutationFunction(data);
+
+    // Optimistically update local items so the event stays at the new position
+    const movedId = Number(info.event.id);
+    setItems((prev) => prev.map((it) => (
+      Number(it.id) === movedId ? { ...it, ...updatedFields } : it
+    )));
+  }
+
+  // Persist changes when an event is resized (either end or start if resizableFromStart)
+  const handleEventResize = async (info) => {
+    try {
+      const startInMilliseconds = info.event.start?.getTime?.();
+      const endInMilliseconds = info.event.end ? info.event.end.getTime() : startInMilliseconds;
+
+      const updatedFields = {
+        start: startInMilliseconds,
+        end: endInMilliseconds,
+        dueDate: endInMilliseconds,
+      };
+
+      const data = {
+        orgId: currentUser?.all?.currentOrg,
+        field: updatedFields,
+        itemId: Number(info.event.id),
+        workspaceId: project.spaceId,
+      }
+
+      await editItemMutationFunction(data);
+
+      // Optimistically update local items so the event reflects the resized duration
+      const resizedId = Number(info.event.id);
+      setItems((prev) => prev.map((it) => (
+        Number(it.id) === resizedId ? { ...it, ...updatedFields } : it
+      )));
+    } catch (_) {
+      try { info.revert && info.revert(); } catch (_) { }
+    }
+  }
+
+  // Handle external issue dropped onto the calendar for the first time
+  const handleEventReceive = async (info) => {
+    try {
+      // info.event has id from the dragged element
+      const issueId = Number(info.event.id);
+      const startInMilliseconds = info.event.start?.getTime?.() ?? Date.now();
+      // All-day single day => set end equal to start for our data model
+      const endInMilliseconds = startInMilliseconds;
+
+      const updatedFields = {
+        start: startInMilliseconds,
+        end: endInMilliseconds,
+        dueDate: endInMilliseconds,
+      };
+
+      const data = {
+        orgId: currentUser?.all?.currentOrg,
+        field: updatedFields,
+        itemId: issueId,
+        workspaceId: project.spaceId,
+      };
+
+      await editItemMutationFunction(data);
+
+      // Optimistically update local items so the issue disappears from the sidebar
+      setItems((prev) => prev.map((it) => (
+        Number(it.id) === issueId ? { ...it, ...updatedFields } : it
+      )));
+    } catch (e) {
+      // If something goes wrong, remove the added event to avoid desync
+  try { info.revert && info.revert(); } catch (_) { }
+    }
   }
 
   const editItemMutationFunction = (data) => {
     const mutateItem = editItemMutation(data);
     return data;
   };
+
+  // Map filtered issues to FullCalendar event shape to ensure `end` is present (uses `end` or falls back to `dueDate`)
+  const calendarEvents = useMemo(() => {
+    return (filterItems || []).map((issue) => ({
+      ...issue,
+      end: issue?.end ?? issue?.dueDate ?? issue?.start, // ensure an end so resize handles show
+      allDay: true, // render as all-day blocks in month view
+    }));
+  }, [filterItems]);
 
   return (
     <>
@@ -83,27 +197,65 @@ const Calendar = () => {
         />
       </div>
 
-      <div className='card kanban' >
+      <div className='card kanban'>
         <div className='card-body' style={{ padding: "1rem 1rem" }}>
-          <FullCalendar
-            plugins={[dayGridPlugin, interactionPlugin]}
-            initialView='dayGridMonth'
-            weekends={false}
-            events={filterItems}
-            eventContent={renderEventContent}
-            headerToolbar={{
-              left: 'prev,next today',
-              center: 'title',
-              right: 'dayGridMonth'
-            }}
-            eventClick={handleEventClick}
-            selectable={true}
-            editable={true}
-            nowIndicator={true}
-            now={moment().startOf('day').format('YYYY-MM-DD')}
-            dayMaxEvents={true}
-            eventDrop={handleEventDrop}
-          />
+          <div className="row g-4">
+            <div className="col-12 col-lg-3">
+              <div className="card h-100">
+                <div className="card-header py-3">
+                  <h6 className="mb-0">Unscheduled issues</h6>
+                  <small className="text-muted">Drag onto calendar</small>
+                </div>
+                <div className="card-body" ref={externalListRef} style={{ maxHeight: 520, overflowY: 'auto' }}>
+                  {unscheduledIssues.length === 0 && (
+                    <div className="text-muted small">Nothing to schedule</div>
+                  )}
+                  {unscheduledIssues.map((issue) => (
+                    <div
+                      key={issue.id}
+                      className="fc-draggable-issue border rounded p-2 mb-2 cursor-pointer bg-light"
+                      data-id={issue.id}
+                      data-title={issue.title}
+                      title="Drag to calendar"
+                    >
+                      <div className="fw-semibold text-dark" style={{ fontSize: 14 }}>{issue.title}</div>
+                      {issue.assigneeName && (
+                        <div className="text-muted" style={{ fontSize: 12 }}>Assignee: {issue.assigneeName}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="col-12 col-lg-9">
+              <FullCalendar
+                plugins={[dayGridPlugin, interactionPlugin]}
+                initialView='dayGridMonth'
+                weekends={false}
+                events={calendarEvents}
+                eventContent={renderEventContent}
+                headerToolbar={{
+                  left: 'prev,next today',
+                  center: 'title',
+                  right: 'dayGridMonth'
+                }}
+                eventClick={handleEventClick}
+                selectable={true}
+                editable={true}
+                droppable={true}
+                nowIndicator={true}
+                now={moment().startOf('day').format('YYYY-MM-DD')}
+                dayMaxEvents={true}
+                eventDrop={handleEventDrop}
+                eventReceive={handleEventReceive}
+                eventResize={handleEventResize}
+                eventDurationEditable={true}
+                eventResizableFromStart={true}
+                eventStartEditable={true}
+                eventDisplay="block"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </>
