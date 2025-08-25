@@ -19,8 +19,13 @@ import { useAuth } from '../modules/auth'
  const addOKR = async ( okr,orgId) => {
   try {
     const okrCollection = collection(db, "organisation", orgId, "goals");
-    okr.id = Math.floor(Math.random() * 1000000000000) + 1;
-    okr.createdAt = Math.floor(Date.now());
+    // Respect pre-set ids to keep optimistic updates in sync; generate if missing
+    if (!okr.id) {
+      okr.id = Math.floor(Math.random() * 1000000000000) + 1;
+    }
+    if (!okr.createdAt) {
+      okr.createdAt = Math.floor(Date.now());
+    }
     const docRef = await addDoc(okrCollection, okr);
     return { id: docRef.id, ...okr };
   } catch (error) {

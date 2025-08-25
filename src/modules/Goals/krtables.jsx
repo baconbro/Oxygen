@@ -8,8 +8,8 @@ const KRTable = ({ parentGoalId }) => {
   const { goals, setCurrentGoal } = useWorkspace();
   const navigate = useNavigate();
 
-  // Filter goals based on the parent goal ID and type 'kr'
-  const filteredGoals = goals.filter(goal => goal.parent === parentGoalId && goal.type === 'kr');
+  // Filter goals based on the parent goal ID and type 'kr' (normalize types)
+  const filteredGoals = (goals || []).filter(goal => String(goal.parent) === String(parentGoalId) && goal.type === 'kr');
 
   const handleRowClick = (goal) => {
     setCurrentGoal(goal);
@@ -56,7 +56,7 @@ const KRTable = ({ parentGoalId }) => {
 };
 
 KRTable.propTypes = {
-  parentGoalId: PropTypes.string.isRequired,
+  parentGoalId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
 };
 
 export default KRTable;
