@@ -3,17 +3,23 @@ export const customStatus =
   IssueStatus: {
     ONTRACK: 'ontrack',
     BEHIND: 'behind',
-    ATRISK: 'atrisk',
+  ATRISK: 'atrisk',
+  PENDING: 'pending',
+  COMPLETED: 'completed',
   },
   IssueStatusCopy: {
     ontrack: 'On track',
     behind: 'Behind',
-    atrisk: 'At risk',
+  atrisk: 'At risk',
+  pending: 'Pending',
+  completed: 'Completed',
   },
   IssueStatusClass: {
     ontrack: 'success',
     behind: 'warning',
-    atrisk: 'danger',
+  atrisk: 'danger',
+  pending: 'secondary',
+  completed: 'primary',
   }
 }
 

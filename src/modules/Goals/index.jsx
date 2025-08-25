@@ -180,7 +180,7 @@ const Goals = () => {
       cell: info => <Status className={`btn btn-${goalType.IssueStatusClass[info.renderValue()]}`} color={info.renderValue()}>{goalType.IssueStatusCopy[info.renderValue()]}</Status>,
       //footer: info => info.column.id,
     }),
-    columnHelper.accessor('status', {
+  columnHelper.accessor('status', {
       header: () => <span>Status</span>,
       cell: info => <Status className={`btn btn-${customStatus.IssueStatusClass[info.renderValue()]}`} color={info.renderValue()}>{customStatus.IssueStatusCopy[info.renderValue()]}</Status>,
       //footer: info => info.column.id,

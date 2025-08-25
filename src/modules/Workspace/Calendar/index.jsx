@@ -9,6 +9,7 @@ import { useAuth } from '../../auth';
 import { useUpdateItem } from '../../../services/itemServices';
 import { useNavigate } from "react-router-dom";
 import { filterIssues } from '../../../utils/issueFilterUtils';
+import { useParams } from 'react-router-dom';
 
 const Calendar = () => {
 
@@ -18,6 +19,7 @@ const Calendar = () => {
   const { currentUser } = useAuth();
   const editItemMutation = useUpdateItem();
   const navigate = useNavigate();
+  const params = useParams();
   const filterItems = filterIssues(items, filters, currentUser.all.id);
   const externalListRef = useRef(null);
   const draggableRef = useRef(null);
@@ -81,55 +83,72 @@ const Calendar = () => {
     navigate(`issue/${info.event.id}`)
   }
   const handleEventDrop = async (info) => {
-
-    // Convert start date to milliseconds since the Unix epoch
-    const startInMilliseconds = info.event.start.getTime();
-    const endInMilliseconds = info.event.end ? info.event.end.getTime() : startInMilliseconds;
-
-    const updatedFields = {
-      start: startInMilliseconds,
-      end: endInMilliseconds,
-      dueDate: endInMilliseconds, // Update dueDate to match the end date
-    }
-    const data = {
-      orgId: currentUser?.all?.currentOrg,
-      field: updatedFields,
-      itemId: Number(info.event.id),
-      workspaceId: project.spaceId,
-    }
-
-    const mutation = await editItemMutationFunction(data);
-
-    // Optimistically update local items so the event stays at the new position
+    const workspaceId = project?.spaceId ?? params?.id;
+    const orgId = currentUser?.all?.currentOrg;
     const movedId = Number(info.event.id);
-    setItems((prev) => prev.map((it) => (
-      Number(it.id) === movedId ? { ...it, ...updatedFields } : it
-    )));
+    if (!workspaceId || !orgId || Number.isNaN(movedId)) {
+      console.warn('Missing identifiers for update', { workspaceId, orgId, movedId });
+      try { info.revert && info.revert(); } catch (_) { }
+      return;
+    }
+    try {
+      // Convert start/end to ms for numeric fields; format dueDate as ISO string for UI components
+      const startInMilliseconds = info.event.start.getTime();
+      const endInMilliseconds = info.event.end ? info.event.end.getTime() : startInMilliseconds;
+
+      const updatedFields = {
+        start: startInMilliseconds,
+        end: endInMilliseconds,
+        dueDate: new Date(endInMilliseconds).toISOString(),
+      }
+      const data = {
+        orgId,
+        field: updatedFields,
+        itemId: movedId,
+        workspaceId,
+      }
+
+      await editItemMutationFunction(data);
+
+      // Optimistically update local items so the event stays at the new position
+      setItems((prev) => prev.map((it) => (
+        Number(it.id) === movedId ? { ...it, ...updatedFields } : it
+      )));
+    } catch (e) {
+      try { info.revert && info.revert(); } catch (_) { }
+    }
   }
 
   // Persist changes when an event is resized (either end or start if resizableFromStart)
   const handleEventResize = async (info) => {
     try {
+      const workspaceId = project?.spaceId ?? params?.id;
+      const orgId = currentUser?.all?.currentOrg;
+      const resizedId = Number(info.event.id);
+      if (!workspaceId || !orgId || Number.isNaN(resizedId)) {
+        console.warn('Missing identifiers for resize', { workspaceId, orgId, resizedId });
+        try { info.revert && info.revert(); } catch (_) { }
+        return;
+      }
       const startInMilliseconds = info.event.start?.getTime?.();
       const endInMilliseconds = info.event.end ? info.event.end.getTime() : startInMilliseconds;
 
       const updatedFields = {
         start: startInMilliseconds,
         end: endInMilliseconds,
-        dueDate: endInMilliseconds,
+  dueDate: new Date(endInMilliseconds).toISOString(),
       };
 
       const data = {
-        orgId: currentUser?.all?.currentOrg,
+        orgId,
         field: updatedFields,
-        itemId: Number(info.event.id),
-        workspaceId: project.spaceId,
+        itemId: resizedId,
+        workspaceId,
       }
 
       await editItemMutationFunction(data);
 
       // Optimistically update local items so the event reflects the resized duration
-      const resizedId = Number(info.event.id);
       setItems((prev) => prev.map((it) => (
         Number(it.id) === resizedId ? { ...it, ...updatedFields } : it
       )));
@@ -141,8 +160,15 @@ const Calendar = () => {
   // Handle external issue dropped onto the calendar for the first time
   const handleEventReceive = async (info) => {
     try {
+      const workspaceId = project?.spaceId ?? params?.id;
+      const orgId = currentUser?.all?.currentOrg;
       // info.event has id from the dragged element
       const issueId = Number(info.event.id);
+      if (!workspaceId || !orgId || Number.isNaN(issueId)) {
+        console.warn('Missing identifiers for receive', { workspaceId, orgId, issueId });
+        try { info.revert && info.revert(); } catch (_) { }
+        return;
+      }
       const startInMilliseconds = info.event.start?.getTime?.() ?? Date.now();
       // All-day single day => set end equal to start for our data model
       const endInMilliseconds = startInMilliseconds;
@@ -150,14 +176,14 @@ const Calendar = () => {
       const updatedFields = {
         start: startInMilliseconds,
         end: endInMilliseconds,
-        dueDate: endInMilliseconds,
+  dueDate: new Date(endInMilliseconds).toISOString(),
       };
 
       const data = {
-        orgId: currentUser?.all?.currentOrg,
+        orgId,
         field: updatedFields,
         itemId: issueId,
-        workspaceId: project.spaceId,
+        workspaceId,
       };
 
       await editItemMutationFunction(data);

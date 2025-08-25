@@ -5,6 +5,10 @@ import { recordStatusChange } from './issueHistoryServices';
 
 const getItems = async (id, orgId) => {
   try {
+    if (!orgId || id === undefined || id === null) {
+      console.warn('getItems called with invalid args', { id, orgId });
+      return [];
+    }
     const subColRef = collection(db, "organisation", orgId, "items");
     const q = query(subColRef, where("projectId", "==", id))
     const snapshot = await getDocs(q);
@@ -18,8 +22,14 @@ const getItems = async (id, orgId) => {
 
 const updateItem = async (orgId, field, itemId, workspaceId) => {
   try {
+    // Validate inputs to avoid Firestore 'undefined' errors
+    const parsedItemId = parseInt(itemId);
+    if (!orgId || workspaceId === undefined || workspaceId === null || Number.isNaN(parsedItemId)) {
+      console.error('updateItem skipped due to invalid args', { orgId, workspaceId, itemId });
+      return 'Update skipped: invalid args';
+    }
     const q = query(collection(db, "organisation", orgId, "items"),
-      where("id", "==", parseInt(itemId)),
+      where("id", "==", parsedItemId),
       where("projectId", "==", workspaceId),
     );
     const querySnapshot = await getDocs(q);
@@ -239,8 +249,10 @@ export const useGetItems = (id, orgId) => {
 export const useUpdateItem = () => {
   const queryClient = useQueryClient();
   const mutation = useMutation(({ orgId, field, itemId, workspaceId }) => updateItem(orgId, field, itemId, workspaceId), {
-    onSuccess: (_, { orgId }) => {
-      queryClient.invalidateQueries(['Items', orgId]);
+    onSuccess: (_, { workspaceId, orgId }) => {
+      // Invalidate the items for this workspace, and optionally any org-scoped cache
+      if (workspaceId) queryClient.invalidateQueries(['Items', workspaceId]);
+      if (orgId) queryClient.invalidateQueries(['Workspaces', orgId]);
     },
   });
   return mutation.mutate;

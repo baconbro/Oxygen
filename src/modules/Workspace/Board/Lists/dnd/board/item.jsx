@@ -127,6 +127,27 @@ function Item(props) {
 
   const assignees = Array.from(assig, v => v === undefined ? anonymousUser : v);
 
+  // Safely format a due date coming as string, number (ms), or Firestore Timestamp
+  const formatDueDate = (val) => {
+    if (!val) return '';
+    let dateObj = null;
+    if (typeof val === 'number') {
+      dateObj = new Date(val);
+    } else if (typeof val === 'string') {
+      const d = new Date(val);
+      if (!isNaN(d)) dateObj = d;
+    } else if (typeof val === 'object' && val !== null) {
+      // Firestore Timestamp-like
+      if (typeof val.toDate === 'function') {
+        dateObj = val.toDate();
+      } else if (typeof val.seconds === 'number') {
+        dateObj = new Date(val.seconds * 1000);
+      }
+    }
+    if (!dateObj || isNaN(dateObj)) return '';
+    return dateObj.toISOString().slice(0, 10);
+  };
+
   return (
     <Container
       to={`issues/${item.id}`}
@@ -166,7 +187,11 @@ function Item(props) {
 
           </div>
           <div className="d-flex mb-3">
-            {item.dueDate && <div className="badge badge-light me-2"> <i className="bi bi-calendar-event me-2"></i> {item.dueDate.split('T')[0]}</div>}
+            {item.dueDate && (
+              <div className="badge badge-light me-2">
+                <i className="bi bi-calendar-event me-2"></i> {formatDueDate(item.dueDate)}
+              </div>
+            )}
           </div>
           <div className="d-flex mb-3">
             {item.wpkg && <div className="badge badge-light-dark me-2"> <i className="bi bi-box-seam me-2"></i> {item.wpkg}</div>}
