@@ -265,7 +265,10 @@ const ProjectBoardIssueDetails = ({
         <div className='px-4 mb-5'>
           <div className="row">
             <div className="col-12">
-              <h3 className="fw-bolder text-gray-800 text-start">
+              <h3 className="fw-bolder text-gray-800 text-start d-flex align-items-center">
+                {issue?.displayKey && (
+                  <span className='badge badge-light me-3'>{issue.displayKey}</span>
+                )}
                 <Title issue={issue} updateIssue={updateIssue} />
               </h3>
             </div>

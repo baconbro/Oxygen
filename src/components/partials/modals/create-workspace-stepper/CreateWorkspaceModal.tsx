@@ -10,6 +10,8 @@ import {Step3} from './steps/Step3'
 import {Step4} from './steps/Step4'
 import {Step5} from './steps/Step5'
 import {createSpace} from '../../../../services/firestore'
+import toast from '../../../../utils/toast'
+import { isAcronymAvailable } from '../../../../services/workspaceServices'
 import {useAuth} from '../../../../modules/auth'
 import {useNavigate} from 'react-router-dom'
 import {useQueryClient} from 'react-query'
@@ -39,8 +41,16 @@ const CreateWorkspaceModal = ({show, handleClose}: Props) => {
     setData(updatedData)
   }
 
-  const checkAppBasic = (): boolean => {
+  const checkAppBasic = async (): Promise<boolean> => {
     if (!data.appBasic.appName || !data.appBasic.appType) {
+      return false
+    }
+    const acro = (data.appBasic.acronym || '').toUpperCase().trim()
+    const valid = /^[A-Z]{2,5}$/.test(acro)
+    if (!valid) return false
+    const available = await isAcronymAvailable(acro)
+    if (!available) {
+      toast.error('Acronym already in use, please choose another')
       return false
     }
     return true
@@ -62,14 +72,15 @@ const CreateWorkspaceModal = ({show, handleClose}: Props) => {
     stepper.current.goPrev()
   }
 
-  const nextStep = () => {
+  const nextStep = async () => {
     setHasError(false)
     if (!stepper.current) {
       return
     }
 
     if (stepper.current.getCurrentStepIndex() === 1) {
-      if (!checkAppBasic()) {
+      const ok = await checkAppBasic()
+      if (!ok) {
         setHasError(true)
         return
       }
@@ -91,9 +102,13 @@ const CreateWorkspaceModal = ({show, handleClose}: Props) => {
       org : currentUser?.all?.currentOrg ?? currentUser?.all?.orgs[0],
       title : data.appBasic.appName,
       config : data.appConfig ,
+      acronym: (data.appBasic.acronym || '').toUpperCase().trim()
     }
     console.log('values', values)
     try {
+      // final validation
+      const ok = await checkAppBasic()
+      if (!ok) { setHasError(true); return }
       const newSpace = await createSpace(values, currentUser);
       if(newSpace){
         // Invalidate workspaces cache to reflect the new workspace

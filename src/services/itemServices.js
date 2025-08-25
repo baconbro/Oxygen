@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, query, where, setDoc, deleteDoc, doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where, setDoc, deleteDoc, doc, getDoc, onSnapshot, runTransaction } from 'firebase/firestore';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { db } from '../services/firestore';
 import { recordStatusChange } from './issueHistoryServices';
@@ -115,7 +115,7 @@ const updateItem = async (orgId, field, itemId, workspaceId) => {
 
 const addItem = async (orgId, item, userId) => {
   try {
-    const itemsColRef = collection(db, "organisation", orgId, "items")
+  const itemsColRef = collection(db, "organisation", orgId, "items")
 
     const items = await getItems(item.projectId, orgId);
     let maxId = 0;
@@ -130,6 +130,25 @@ const addItem = async (orgId, item, userId) => {
     const newId = maxId + 1;
 
     // Create the new item object with base properties
+    // Prepare displayKey if workspace has acronym; use transaction to bump counter safely
+    let displayKey = undefined;
+    try {
+      const spaceRef = doc(db, 'organisation', orgId, 'spaces', item.projectId);
+      await runTransaction(db, async (tx) => {
+        const spaceSnap = await tx.get(spaceRef);
+        if (!spaceSnap.exists()) return;
+        const sData = spaceSnap.data();
+        if (sData && sData.acronym) {
+          const current = Number.isInteger(sData.issueCounter) ? sData.issueCounter : 0;
+          const next = current + 1;
+          tx.update(spaceRef, { issueCounter: next });
+          displayKey = `${sData.acronym}-${next}`;
+        }
+      });
+    } catch (e) {
+      console.warn('Failed to create displayKey, proceeding without it', e);
+    }
+
     const newItem = {
       createdAt: Math.floor(Date.now()),
       updatedAt: Math.floor(Date.now()),
@@ -143,7 +162,8 @@ const addItem = async (orgId, item, userId) => {
       projectId: item.projectId,
       users: item.users,
       listPosition: item.listPosition,
-      id: newId
+  id: newId,
+  ...(displayKey ? { displayKey } : {})
     };
 
     // Add any additional properties from the item object (including sprintId if present)
@@ -175,7 +195,7 @@ const addItem = async (orgId, item, userId) => {
       // Continue even if history recording fails
     }
     
-    return { id: docRef.id, ...newItem }; // Return the created item with ID
+  return { id: docRef.id, ...newItem }; // Return the created item with ID
   } catch (error) {
     console.error('Error adding item: ', error);
     return 'Add failed';

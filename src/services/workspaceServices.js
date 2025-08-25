@@ -1,4 +1,4 @@
-import { collection, getDocs, updateDoc, doc, query, where, getDoc} from 'firebase/firestore';
+import { collection, getDocs, updateDoc, doc, query, where, getDoc, collectionGroup } from 'firebase/firestore';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { db } from '../services/firestore';
 
@@ -98,6 +98,28 @@ export const useGetSpace = (id, orgId) => {
   });
 };
 
+// Fetch a workspace by acronym within an organization
+const getSpaceByAcronym = async (acronym, orgId) => {
+  if (!acronym || !orgId) return null;
+  try {
+    const q = query(collection(db, 'organisation', orgId, 'spaces'), where('acronym', '==', acronym));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return null;
+    const d = snapshot.docs[0];
+    return { id: d.id, ...d.data() };
+  } catch (e) {
+    console.error('Error fetching workspace by acronym', e);
+    return null;
+  }
+};
+
+export const useGetSpaceByAcronym = (acronym, orgId) => {
+  return useQuery(['WorkspaceByAcronym', acronym, orgId], () => getSpaceByAcronym(acronym, orgId), {
+    enabled: !!acronym && !!orgId,
+    staleTime: 1000 * 60 * 1,
+  });
+};
+
 export const useUpdateWorkspace = () => {
   const queryClient = useQueryClient();
   const mutation = useMutation(({ values, workspaceId, orgId }) => updateWorkspace(values, workspaceId, orgId), {
@@ -110,3 +132,11 @@ export const useUpdateWorkspace = () => {
 
 // Export the raw functions for use in other services
 export { getSpace, getSpaces, updateWorkspace, getSpaceConfig };
+
+// Utility: check if a workspace acronym is globally unique across all organisations
+export const isAcronymAvailable = async (acronym) => {
+  if (!acronym) return false;
+  const cg = query(collectionGroup(db, 'spaces'), where('acronym', '==', acronym));
+  const snap = await getDocs(cg);
+  return snap.empty; // available if no hits
+};

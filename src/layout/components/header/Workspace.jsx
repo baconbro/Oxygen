@@ -11,13 +11,13 @@ const WorkspaceHeaderMenu = ({ spaces }) => {
             {spaces && spaces.map((space, index) => (
                 <div className="col-lg-6 mb-3" key={index}>
                     <div className="menu-item p-0 m-0">
-                        <Link to={`/workspace/${space.id}`} className="menu-link" >
+                        <Link to={space.acronym ? `/w/${space.acronym}` : `/workspace/${space.id}`} className="menu-link" >
                             <span className="menu-custom-icon d-flex flex-center flex-shrink-0 rounded w-40px h-40px me-3">
                                 <Avatar avatarUrl="" name={space.title} size={50} className='me-5' />
                             </span>
                             <span className="d-flex flex-column">
                                 <span className="fs-6 fw-bold text-gray-800">{space.title}</span>
-                                <span className="fs-7 fw-semibold text-muted">{space.id}</span>
+                                <span className="fs-7 fw-semibold text-muted">{space.acronym ? space.acronym : space.id}</span>
                             </span>
                         </Link>
                     </div>

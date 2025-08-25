@@ -223,7 +223,7 @@ function Item(props) {
               </div>
             )}
             <div className="d-flex my-1">
-              <span className='text-gray-600 fw-bold me-2'>#{item.id}</span>
+              <span className='text-gray-600 fw-bold me-2'>{item.displayKey ? item.displayKey : `#${item.id}`}</span>
               <IconComponent typeId={item.type} projectConfig={project.config} />
               <IssuePriorityIcon priority={item.priority} top={-1} left={4} />
             </div>

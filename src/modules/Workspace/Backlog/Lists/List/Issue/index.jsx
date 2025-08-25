@@ -86,7 +86,7 @@ const ProjectBoardListIssue = ({ projectUsers, issue, index }) => {
                         />
                       ))}
                     </Assignees>
-                    <span className='text-gray-600 fw-bold me-2'>#{issue.id}</span>
+                    <span className='text-gray-600 fw-bold me-2'>{issue.displayKey ? issue.displayKey : `#${issue.id}`}</span>
                     <IconComponent typeId={issue.type} />
                     <IssuePriorityIcon priority={issue.priority} top={-1} left={4} />
                   </div>

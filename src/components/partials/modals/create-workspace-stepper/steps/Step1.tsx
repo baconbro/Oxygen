@@ -1,7 +1,29 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import {StepProps} from '../IAppModels'
+import { useEffect, useState } from 'react'
+import { isAcronymAvailable } from '../../../../../services/workspaceServices'
 
 const Step1 = ({data, updateData, hasError}: StepProps) => {
+  const [acroStatus, setAcroStatus] = useState<'idle'|'checking'|'available'|'unavailable'|'invalid'>('idle')
+  const [acroMsg, setAcroMsg] = useState<string>('')
+
+  useEffect(() => {
+    const acro = (data.appBasic.acronym || '').toUpperCase().trim()
+    if (!acro) { setAcroStatus('idle'); setAcroMsg(''); return }
+    const valid = /^[A-Z]{2,5}$/.test(acro)
+    if (!valid) { setAcroStatus('invalid'); setAcroMsg('Use 2–5 uppercase letters (A–Z).'); return }
+    setAcroStatus('checking'); setAcroMsg('Checking availability…')
+    const t = setTimeout(async () => {
+      try {
+        const available = await isAcronymAvailable(acro)
+        if (available) { setAcroStatus('available'); setAcroMsg('Acronym is available.') }
+        else { setAcroStatus('unavailable'); setAcroMsg('Acronym already in use.') }
+      } catch (e) {
+        setAcroStatus('idle'); setAcroMsg('')
+      }
+    }, 350)
+    return () => clearTimeout(t)
+  }, [data.appBasic.acronym])
   return (
     <div className='current' data-xgn-stepper-element='content'>
       <div className='w-100'>
@@ -22,12 +44,28 @@ const Step1 = ({data, updateData, hasError}: StepProps) => {
             placeholder=''
             value={data.appBasic.appName}
             onChange={(e) =>
-              updateData({
-                appBasic: {
-                  appName: e.target.value,
-                  appType: 'Quick Online Courses',//data.appBasic.appType,
-                },
-              })
+              {
+                const name = e.target.value
+                const suggested = name
+                  .toUpperCase()
+                  .replace(/[^A-Z]/g, ' ')
+                  .trim()
+                  .split(/\s+/)
+                  .filter(Boolean)
+                  .map(w => w.charAt(0))
+                  .join('')
+                  .slice(0,5)
+
+                const nextAcr = data.appBasic.acronymEdited ? (data.appBasic.acronym || '') : suggested
+                updateData({
+                  appBasic: {
+                    ...data.appBasic,
+                    appName: name,
+                    appType: 'Quick Online Courses',
+                    acronym: nextAcr,
+                  },
+                })
+              }
             }
           />
           {!data.appBasic.appName && hasError && (
@@ -39,6 +77,34 @@ const Step1 = ({data, updateData, hasError}: StepProps) => {
           )}
         </div>
         {/*end::Form Group */}
+
+        {/* Acronym */}
+        <div className='fv-row mb-10'>
+          <label className='d-flex align-items-center fs-5 fw-semibold mb-2'>
+            <span className='required'>Acronym (2–5 letters)</span>
+          </label>
+      <input
+            type='text'
+            className='form-control form-control-lg form-control-solid'
+            name='acronym'
+            placeholder='e.g., MOB'
+            value={data.appBasic.acronym || ''}
+            onChange={(e) => {
+              const next = e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0,5)
+        updateData({ appBasic: { ...data.appBasic, acronym: next, acronymEdited: true }})
+            }}
+          />
+          {(!data.appBasic.acronym || !/^([A-Z]{2,5})$/.test(data.appBasic.acronym)) && hasError && (
+            <div className='fv-plugins-message-container'>
+              <div className='fv-help-block'>A valid acronym is required</div>
+            </div>
+          )}
+          {acroStatus !== 'idle' && (
+            <div className='fv-plugins-message-container mt-2'>
+              <div className={`fv-help-block ${acroStatus === 'available' ? 'text-success' : acroStatus === 'unavailable' || acroStatus === 'invalid' ? 'text-danger' : 'text-muted'}`}>{acroMsg}</div>
+            </div>
+          )}
+        </div>
 
 
        {/*  <div className='fv-row'>

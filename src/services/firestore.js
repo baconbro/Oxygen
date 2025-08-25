@@ -20,7 +20,8 @@ import {
     orderBy,
     limit,
     connectFirestoreEmulator,
-    writeBatch
+    writeBatch,
+    runTransaction
 } from "firebase/firestore";
 import {
     getAuth,
@@ -378,30 +379,47 @@ export const addUserToSpace = async (feilds, orgId) => {
 };
 
 export const createSpace = async (values, user) => {
-    const itemsColRef = collection(db, 'organisation', values.org, 'spaces')
-    let userPhotoURL = ""
-    //if user.photoURL is null, use default image
+    const spacesColRef = collection(db, 'organisation', values.org, 'spaces');
+    const spaceRef = doc(spacesColRef); // pre-generate ID
+    const acro = values.acronym ? values.acronym.toUpperCase().trim() : null;
+    let userPhotoURL = "";
     if (user.all.photoURL === null) {
-        userPhotoURL = "media/logos/logo_oxy.png"
+        userPhotoURL = "media/logos/logo_oxy.png";
     } else { userPhotoURL = user.all.photoURL }
-    const docRef = await addDoc(itemsColRef, {
-        org: values.org,
-        title: values.title,
-        created: Math.floor(Date.now()),
-        users: [{
-            avatarUrl: "",
-            id: user.all.uid,
-            email: user.all.email,
-            name: user.all.fName,
-            role: 'owner'
-        }],
-        config: values.config || defaultWorkspaceConfig,
-    })
-    await updateDoc(docRef, {
-        spaceId: docRef.id
-    });
-    return docRef.id;
 
+    await runTransaction(db, async (tx) => {
+        if (acro) {
+            const acroRef = doc(db, 'acronyms', acro);
+            const acroSnap = await tx.get(acroRef);
+            if (acroSnap.exists()) {
+                throw new Error('Acronym already in use');
+            }
+            tx.set(acroRef, {
+                org: values.org,
+                spaceId: spaceRef.id,
+                createdAt: serverTimestamp(),
+            });
+        }
+
+        tx.set(spaceRef, {
+            org: values.org,
+            title: values.title,
+            created: Math.floor(Date.now()),
+            acronym: acro,
+            issueCounter: acro ? 0 : null,
+            users: [{
+                avatarUrl: "",
+                id: user.all.uid,
+                email: user.all.email,
+                name: user.all.fName,
+                role: 'owner'
+            }],
+            config: values.config || defaultWorkspaceConfig,
+            spaceId: spaceRef.id,
+        });
+    });
+
+    return spaceRef.id;
 };
 
 export const editSpace = async (feild, spaceId, orgId) => {

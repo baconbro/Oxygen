@@ -1,6 +1,7 @@
 
 export interface KanbanBoardTask {
   id: string;
+  displayKey?: string;
   status: {
     label: string;
     icon: string;

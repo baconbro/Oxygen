@@ -106,7 +106,10 @@ const List = () => {
     }),
     columnHelper.accessor('id', {
       header: 'Key',
-      cell: info => info.renderValue(),
+      cell: info => {
+        const row = info.row.original || {};
+        return row.displayKey ? row.displayKey : `#${row.id}`;
+      },
     }),
     columnHelper.accessor('dueDate', {
       header: 'Due date',

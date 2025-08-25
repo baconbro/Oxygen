@@ -12,6 +12,7 @@ import Project from '../modules/Workspace'
 import Goals from '../modules/Goals'
 import GoalDetails from '../modules/Goals/GoalDetails'
 import Onboarding from '../modules/onboarding/Onboarding'
+import WorkspaceAcronymRedirect from './WorkspaceAcronymRedirect'
 
 const PrivateRoutes = () => {
   const AccountPage = lazy(() => import('../modules/accounts/AccountPage'))
@@ -59,6 +60,15 @@ const PrivateRoutes = () => {
                 <Project />
               </SuspensedView>
             </WorkspaceProvider>
+          }
+        />
+
+        <Route
+          path='w/:acronym'
+          element={
+            <SuspensedView>
+              <WorkspaceAcronymRedirect />
+            </SuspensedView>
           }
         />
 

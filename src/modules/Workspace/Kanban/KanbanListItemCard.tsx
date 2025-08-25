@@ -74,7 +74,15 @@ const KanbanListItemCard = ({
 }) => {
     const [assig, setAssig] = useState([]);
     const assignees = Array.from(assig, v => v === undefined ? anonymousUser : v);
-    const { workspaceConfig } = useWorkspace();
+        const { workspaceConfig } = useWorkspace();
+        const assigneeAvatars = (assignees as any[]).map((user: any) => (
+            <AssigneeAvatar
+                key={user.id}
+                size={25}
+                avatarUrl={user?.photoURL || user?.avatarUrl || ''}
+                name={user?.name}
+            />
+        )) as unknown as React.ReactNode;
     return (
         <Link to={`issues/${task.id}`} className="kanban-item" key={task.id}>
             <div className={classNames(className, 'sortable-item hover-actions-trigger card')} style={{ width: '100%', boxShadow: " 0px 1px 2px 0px rgba(9, 30, 66, 0.25)" }}>
@@ -115,21 +123,19 @@ const KanbanListItemCard = ({
                         {task.listPosition}
                     </div>
                     <div className="d-flex flex-stack flex-wrapr">
-                        <Assignees>
-                            {assignees.map(user => (
-
-                                <AssigneeAvatar
-                                    key={user.id}
-                                    size={25}
-                                    avatarUrl={user.avatarUrl}
-                                    name={user.name}
-                                />
-
-                            ))}
-                        </Assignees>
+                                                                                                <Assignees>
+                                                                                                    {((assignees as any[])?.map((user: any) => (
+                                                                                                        <AssigneeAvatar
+                                                                                                            key={user.id}
+                                                                                                            size={25}
+                                                                                                            avatarUrl={user?.photoURL || user?.avatarUrl || ''}
+                                                                                                            name={user?.name}
+                                                                                                        />
+                                                                                                    )) as unknown) as any}
+                                                                                                </Assignees>
 
                         <div className="d-flex my-1">
-                            <span className='text-gray-600 fw-bold me-2'>#{task.id}</span>
+                            <span className='text-gray-600 fw-bold me-2'>{task.displayKey ? task.displayKey : `#${task.id}`}</span>
                             <IconComponent typeId={task.type} projectConfig={workspaceConfig    } />
                             <IssuePriorityIcon priority={task.priority} top={-1} left={4} />
                         </div>

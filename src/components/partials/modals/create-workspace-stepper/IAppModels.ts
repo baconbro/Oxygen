@@ -2,6 +2,8 @@ import { templateScrum } from "./templates/Scrum"
 export interface IAppBasic {
   appName: string
   appType: 'Quick Online Courses' | 'Face to Face Discussions' | 'Full Intro Training'
+  acronym?: string
+  acronymEdited?: boolean
 }
 
 export type TAppFramework = 'SimpleTask' | 'Soft' | 'Project' | 'Recruitment' | 'Marketing' | 'Legal' | 'Sales' | 'Portfolio'
@@ -22,7 +24,7 @@ export interface ICreateAppData {
 }
 
 export const defaultCreateAppData: ICreateAppData = {
-  appBasic: {appName: '', appType: 'Quick Online Courses'},
+  appBasic: {appName: '', appType: 'Quick Online Courses', acronym: '', acronymEdited: false},
   appFramework: 'Soft',
   appDatabase: {databaseName: 'db_name', databaseSolution: 'MySQL'},
   appStorage: 'Basic Server',

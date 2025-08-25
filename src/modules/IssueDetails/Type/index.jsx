@@ -66,7 +66,7 @@ const ProjectBoardIssueDetailsType = ({ issue, updateIssue }) => {
       onChange={type => updateIssue({ type })}
       renderValue={({ value: type }) => (
         <TypeButton variant="empty" icon={<i className={`bi bi-${findIconById(type)}`} style={{ color: findColorById(type) }}></i>} className="btn">
-          {`${convertedData[type]}-${issue.id}`}
+          {convertedData[type]}
         </TypeButton>
       )}
       renderOption={({ value: type }) => (
