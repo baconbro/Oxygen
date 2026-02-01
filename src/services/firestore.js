@@ -40,16 +40,17 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObjec
 import { async } from "@firebase/util";
 import { defaultWorkspaceConfig } from "../constants/defaultConfig";
 import { useFirestoreQuery } from "@react-query-firebase/firestore";
+import { env } from "../utils/env";
 
 
 const firebaseConfig = {
-    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-    authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-    measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
-    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.REACT_APP_FIREBASE_APP_ID
+    apiKey: env.firebase.apiKey,
+    authDomain: env.firebase.authDomain,
+    measurementId: env.firebase.measurementId,
+    projectId: env.firebase.projectId,
+    storageBucket: env.firebase.storageBucket,
+    messagingSenderId: env.firebase.messagingSenderId,
+    appId: env.firebase.appId
 };
 
 const app = initializeApp(firebaseConfig);
