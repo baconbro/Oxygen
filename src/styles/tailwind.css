@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base layer styles that work with existing Bootstrap */
+@layer base {
+  :root {
+    /* These variables provide defaults when xgn variables aren't defined */
+    --tw-ring-color: var(--xgn-primary, #3b82f6);
+  }
+
+  /* Focus visible styles for accessibility */
+  *:focus-visible {
+    outline: 2px solid var(--xgn-primary, #3b82f6);
+    outline-offset: 2px;
+  }
+}
+
+/* Component layer for reusable patterns */
+@layer components {
+  /* Card component with theme awareness */
+  .tw-card {
+    @apply tw-bg-card tw-text-card-foreground tw-rounded-lg tw-border tw-border-border tw-shadow-sm;
+  }
+
+  /* Button base styles */
+  .tw-btn {
+    @apply tw-inline-flex tw-items-center tw-justify-center tw-whitespace-nowrap tw-rounded-md tw-text-sm tw-font-medium tw-transition-colors;
+    @apply focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-ring focus-visible:tw-ring-offset-2;
+    @apply disabled:tw-pointer-events-none disabled:tw-opacity-50;
+  }
+
+  .tw-btn-primary {
+    @apply tw-btn tw-bg-primary tw-text-primary-foreground hover:tw-bg-primary-700;
+  }
+
+  .tw-btn-secondary {
+    @apply tw-btn tw-bg-secondary tw-text-secondary-foreground hover:tw-opacity-80;
+  }
+
+  .tw-btn-outline {
+    @apply tw-btn tw-border tw-border-input tw-bg-background hover:tw-bg-accent hover:tw-text-accent-foreground;
+  }
+
+  .tw-btn-ghost {
+    @apply tw-btn hover:tw-bg-accent hover:tw-text-accent-foreground;
+  }
+
+  /* Input styles */
+  .tw-input {
+    @apply tw-flex tw-h-10 tw-w-full tw-rounded-md tw-border tw-border-input tw-bg-background tw-px-3 tw-py-2 tw-text-sm;
+    @apply file:tw-border-0 file:tw-bg-transparent file:tw-text-sm file:tw-font-medium;
+    @apply placeholder:tw-text-muted-foreground;
+    @apply focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-ring focus-visible:tw-ring-offset-2;
+    @apply disabled:tw-cursor-not-allowed disabled:tw-opacity-50;
+  }
+
+  /* Label styles */
+  .tw-label {
+    @apply tw-text-sm tw-font-medium tw-leading-none;
+    @apply peer-disabled:tw-cursor-not-allowed peer-disabled:tw-opacity-70;
+  }
+}
+
+/* Utility layer for custom utilities */
+@layer utilities {
+  /* Scrollbar styling */
+  .tw-scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .tw-scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .tw-scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Text balance for headings */
+  .tw-text-balance {
+    text-wrap: balance;
+  }
+
+  /* Gradient text */
+  .tw-text-gradient {
+    @apply tw-bg-gradient-to-r tw-from-primary tw-to-info tw-bg-clip-text tw-text-transparent;
+  }
+}

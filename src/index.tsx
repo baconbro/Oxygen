@@ -9,6 +9,7 @@ import './styles/style.scss'
 import './styles/plugins.scss'
 import './styles/style.react.scss'
 import './styles/insights.css'
+import './styles/tailwind.css'
 
 import { AppRoutes } from './routing/AppRoutes'
 import { AuthProvider, setupAxios } from './modules/auth'
