@@ -1,5 +1,5 @@
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { db } from './firestore';
 import { getSpaceConfig } from './workspaceServices';
 
@@ -58,7 +58,9 @@ export const getAssignedTasks = async (userId, orgId) => {
 };
 
 export const useGetAssignedTasks = (userId, orgId) => {
-  return useQuery(['AssignedTasks', userId, orgId], () => getAssignedTasks(userId, orgId), {
+  return useQuery({
+    queryKey: ['AssignedTasks', userId, orgId],
+    queryFn: () => getAssignedTasks(userId, orgId),
     enabled: !!userId && !!orgId,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });

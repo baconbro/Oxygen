@@ -1,5 +1,5 @@
 import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where, setDoc, deleteDoc, getDoc, batch, deleteField, serverTimestamp, arrayUnion } from 'firebase/firestore';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '../services/firestore';
 import { auth } from '../services/firestore';
 
@@ -196,16 +196,20 @@ export const addUserToOrg = async (email, orgId, uid) => {
   return inviteUser(email, orgId);
 };
 
-// React Query hooks
+// React Query hooks (TanStack Query 5)
 export const useGetOrgUsers= (orgId) => {
-  return useQuery(['Users', orgId], () => getOrgUsers(orgId), {
+  return useQuery({
+    queryKey: ['Users', orgId],
+    queryFn: () => getOrgUsers(orgId),
     enabled: !!orgId,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
 
 export const useGetUser= (userEmail, userId) => {
-  return useQuery(['User', userEmail], () => getUser(userEmail, userId), {
+  return useQuery({
+    queryKey: ['User', userEmail],
+    queryFn: () => getUser(userEmail, userId),
     enabled: !!userEmail,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -217,28 +221,23 @@ export const useGetUser= (userEmail, userId) => {
  */
 export const useEditUser = () => {
   const queryClient = useQueryClient();
-  
-  return useMutation(
-    // Mutation function that accepts an object with values and fields
-    async ({ values, fields }) => {
+
+  return useMutation({
+    mutationFn: async ({ values, fields }) => {
       return await editUser(values, fields);
     },
-    {
-      // When mutation is successful, invalidate any queries that include the user
-      onSuccess: (data, variables) => {
-        // Invalidate any queries that include the user's email
-        queryClient.invalidateQueries(['User', variables.values.email]);
-        
-        // If the user belongs to an organization, invalidate those queries too
-        if (variables.values.currentOrg) {
-          queryClient.invalidateQueries(['Users', variables.values.currentOrg]);
-        }
-        
-        // Return the data for chaining
-        return data;
-      },
-    }
-  );
+    onSuccess: (data, variables) => {
+      // Invalidate any queries that include the user's email
+      queryClient.invalidateQueries({ queryKey: ['User', variables.values.email] });
+
+      // If the user belongs to an organization, invalidate those queries too
+      if (variables.values.currentOrg) {
+        queryClient.invalidateQueries({ queryKey: ['Users', variables.values.currentOrg] });
+      }
+
+      return data;
+    },
+  });
 };
 
 /**

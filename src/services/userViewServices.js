@@ -1,5 +1,5 @@
 import { getFirestore, collection, getDocs, addDoc, updateDoc, doc,query,where,setDoc ,deleteDoc,getDoc} from 'firebase/firestore';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from './firestore';
 
 
@@ -59,9 +59,11 @@ const addUserView = async (userId, orgId, viewData,queryClient) => {
 
 
 
-// React Query hooks
+// React Query hooks (TanStack Query 5)
 export const useGetUserViews= (userId,orgId) => {
-  return useQuery(['userView', userId], () => getUserViews(userId,orgId), {
+  return useQuery({
+    queryKey: ['userView', userId],
+    queryFn: () => getUserViews(userId,orgId),
     enabled: !!orgId,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -69,9 +71,10 @@ export const useGetUserViews= (userId,orgId) => {
 
 export const useAddUserView = () => {
   const queryClient = useQueryClient();
-  return useMutation((newView) => addUserView(newView.userId, newView.orgId, newView.viewData,queryClient), {
+  return useMutation({
+    mutationFn: (newView) => addUserView(newView.userId, newView.orgId, newView.viewData, queryClient),
     onSuccess: (newView) => {
-      queryClient.invalidateQueries(['userView', newView.userId]);
+      queryClient.invalidateQueries({ queryKey: ['userView', newView.userId] });
     },
   });
 };

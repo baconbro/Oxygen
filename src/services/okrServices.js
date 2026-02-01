@@ -1,5 +1,5 @@
 import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where, setDoc, deleteDoc } from 'firebase/firestore';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '../services/firestore';
 import { useAuth } from '../modules/auth'
 
@@ -68,30 +68,34 @@ const deleteOKR = async (orgId, itemId) => {
   }
 };
 
-// React Query hooks
+// React Query hooks (TanStack Query 5)
 export const useFetchOKRs = (orgId) => {
-    return useQuery(['okrs', orgId], () => fetchOKRs(orgId), {
+    return useQuery({
+      queryKey: ['okrs', orgId],
+      queryFn: () => fetchOKRs(orgId),
       enabled: !!orgId,
       staleTime: 1000 * 60 * 5, // 5 minutes
     });
   };
-  
+
 export const useAddOKR = () => {
   const queryClient = useQueryClient();
-  const mutation = useMutation(({ okr, orgId }) => addOKR(okr, orgId), {
+  const mutation = useMutation({
+    mutationFn: ({ okr, orgId }) => addOKR(okr, orgId),
     onSuccess: (_, { orgId }) => {
-      queryClient.invalidateQueries(['okrs', orgId]);
+      queryClient.invalidateQueries({ queryKey: ['okrs', orgId] });
     },
   });
 
   return mutation.mutate;
 };
-  
+
   export const useUpdateOKR = () => {
     const queryClient = useQueryClient();
-  const mutation = useMutation(({ orgId, feild, itemId}) => updateOKR(orgId, feild, itemId), {
+  const mutation = useMutation({
+    mutationFn: ({ orgId, feild, itemId}) => updateOKR(orgId, feild, itemId),
     onSuccess: (_, { orgId }) => {
-      queryClient.invalidateQueries(['okrs', orgId]);
+      queryClient.invalidateQueries({ queryKey: ['okrs', orgId] });
     },
   });
 
@@ -100,9 +104,10 @@ export const useAddOKR = () => {
 
 export const useDeleteOKR = () => {
     const queryClient = useQueryClient();
-  const mutation = useMutation(({ orgId, itemId}) => deleteOKR(orgId, itemId), {
+  const mutation = useMutation({
+    mutationFn: ({ orgId, itemId}) => deleteOKR(orgId, itemId),
     onSuccess: (_, { orgId }) => {
-      queryClient.invalidateQueries(['okrs', orgId]);
+      queryClient.invalidateQueries({ queryKey: ['okrs', orgId] });
     },
   });
 

@@ -1,5 +1,5 @@
 import { collection, getDocs, addDoc, query, where, setDoc, deleteDoc, doc, getDoc, onSnapshot, runTransaction } from 'firebase/firestore';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '../services/firestore';
 import { recordStatusChange } from './issueHistoryServices';
 
@@ -258,21 +258,24 @@ export const streamSubItem = (orgId, itemId, workspaceId, snapshot, error) => {
   }
 };
 
-// React Query hooks
+// React Query hooks (TanStack Query 5)
 export const useGetItems = (id, orgId) => {
-  return useQuery(['Items', id], () => getItems(id, orgId), {
+  return useQuery({
+    queryKey: ['Items', id],
+    queryFn: () => getItems(id, orgId),
     enabled: !!orgId,
-    staleTime: 1000 * 60 * 1, // 1 minutes
+    staleTime: 1000 * 60 * 1, // 1 minute
   });
 };
 
 export const useUpdateItem = () => {
   const queryClient = useQueryClient();
-  const mutation = useMutation(({ orgId, field, itemId, workspaceId }) => updateItem(orgId, field, itemId, workspaceId), {
+  const mutation = useMutation({
+    mutationFn: ({ orgId, field, itemId, workspaceId }) => updateItem(orgId, field, itemId, workspaceId),
     onSuccess: (_, { workspaceId, orgId }) => {
       // Invalidate the items for this workspace, and optionally any org-scoped cache
-      if (workspaceId) queryClient.invalidateQueries(['Items', workspaceId]);
-      if (orgId) queryClient.invalidateQueries(['Workspaces', orgId]);
+      if (workspaceId) queryClient.invalidateQueries({ queryKey: ['Items', workspaceId] });
+      if (orgId) queryClient.invalidateQueries({ queryKey: ['Workspaces', orgId] });
     },
   });
   return mutation.mutate;
@@ -280,9 +283,10 @@ export const useUpdateItem = () => {
 
 export const useAddItem = () => {
   const queryClient = useQueryClient();
-  const mutation = useMutation(({ orgId, item, userId }) => addItem(orgId, item, userId), {
+  const mutation = useMutation({
+    mutationFn: ({ orgId, item, userId }) => addItem(orgId, item, userId),
     onSuccess: (_, { orgId }) => {
-      queryClient.invalidateQueries(['Items', orgId]);
+      queryClient.invalidateQueries({ queryKey: ['Items', orgId] });
     },
   });
 
@@ -291,16 +295,19 @@ export const useAddItem = () => {
 
 export const useDeleteItem = () => {
   const queryClient = useQueryClient();
-  const mutation = useMutation(({ orgId, itemId }) => deleteItem(orgId, itemId), {
+  const mutation = useMutation({
+    mutationFn: ({ orgId, itemId }) => deleteItem(orgId, itemId),
     onSuccess: (_, { orgId }) => {
-      queryClient.invalidateQueries(['Items', orgId]);
+      queryClient.invalidateQueries({ queryKey: ['Items', orgId] });
     },
   });
   return mutation.mutate;
 };
 
 export const useGetItem = (goalId, orgId) => {
-  return useQuery(['Item', goalId, orgId], () => getItem(goalId, orgId), {
+  return useQuery({
+    queryKey: ['Item', goalId, orgId],
+    queryFn: () => getItem(goalId, orgId),
     enabled: !!goalId && !!orgId,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });

@@ -14,7 +14,7 @@ import toast from '../../../../utils/toast'
 import { isAcronymAvailable } from '../../../../services/workspaceServices'
 import {useAuth} from '../../../../modules/auth'
 import {useNavigate} from 'react-router-dom'
-import {useQueryClient} from 'react-query'
+import {useQueryClient} from '@tanstack/react-query'
 
 type Props = {
   show: boolean
