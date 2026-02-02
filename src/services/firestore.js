@@ -172,7 +172,6 @@ export const registerWithEmailAndPassword = async (name, email, password, lastna
                 });
                 await batch.commit();
                 
-                console.log("User joined existing organization:", orgId);
             }
         } else {
             // No invitation - create a new organization for the user
@@ -187,7 +186,6 @@ export const registerWithEmailAndPassword = async (name, email, password, lastna
                 orgs: [orgId]
             });
             
-            console.log("Created new organization for user:", orgId);
         }
         
         return res;
@@ -239,7 +237,6 @@ export const addComment = async (orgId, body, issueId, currentUser) => {
 //Dependencies
 //create or modify a dependencie  in the dependencie collection in the organisation collection  based on data received
 export const updateDependencie = async (orgId, field, depId) => {
-    console.log('updateDependencie', orgId, field, depId);
     try {
         const q = query(collection(db, "organisation", orgId, "dependencies"), where("id", "==", depId));
         const querySnapshot = await getDocs(q);
@@ -256,7 +253,6 @@ export const updateDependencie = async (orgId, field, depId) => {
                 await setDoc(doc.ref, { updatedAt: Math.floor(Date.now()) }, { merge: true });
             });
         }
-        console.log('Dependency updated successfully');
     } catch (error) {
         console.error('Error updating dependency:', error);
     }

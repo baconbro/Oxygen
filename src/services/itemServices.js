@@ -39,7 +39,6 @@ const updateItem = async (orgId, field, itemId, workspaceId) => {
       
       // Check if the status is being updated
       if (field.status && field.status !== currentData.status) {
-        console.log('Status change detected');
         
         // Normalize data before recording to ensure consistent field names
         const issueData = { ...currentData, ...field };
@@ -88,7 +87,6 @@ const updateItem = async (orgId, field, itemId, workspaceId) => {
       
       // Apply deep cleaning to fields
       const cleanedField = deepClean(field);
-      console.log('Cleaned field for update:', cleanedField);
       
       // Only update if there are valid fields to update
       if (cleanedField && Object.keys(cleanedField).length > 0) {
@@ -189,7 +187,6 @@ const addItem = async (orgId, item, userId) => {
         item.status,
         newItem
       );
-      console.log('Created initial history entry for new item:', newId);
     } catch (historyError) {
       console.error("Error recording initial status history:", historyError);
       // Continue even if history recording fails
@@ -240,7 +237,6 @@ export const streamSubItem = (orgId, itemId, workspaceId, snapshot, error) => {
     return onSnapshot(itemsQuery, 
       (querySnapshot) => {
         if (querySnapshot.empty) {
-          console.log(`No item found with id: ${itemId} in workspace: ${workspaceId}`);
           snapshot(querySnapshot);
         } else {
           snapshot(querySnapshot);

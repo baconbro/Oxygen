@@ -1,12 +1,15 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      // Include .js files that contain JSX
+      include: '**/*.{jsx,tsx,js}',
+    }),
     tsconfigPaths(),
   ],
   resolve: {
@@ -15,6 +18,10 @@ export default defineConfig({
       // Fix for ~ imports in SCSS (node_modules)
       '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
       '~bootstrap-icons': path.resolve(__dirname, 'node_modules/bootstrap-icons'),
+      '~animate.css': path.resolve(__dirname, 'node_modules/animate.css'),
+      '~socicon': path.resolve(__dirname, 'node_modules/socicon'),
+      '~line-awesome': path.resolve(__dirname, 'node_modules/line-awesome'),
+      '~@fortawesome': path.resolve(__dirname, 'node_modules/@fortawesome'),
     },
   },
   css: {
@@ -34,10 +41,9 @@ export default defineConfig({
     },
   },
   esbuild: {
-    // Also handle JSX in .js files during build
-    loader: 'jsx',
-    include: /src\/.*\.js$/,
-    exclude: [],
+    // Handle JSX in .js files during build
+    jsx: 'automatic',
+    jsxImportSource: 'react',
   },
   server: {
     port: 3000,
@@ -49,21 +55,30 @@ export default defineConfig({
   build: {
     outDir: 'build',
     sourcemap: true,
+    // Handle .js files with JSX during build
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-firebase': ['firebase/app', 'firebase/firestore', 'firebase/auth', 'firebase/storage'],
-          'vendor-query': ['react-query'],
-          'vendor-ui': ['react-bootstrap', 'react-beautiful-dnd'],
-          'vendor-charts': ['apexcharts', 'react-apexcharts'],
-          'vendor-calendar': [
-            '@fullcalendar/core',
-            '@fullcalendar/react',
-            '@fullcalendar/daygrid',
-            '@fullcalendar/list',
-            '@fullcalendar/interaction',
-          ],
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'vendor-react'
+            }
+            if (id.includes('firebase')) {
+              return 'vendor-firebase'
+            }
+            if (id.includes('@tanstack/react-query') || id.includes('zustand')) {
+              return 'vendor-state'
+            }
+            if (id.includes('fullcalendar')) {
+              return 'vendor-calendar'
+            }
+            if (id.includes('apexcharts')) {
+              return 'vendor-charts'
+            }
+          }
         },
       },
     },

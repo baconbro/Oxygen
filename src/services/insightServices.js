@@ -4,7 +4,6 @@ import { getCumulativeFlowHistoricalData, getBurndownChartData } from './issueHi
 // Function to get the historical status data for cumulative flow diagram
 export const getCumulativeFlowData = async (spaceId, orgId, issues) => {
   if (!issues || issues.length === 0) {
-    console.log("No issues provided to getCumulativeFlowData");
     return null;
   }
 
@@ -16,7 +15,6 @@ export const getCumulativeFlowData = async (spaceId, orgId, issues) => {
       ? issues[0]?.config?.issueStatus 
       : [];
     
-    console.log(`Found ${issueStatuses.length} issue statuses in config`);
     
     if (issueStatuses.length === 0) {
       console.warn('No issue statuses found in project config, falling back to simulation with seed');
@@ -34,7 +32,6 @@ export const getCumulativeFlowData = async (spaceId, orgId, issues) => {
     
     // Check if we got valid historical data
     if (historicalData && historicalData.series && historicalData.series.length > 0) {
-      console.log("Using real historical data");
       return historicalData;
     } else {
       console.warn('No historical data found, falling back to simulation with seed');
@@ -122,7 +119,6 @@ export const useGetCumulativeFlowData = (spaceId, orgId, issues) => {
 // Function to get burndown chart data for a sprint
 export const getBurndownData = async (spaceId, orgId, sprintId) => {
   if (!spaceId || !orgId || !sprintId) {
-    console.log("Missing required parameters for burndown chart");
     return { 
       actual: [], 
       ideal: [], 
@@ -131,7 +127,6 @@ export const getBurndownData = async (spaceId, orgId, sprintId) => {
   }
 
   try {
-    console.log("Fetching burndown data for sprint:", sprintId);
     // Get the burndown chart data from issue history
     const burndownData = await getBurndownChartData(
       orgId,

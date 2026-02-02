@@ -48,7 +48,6 @@ const getSpaceConfig = async (id, orgId) => {
 };
 
 const updateWorkspace = async (values, workspaceId, orgId) => {
-  console.log('values: ', values, 'workspaceId: ', workspaceId, 'orgId: ', orgId);
   try {
     // Deep clean to remove undefined values Firestore doesn't accept
     const deepClean = (obj) => {

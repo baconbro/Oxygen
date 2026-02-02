@@ -128,7 +128,9 @@ export function SortableList<T extends SortableItem>({
   if (disabled) {
     return (
       <div className={className}>
-        {items.map((item, index) => renderItem(item, index))}
+        {items.map((item, index) => (
+          <React.Fragment key={item.id}>{renderItem(item, index)}</React.Fragment>
+        ))}
       </div>
     )
   }
@@ -142,7 +144,9 @@ export function SortableList<T extends SortableItem>({
     >
       <SortableContext items={items.map((i) => i.id)} strategy={strategy}>
         <div className={className}>
-          {items.map((item, index) => renderItem(item, index))}
+          {items.map((item, index) => (
+            <React.Fragment key={item.id}>{renderItem(item, index)}</React.Fragment>
+          ))}
         </div>
       </SortableContext>
 
