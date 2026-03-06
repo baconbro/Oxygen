@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { Gantt, Task, ViewMode, OnRelationChange, DateExtremity, TitleColumn } from '@wamra/gantt-task-react';
-import "gantt-task-react/dist/index.css";
 import { getStartEndDateForProject } from "./Tasks";
 import { ViewSwitcher } from "./view-switcher";
 import { intersection } from 'lodash';

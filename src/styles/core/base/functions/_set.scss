@@ -34,7 +34,12 @@
 	@for $i from length($maps) through 1 {
 		$current-map: nth($maps, $i);
 		$current-key: nth($keys, $i);
-		$current-val: if($i == length($maps), $value, $result);
+		$current-val: null;
+		@if $i == length($maps) {
+			$current-val: $value;
+		} @else {
+			$current-val: $result;
+		}
 		$result: map-merge($current-map, ($current-key: $current-val));
 	}
 	
