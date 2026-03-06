@@ -19,7 +19,6 @@ import {
     deleteField,
     orderBy,
     limit,
-    connectFirestoreEmulator,
     writeBatch,
     runTransaction
 } from "firebase/firestore";
@@ -33,7 +32,6 @@ import {
     updateProfile,
     updateEmail,
     sendEmailVerification,
-    connectAuthEmulator
 } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
@@ -58,11 +56,6 @@ export const db = getFirestore(app)
 export const auth = getAuth();
 export const storage = getStorage(app);
 
-// Connect to the emulators if running locally
-if (window.location.hostname === 'localhost') {
-    connectAuthEmulator(auth, 'http://localhost:9099'); 
-    connectFirestoreEmulator(db, 'localhost', 8080); 
-  }
 
 
 const analytics = getAnalytics(app);
