@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-
-
 import { Input, TextEditedContent, Button } from '../../components/common';
-
 import { EmptyLabel, Actions } from '../IssueDetails/Description/Styles';
 
 const propTypes = {
   issue: PropTypes.object.isRequired,
   updateIssue: PropTypes.func.isRequired,
+  fieldName: PropTypes.string.isRequired,
 };
 
 const InputValue = ({ issue, updateIssue, fieldName }) => {
@@ -20,18 +18,17 @@ const InputValue = ({ issue, updateIssue, fieldName }) => {
     updateIssue({ [fieldName]: fieldNameValue });
   };
 
-  const isValueEmpty = (fieldNameValue || '').trim().length === 0;
+  const isValueEmpty = !fieldNameValue && fieldNameValue !== 0;
 
   return (
     <>
-      <h3 className="fw-bold mb-1"></h3>
       {isEditing ? (
         <>
           <Input
-            placeholder=""
+            placeholder="Enter value"
             defaultValue={fieldNameValue}
             onChange={setFieldNameValue}
-            classeName="fs-2 fw-bold counted"
+            className="fs-2 fw-bold counted"
           />
           <Actions>
             <Button variant="primary" onClick={handleUpdate} className="btn">
@@ -45,9 +42,13 @@ const InputValue = ({ issue, updateIssue, fieldName }) => {
       ) : (
         <>
           {isValueEmpty ? (
-            <EmptyLabel onClick={() => setEditing(true)}>Add a value </EmptyLabel>
+            <EmptyLabel onClick={() => setEditing(true)}>Add a value</EmptyLabel>
           ) : (
-            <TextEditedContent content={fieldNameValue} onClick={() => setEditing(true)} className="fs-2 fw-bold" />
+            <TextEditedContent
+              content={String(fieldNameValue)}
+              onClick={() => setEditing(true)}
+              className="fs-2 fw-bold"
+            />
           )}
         </>
       )}

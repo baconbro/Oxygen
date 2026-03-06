@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useReducer } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Avatar } from '../../components/common';
-import * as FirestoreService from '../../services/firestore';
 import { useWorkspace } from '../../contexts/WorkspaceProvider';
 import { Status } from '../IssueDetails/Status/Styles';
 import { customStatus, getScoreColor, goalType } from '../../constants/custom';
@@ -24,181 +23,90 @@ import { groupTasksByParent } from '../../utils/itemManipulation';
 import { Progress, WorkProgress } from './UtilProgress';
 
 
-
-
-const defaultData = [
-  {
-    title: 'tanner',
-    owner: 'linsley',
-    objectiveId: 24,
-    work: 90,
-    status: 'In Relationship',
-    progress: ["test", "again"],
-    score: 60,
-    subRows: [
-      {
-        title: 'tanner',
-        owner: 'linsley',
-        objectiveId: 24,
-        work: 90,
-        status: 'In Relationship',
-        progress: ["test", "again"],
-        score: 60,
-      }
-    ]
-  },
-  {
-    title: 'tandy',
-    owner: 'miller',
-    age: 40,
-    visits: 40,
-    status: 'Single',
-    progress: 80,
-  },
-  {
-    firstName: 'joe',
-    lastName: 'dirte',
-    age: 45,
-    visits: 20,
-    status: 'Complicated',
-    progress: 10,
-  },
-]
-
-
-const defaultFilters = {
-  searchTerm: '',
-  userIds: [],
-  myOnly: false,
-  recent: false,
-  groupBy: 'None',
-  viewType: [],
-  viewStatus: [],
-};
-
-
-
 const Goals = () => {
   const { currentUser } = useAuth();
   const { data: okrs, status, error } = useFetchOKRs(currentUser?.all?.currentOrg);
-  const match = useLocation();
   const navigate = useNavigate();
   const { setCurrentGoal, orgUsers, filters, setGoals } = useWorkspace();
-  const [refreshData, setRefreshData] = React.useState(true);
   const [filteredIssues, setFilteredIssues] = useState([]);
-  const [data, setData] = useState(() => [...defaultData])
+  const [data, setData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [expanded, setExpanded] = useState({});
 
-  // const [filters, mergeFilters] = useMergeState(defaultFilters);
-
-  const reloadGoals = () => {
-    setRefreshData(false);
-  };
-
-
-  // Fetch OKRs when status is 'success'
   useEffect(() => {
     if (status === 'success' && Array.isArray(okrs)) {
-
       setData(okrs);
       setGoals(okrs);
     }
   }, [status, okrs]);
 
-  // Filter issues when data or filters change
   useEffect(() => {
-    const issues = data; // Assume 'data' contains issues
-    if (issues && Array.isArray(issues)) {
-      const filtered = filterIssues(issues, filters, currentUser?.all?.uid);
+    if (data && Array.isArray(data)) {
+      const filtered = filterIssues(data, filters, currentUser?.all?.uid);
       const groupedTasks = groupTasksByParent(filtered);
-
       setFilteredIssues(groupedTasks);
     }
   }, [data, filters]);
 
-
-
-  const handleDataRefresh = () => {
-    setRefreshData(true); // Trigger data retrieval by updating the state
-    reloadGoals()
-  };
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setRefreshData(true);
-    reloadGoals()
   };
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
   };
 
-
-
-
-  useEffect(() => {
-    if (refreshData) {
-      //reloadGoals();
-      setRefreshData(false); // Reset the state after fetching data
-    }
-
-  }, [refreshData]);
-
-
-  const rerender = useReducer(() => ({}), {})[1]
-  const [expanded, setExpanded] = useState({})
-  const columnHelper = createColumnHelper()
-
+  const columnHelper = createColumnHelper();
 
   const columns = [
     columnHelper.accessor('title', {
       cell: ({ row, getValue }) => (
         <div
           style={{
-            // Since rows are flattened by default,
-            // we can use the row.depth property
-            // and paddingLeft to visually indicate the depth
-            // of the row
-            paddingLeft: `${row.depth * 2}rem`, cursor: 'pointer'
+            paddingLeft: `${row.depth * 2}rem`,
+            cursor: 'pointer',
           }}
+          className="fw-semibold text-gray-800 text-hover-primary"
         >
-          <>
-
-            {getValue()}
-          </>
-        </div>),
-      header: () => <span>Goal</span>
-      //footer: info => info.column.id,
+          {getValue()}
+        </div>
+      ),
+      header: () => <span>Goal</span>,
     }),
     columnHelper.accessor('reporterId', {
       id: 'Owner',
-      cell: info => <OwnerName reporterId={info.getValue()} />,
+      cell: info => <OwnerName reporterId={info.getValue()} orgUsers={orgUsers} />,
       header: () => <span>Owner</span>,
-      //footer: info => info.column.id,
     }),
     columnHelper.accessor('type', {
       header: () => <span>Type</span>,
-      cell: info => <Status className={`btn btn-${goalType.IssueStatusClass[info.renderValue()]}`} color={info.renderValue()}>{goalType.IssueStatusCopy[info.renderValue()]}</Status>,
-      //footer: info => info.column.id,
+      cell: info => (
+        <Status
+          className={`btn btn-sm btn-${goalType.IssueStatusClass[info.renderValue()]}`}
+          color={info.renderValue()}
+        >
+          {goalType.IssueStatusCopy[info.renderValue()]}
+        </Status>
+      ),
     }),
-  columnHelper.accessor('status', {
+    columnHelper.accessor('status', {
       header: () => <span>Status</span>,
-      cell: info => <Status className={`btn btn-${customStatus.IssueStatusClass[info.renderValue()]}`} color={info.renderValue()}>{customStatus.IssueStatusCopy[info.renderValue()]}</Status>,
-      //footer: info => info.column.id,
+      cell: info => (
+        <Status
+          className={`btn btn-sm btn-${customStatus.IssueStatusClass[info.renderValue()]}`}
+          color={info.renderValue()}
+        >
+          {customStatus.IssueStatusCopy[info.renderValue()]}
+        </Status>
+      ),
     }),
-    /* columnHelper.accessor('Work', {
-      header: () => <span>Work</span>,
-      cell: info => <Progress progress={info.renderValue()} />,
-      footer: info => info.column.id,
-    }), */
     columnHelper.accessor('score', {
       header: 'Score',
       cell: info => <Score score={info.renderValue()} />,
-      //footer: info => info.column.id,
     }),
     columnHelper.accessor('cadence', {
       header: 'Cadence',
-      cell: info => info.renderValue(),
-      //footer: info => info.column.id,
+      cell: info => <span className="text-gray-600">{info.renderValue()}</span>,
     }),
     columnHelper.accessor('workprogress', {
       header: 'Work Progress',
@@ -211,51 +119,12 @@ const Goals = () => {
     columnHelper.accessor('krprogress', {
       header: 'Key Result Progress',
       cell: info => {
-        const item = info.row.original; // Get the entire row data
+        const item = info.row.original;
         return <Progress item={item} />;
       },
       minSize: 150,
     }),
-    columnHelper.accessor('id', {
-      header: '',
-      cell: '',
-      footer: '',
-    }),
-  ]
-
-
-  const OwnerName = ({ reporterId }) => {
-    let name = '';
-    let avatarUrl = '';
-
-    // Check if orgUsers and users exist
-    if (orgUsers && orgUsers.users) {
-      // Iterate through all users to find the one with matching id
-      // Compare reporterId (string) directly with user.uid (string)
-      Object.values(orgUsers.users).forEach(user => {
-        if (user.uid === reporterId) {
-          // Use name property with fallbacks to other name properties
-          name = user.name || user.displayName || user.fName || '';
-          avatarUrl = user.photoURL || '';
-        }
-      });
-    }
-
-    return <Avatar avatarUrl={avatarUrl} name={name} size={25} className='avatar-circle' />;
-  };
-
-
-  const Score = ({ score }) => {
-    return (
-      <div className="d-flex align-items-senter">
-        <span className={`badge badge-light-${getScoreColor(score)} fs-base`}>
-          {score}
-        </span>
-      </div>
-    )
-  };
-
-
+  ];
 
   const table = useReactTable({
     data: filteredIssues || [],
@@ -267,58 +136,100 @@ const Goals = () => {
     },
     onExpandedChange: setExpanded,
     getExpandedRowModel: getExpandedRowModel(),
-  })
+  });
 
   const handleRowClick = (row) => {
-    //get the object from data that matches the id
-    const goal = okrs.find((goal) => goal.id === row.getValue('id'));
-    setCurrentGoal(goal);
-    /*     const drawerToggle = document.getElementById('goals_drawer_detail_toggle');
-        drawerToggle.click(); */
-    navigate(`details?id=${row.getValue('id')}`)
-
+    const goal = okrs.find((goal) => goal.id === row.original.id);
+    if (goal) {
+      setCurrentGoal(goal);
+    }
+    navigate(`details?id=${row.original.id}`);
   };
 
-
-
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return (
+      <div className="d-flex flex-column align-items-center justify-content-center p-10">
+        <div className="spinner-border text-primary mb-3" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <div className="text-gray-600">Loading goals...</div>
+      </div>
+    );
   }
 
-  if (status === 'error' && error instanceof Error) {
-    return <div>Error: {error.message}</div>;
+  if (status === 'error' || error) {
+    return (
+      <div className="d-flex flex-column align-items-center justify-content-center p-10">
+        <div className="text-gray-600">
+          {error instanceof Error ? `Error: ${error.message}` : 'Error loading goals'}
+        </div>
+      </div>
+    );
   }
 
-  if (error) {
-    return <div>Error loading OKRs</div>;
+  if (!okrs || okrs.length === 0) {
+    return (
+      <>
+        <div id="xgn_app_toolbar" className="app-toolbar py-3 py-lg-6">
+          <div id="xgn_app_toolbar_container" className="app-container container-xxl d-flex flex-stack">
+            <div className="page-title d-flex flex-column justify-content-center flex-wrap me-3">
+              <h1 className="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">
+                Objectives and Key Results
+              </h1>
+            </div>
+            <div>
+              <button className="btn btn-primary btn-sm" onClick={handleOpenModal}>
+                <i className="bi bi-plus"></i> Create your first goal
+              </button>
+            </div>
+          </div>
+        </div>
+        <EmptyGoals />
+        {isModalOpen && (
+          <Modal show={isModalOpen} onHide={handleCloseModal} centered>
+            <Modal.Header closeButton>
+              <Modal.Title>New Goal</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <CreateGoal modalClose={handleCloseModal} />
+            </Modal.Body>
+          </Modal>
+        )}
+      </>
+    );
   }
-
 
   return (
     <>
       <GoalFilter />
       <HeaderInsight />
-      <div id="xgn_app_toolbar" className="app-toolbar  py-3 py-lg-6 ">
-        <div id="xgn_app_toolbar_container" className="app-container  container-xxl d-flex flex-stack ">
-          <div className="page-title d-flex flex-column justify-content-center flex-wrap me-3 ">
+      <div id="xgn_app_toolbar" className="app-toolbar py-3 py-lg-6">
+        <div id="xgn_app_toolbar_container" className="app-container container-xxl d-flex flex-stack">
+          <div className="page-title d-flex flex-column justify-content-center flex-wrap me-3">
             <h1 className="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">
-              Objectives and Key results
+              Objectives and Key Results
             </h1>
+          </div>
+          <div>
+            <button className="btn btn-primary btn-sm" onClick={handleOpenModal}>
+              <i className="bi bi-plus"></i> Add a goal
+            </button>
           </div>
         </div>
       </div>
 
-      <div className='card kanban' >
-        <div className='card-body' style={{ padding: "1rem 1rem" }}>
+      <div className="card kanban">
+        <div className="card-body" style={{ padding: '1rem 1rem' }}>
           <div className="table-responsive">
-            <table className='table table-row-dashed table-row-gray-300 gy-3'>
+            <table className="table table-row-dashed table-row-gray-300 gy-3">
               <thead>
                 {table.getHeaderGroups().map(headerGroup => (
-                  <tr key={headerGroup.id} className='fw-bold fs-6 text-gray-800'>
+                  <tr key={headerGroup.id} className="fw-bold fs-6 text-gray-800">
                     <th key={'expand' + headerGroup.id} className="max-w-50px min-w-25px"></th>
                     {headerGroup.headers.map(header => (
-                      <th key={header.id}
-                        style={{ minWidth: header.column.columnDef.minSize }}  // Set the min width of the column
+                      <th
+                        key={header.id}
+                        style={{ minWidth: header.column.columnDef.minSize }}
                       >
                         {header.isPlaceholder
                           ? null
@@ -333,78 +244,74 @@ const Goals = () => {
               </thead>
               <tbody>
                 {table.getRowModel().rows.map(row => (
-                  <tr key={row.id} >
-                    {/* Add a custom column with the expanding button */}
+                  <tr key={row.id} className="table-row-hover">
                     <td>
                       {row.getCanExpand() ? (
-                        <button className='btn btn-icon btn-light btn-active-light-primary toggle h-25px w-25px me-1 '
-                          {...{
-                            onClick: row.getToggleExpandedHandler(),
-                            style: {},
-                          }}
+                        <button
+                          className="btn btn-icon btn-light btn-active-light-primary toggle h-25px w-25px me-1"
+                          onClick={row.getToggleExpandedHandler()}
                         >
-                          {row.getIsExpanded() ? <span className="bi bi-dash fs-3 m-0"></span> : <span className="bi bi-plus fs-3 m-0 "></span>}
+                          {row.getIsExpanded()
+                            ? <span className="bi bi-dash fs-3 m-0"></span>
+                            : <span className="bi bi-plus fs-3 m-0"></span>
+                          }
                         </button>
-                      ) : (
-                        ''
-                      )}{''}
+                      ) : null}
                     </td>
-                    {/* Render the other data columns */}
                     {row.getVisibleCells().map(cell => (
-                      <td key={cell.id} onClick={() => {
-                        if (cell.id === row.id + '_title') {
-                          handleRowClick(row)
-                        } else {
-                          // do something else
-                        }
-                      }}>
+                      <td
+                        key={cell.id}
+                        onClick={() => handleRowClick(row)}
+                        style={{ cursor: 'pointer' }}
+                      >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
                   </tr>
                 ))}
               </tbody>
-              <tfoot>
-                {table.getFooterGroups().map(footerGroup => (
-                  <tr key={footerGroup.id}>
-                    {footerGroup.headers.map(header => (
-                      <th key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                            header.column.columnDef.footer,
-                            header.getContext()
-                          )}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </tfoot>
             </table>
-            <div className="h-4" />
-
-            <button className='btn btn-primary me-2 mb-2 ms-2' onClick={handleOpenModal}><i className='bi bi-plus'></i>Add a goal</button>
-
           </div>
         </div>
       </div>
 
-      {(!okrs || okrs.length === 0) ? <EmptyGoals /> : ''}
-      {isModalOpen &&
+      {isModalOpen && (
         <Modal show={isModalOpen} onHide={handleCloseModal} centered>
           <Modal.Header closeButton>
-            <Modal.Title>
-            </Modal.Title>
+            <Modal.Title>New Goal</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <CreateGoal modalClose={handleCloseModal} />
           </Modal.Body>
-          <Modal.Footer>
-          </Modal.Footer>
         </Modal>
-      }
+      )}
     </>
   );
 };
+
+// Extracted outside the render function to avoid re-creating on every render
+const OwnerName = ({ reporterId, orgUsers }) => {
+  let name = '';
+  let avatarUrl = '';
+
+  if (orgUsers && orgUsers.users) {
+    Object.values(orgUsers.users).forEach(user => {
+      if (user.uid === reporterId) {
+        name = user.name || user.displayName || user.fName || '';
+        avatarUrl = user.photoURL || '';
+      }
+    });
+  }
+
+  return <Avatar avatarUrl={avatarUrl} name={name} size={25} className="avatar-circle" />;
+};
+
+const Score = ({ score }) => (
+  <div className="d-flex align-items-center">
+    <span className={`badge badge-light-${getScoreColor(score)} fs-base`}>
+      {score}
+    </span>
+  </div>
+);
 
 export default Goals;

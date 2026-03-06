@@ -1,35 +1,3 @@
-import { useGetItem } from "../../services/itemServices";
-import { useAuth } from "../auth";
-
-
-const GetItem = ({ item }) => {
-    const { currentUser } = useAuth();
-    //get the work linked to the KR
-    const { data: workItems, isLoading, error } = useGetItem(item.id, currentUser?.all?.currentOrg);
-    // wait during data fetching
-    if (isLoading) {
-        return null;
-    }
-    //if error or no work item is linked
-    if (error || !workItems || workItems.length === 0) {
-        return null;
-    }
-    
-    // If there are multiple items linked, calculate the average progress
-    let totalProgress = 0;
-    let itemCount = 0;
-    
-    workItems.forEach(workItem => {
-        if (workItem.progress !== undefined && workItem.progress !== null) {
-            totalProgress += Number(workItem.progress);
-            itemCount++;
-        }
-    });
-    
-    // Return the average progress, or null if no valid progress values
-    return itemCount > 0 ? totalProgress / itemCount : null;
-};
-
 export const Progress = ({ item }) => {
     let progressValue;
 
@@ -39,36 +7,35 @@ export const Progress = ({ item }) => {
             progressValue = 0;
         }
     } else {
-        progressValue = calculateProgress(item);
+        progressValue = calculateObjectiveProgress(item);
     }
-
 
     if (progressValue === null) {
         return null;
     }
-    //round the progress value
+
     progressValue = Math.round(progressValue);
 
     return (
-        <>
-            <div className="progress h-6px w-100">
+        <div className="d-flex align-items-center">
+            <div className="progress h-6px w-100 me-2">
                 <div
                     className="progress-bar bg-primary"
                     role="progressbar"
-                    style={{ width: `${progressValue}%` }}
+                    style={{ width: `${Math.min(progressValue, 100)}%` }}
                     aria-valuenow={progressValue}
                     aria-valuemin="0"
                     aria-valuemax="100"
                 ></div>
             </div>
-            <span class="text-gray-500 fw-semibold">
+            <span className="text-gray-500 fw-semibold" style={{ minWidth: 35 }}>
                 {progressValue}%
             </span>
-        </>
+        </div>
     );
 };
 
-const calculateProgress = (item) => {
+const calculateObjectiveProgress = (item) => {
     if (!item || !item.subRows || item.subRows.length === 0) {
         return null;
     }
@@ -76,24 +43,24 @@ const calculateProgress = (item) => {
     let totalProgress = 0;
     let krCount = 0;
 
-    const calculateKRProgress = (subRows) => {
+    const aggregateKRProgress = (subRows) => {
         subRows.forEach(child => {
             if (child.type === 'kr') {
                 const score = Number(child.score);
-                const target = Number(child.targetValue); // Use targetValue
+                const target = Number(child.targetValue);
 
-                if (!isNaN(score) && !isNaN(target) && target !== 0) { // Check for valid numbers and avoid division by zero
+                if (!isNaN(score) && !isNaN(target) && target !== 0) {
                     totalProgress += score / target;
                     krCount++;
                 }
             }
             if (child.subRows && child.subRows.length > 0) {
-                calculateKRProgress(child.subRows);
+                aggregateKRProgress(child.subRows);
             }
         });
     };
 
-    calculateKRProgress(item.subRows);
+    aggregateKRProgress(item.subRows);
 
     return krCount > 0 ? (totalProgress / krCount) * 100 : null;
 };
@@ -109,76 +76,68 @@ const calculateKRProgress = (item) => {
         return (score / target) * 100;
     }
     return null;
-}
+};
 
 export const WorkProgress = ({ item }) => {
     let progressValue;
 
     if (item && item.type === 'kr') {
-        progressValue = calculateKRWorkProgress(item);
-        if (progressValue === null && (item.score === 0 || item.score === "0")) {
-            progressValue = 0;
-        }
+        // For individual KRs, we can't compute work progress without hooks in a loop
+        // so we show nothing here; work progress is visible in the detail view
+        return null;
     } else {
-        progressValue = calculateWorkProgress(item);
+        progressValue = calculateObjectiveWorkProgress(item);
     }
 
     if (progressValue === null) {
         return null;
     }
-    // round the progress value
+
     progressValue = Math.round(progressValue);
 
     return (
-        <>
-            <div className="progress h-6px w-100">
+        <div className="d-flex align-items-center">
+            <div className="progress h-6px w-100 me-2">
                 <div
                     className="progress-bar bg-primary"
                     role="progressbar"
-                    style={{ width: `${progressValue}%` }}
+                    style={{ width: `${Math.min(progressValue, 100)}%` }}
                     aria-valuenow={progressValue}
                     aria-valuemin="0"
                     aria-valuemax="100"
                 ></div>
             </div>
-            <span class="text-gray-500 fw-semibold">
+            <span className="text-gray-500 fw-semibold" style={{ minWidth: 35 }}>
                 {progressValue}%
             </span>
-        </>
+        </div>
     );
 };
-const calculateWorkProgress = (item) => {
+
+const calculateObjectiveWorkProgress = (item) => {
     if (!item || !item.subRows || item.subRows.length === 0) {
         return null;
     }
 
+    // For objectives, derive work progress from the KR progress of children
     let totalProgress = 0;
     let krCount = 0;
 
-    const calculateKRWorkProgress = (subRows) => {
-        subRows.forEach(item => {
-            if (item.type === 'kr') {
-                const workProgress = GetItem({ item })
-
-                if (!isNaN(workProgress) && workProgress !== 0) { // Check for valid numbers and avoid division by zero
-                    totalProgress += workProgress / 100;
+    const aggregateProgress = (subRows) => {
+        subRows.forEach(child => {
+            if (child.type === 'kr') {
+                const krProgress = calculateKRProgress(child);
+                if (krProgress !== null) {
+                    totalProgress += krProgress / 100;
                     krCount++;
                 }
             }
-            if (item.subRows && item.subRows.length > 0) {
-                calculateKRWorkProgress(item.subRows);
+            if (child.subRows && child.subRows.length > 0) {
+                aggregateProgress(child.subRows);
             }
         });
     };
-    calculateKRWorkProgress(item.subRows);
 
+    aggregateProgress(item.subRows);
     return krCount > 0 ? (totalProgress / krCount) * 100 : null;
 };
-
-const calculateKRWorkProgress = (item) => {
-    if (!item) {
-        return null;
-    }
-    const progress = GetItem({ item });
-    return progress !== null ? progress : null;
-}

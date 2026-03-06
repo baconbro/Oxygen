@@ -1,11 +1,6 @@
-import { useEffect, useState } from 'react';
-import { xor } from 'lodash';
 import {
     Filters,
     SearchInput,
-    Avatars,
-    AvatarIsActiveBorder,
-    StyledAvatar,
     ClearAll,
 } from '../Workspace/Board/Filters/Styles';
 import { useWorkspace } from '../../contexts/WorkspaceProvider';
@@ -21,19 +16,19 @@ const GoalFilter = () => {
                 <SearchInput
                     value={searchTerm}
                     onChange={value => mergeFilters({ searchTerm: value })}
-                    placeholder='Search'
+                    placeholder="Search goals..."
                     className="form-control"
                 />
 
                 <button
                     onClick={() => mergeFilters({ recent: !recent })}
-                    className="btn btn-sm btn-flex bg-body btn-color-gray-700 btn-active-color-primary fw-bold ms-2"
+                    className={`btn btn-sm btn-flex fw-bold ms-2 ${recent ? 'btn-primary' : 'bg-body btn-color-gray-700 btn-active-color-primary'}`}
                 >
                     Recently Updated
                 </button>
                 <button
-                    onClick={() => mergeFilters({ hideOld: hideOld == 0 ? 30 : 0 })}
-                    className="btn btn-sm btn-flex bg-body btn-color-gray-700 btn-active-color-primary fw-bold ms-2"
+                    onClick={() => mergeFilters({ hideOld: hideOld === 0 ? 30 : 0 })}
+                    className={`btn btn-sm btn-flex fw-bold ms-2 ${hideOld === 0 ? 'btn-primary' : 'bg-body btn-color-gray-700 btn-active-color-primary'}`}
                 >
                     Show old
                 </button>
@@ -44,6 +39,5 @@ const GoalFilter = () => {
         </div>
     );
 };
-
 
 export default GoalFilter;

@@ -1,81 +1,60 @@
-import { collection, getDocs, addDoc, doc, query, where, setDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where, setDoc, deleteDoc } from 'firebase/firestore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '../services/firestore';
 
 
- const fetchOKRs = async (orgId) => {
-  try {
-    const okrCollection = collection(db, "organisation", orgId, "goals");
-    const snapshot = await getDocs(okrCollection);
-    const okrs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    return okrs;
-  } catch (error) {
-    console.error('Error fetching OKRs: ', error);
-    throw new Error('Error fetching OKRs');
-  }
+const fetchOKRs = async (orgId) => {
+  const okrCollection = collection(db, "organisation", orgId, "goals");
+  const snapshot = await getDocs(okrCollection);
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
- const addOKR = async ( okr,orgId) => {
-  try {
-    const okrCollection = collection(db, "organisation", orgId, "goals");
-    // Respect pre-set ids to keep optimistic updates in sync; generate if missing
-    if (!okr.id) {
-      okr.id = Math.floor(Math.random() * 1000000000000) + 1;
-    }
-    if (!okr.createdAt) {
-      okr.createdAt = Math.floor(Date.now());
-    }
-    const docRef = await addDoc(okrCollection, okr);
-    return { id: docRef.id, ...okr };
-  } catch (error) {
-    console.error('Error adding OKR: ', error);
-    throw new Error('Error adding OKR');
+const addOKR = async (okr, orgId) => {
+  const okrCollection = collection(db, "organisation", orgId, "goals");
+  if (!okr.createdAt) {
+    okr.createdAt = Math.floor(Date.now());
   }
+  const docRef = await addDoc(okrCollection, okr);
+  return { id: docRef.id, ...okr };
 };
 
 const updateOKR = async (orgId, feild, itemId) => {
-  try {
-    const q = query(collection(db, "organisation", orgId, "goals"), where("id", "==", parseInt(itemId)));
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach(async (doc) => {
-        setDoc(doc.ref, feild, { merge: true });
-        setDoc(doc.ref, { updatedAt: Math.floor(Date.now()) }, { merge: true });
-    });
-    const firstDoc = querySnapshot.docs[0];
-    const firstDocData = firstDoc.data();
-    return { firstDocData };
-  } catch (error) {
-    console.error('Error updating OKR: ', error);
-    throw new Error('Error updating OKR');
+  const q = query(collection(db, "organisation", orgId, "goals"), where("id", "==", parseInt(itemId)));
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    throw new Error('Goal not found');
   }
+
+  const firstDoc = querySnapshot.docs[0];
+  // Single write: merge field updates and updatedAt together
+  await setDoc(firstDoc.ref, { ...feild, updatedAt: Math.floor(Date.now()) }, { merge: true });
+  return { ...firstDoc.data(), ...feild };
 };
 
 const deleteOKR = async (orgId, itemId) => {
-  try {
-    const q = query(collection(db, "organisation", orgId, "goals"), where("id", "==", parseInt(itemId)));
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach(async (doc) => {
-        // doc.data() is never undefined for query doc snapshots
-        deleteDoc(doc.ref)
-    });
-    const firstDoc = querySnapshot.docs[0];
-    const firstDocData = firstDoc.data();
-    return { firstDocData };
-  } catch (error) {
-    console.error('Error deleting OKR: ', error);
-    throw new Error('Error deleting OKR');
+  const q = query(collection(db, "organisation", orgId, "goals"), where("id", "==", parseInt(itemId)));
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    throw new Error('Goal not found');
   }
+
+  const firstDoc = querySnapshot.docs[0];
+  const data = firstDoc.data();
+  await deleteDoc(firstDoc.ref);
+  return data;
 };
 
-// React Query hooks (TanStack Query 5)
+// React Query hooks
 export const useFetchOKRs = (orgId) => {
-    return useQuery({
-      queryKey: ['okrs', orgId],
-      queryFn: () => fetchOKRs(orgId),
-      enabled: !!orgId,
-      staleTime: 1000 * 60 * 5, // 5 minutes
-    });
-  };
+  return useQuery({
+    queryKey: ['okrs', orgId],
+    queryFn: () => fetchOKRs(orgId),
+    enabled: !!orgId,
+    staleTime: 1000 * 60 * 5,
+  });
+};
 
 export const useAddOKR = () => {
   const queryClient = useQueryClient();
@@ -85,57 +64,43 @@ export const useAddOKR = () => {
       queryClient.invalidateQueries({ queryKey: ['okrs', orgId] });
     },
   });
-
   return mutation.mutate;
 };
 
-  export const useUpdateOKR = () => {
-    const queryClient = useQueryClient();
+export const useUpdateOKR = () => {
+  const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: ({ orgId, feild, itemId}) => updateOKR(orgId, feild, itemId),
+    mutationFn: ({ orgId, feild, itemId }) => updateOKR(orgId, feild, itemId),
     onSuccess: (_, { orgId }) => {
       queryClient.invalidateQueries({ queryKey: ['okrs', orgId] });
     },
   });
-
   return mutation.mutate;
 };
 
 export const useDeleteOKR = () => {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: ({ orgId, itemId}) => deleteOKR(orgId, itemId),
+    mutationFn: ({ orgId, itemId }) => deleteOKR(orgId, itemId),
     onSuccess: (_, { orgId }) => {
       queryClient.invalidateQueries({ queryKey: ['okrs', orgId] });
     },
   });
-
   return mutation.mutate;
 };
 
-// Replace the existing useFetchSingleOKR implementation with this:
 export const fetchSingleOKR = async (orgId, goalId) => {
-  try {
-    if (!orgId || !goalId) {
-      throw new Error('Organization ID and Goal ID are required');
-    }
-    
-    const q = query(collection(db, "organisation", orgId, "goals"), where("id", "==", parseInt(goalId)));
-    const querySnapshot = await getDocs(q);
-    
-    if (querySnapshot.empty) {
-      return null; // No goal found with that ID
-    }
-    
-    // Return the first document that matches the ID
-    const doc = querySnapshot.docs[0];
-    return { id: doc.id, ...doc.data() };
-  } catch (error) {
-    console.error('Error fetching single OKR: ', error);
-    throw new Error('Error fetching single OKR');
+  if (!orgId || !goalId) {
+    throw new Error('Organization ID and Goal ID are required');
   }
-};
 
-export const useFetchSingleOKR = () => {
-  return fetchSingleOKR;
+  const q = query(collection(db, "organisation", orgId, "goals"), where("id", "==", parseInt(goalId)));
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    return null;
+  }
+
+  const firstDoc = querySnapshot.docs[0];
+  return { id: firstDoc.id, ...firstDoc.data() };
 };

@@ -7,35 +7,25 @@ const KrGraph = ({ className, chartColor, chartHeight, kr }) => {
   const chartRef = useRef(null);
   const data = kr.updates ? kr.updates.map(update => [update.createdAt, Number(update.newScore) || 0]) : [];
 
-  const refreshChart = () => {
-    if (!chartRef.current) {
-      return;
-    }
-
-    const chart = new ApexCharts(chartRef.current, chartptions(chartColor, chartHeight, kr));
-    if (chart) {
-      chart.render();
-    }
-
-    return chart;
-  };
-
   useEffect(() => {
-    const chart = refreshChart();
+    if (!chartRef.current) return;
+
+    const chart = new ApexCharts(chartRef.current, getChartOptions(chartColor, chartHeight, kr));
+    chart.render();
 
     return () => {
-      if (chart) {
-        chart.destroy();
-      }
+      chart.destroy();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef]);
+  }, [chartRef, kr.updates, chartColor, chartHeight]);
 
   return (
     <div className={`card ${className}`}>
       <div className="card-body p-0">
         {data.length === 0 ? (
-          <div className="no-data-message">Add update before viewing progress graph</div>
+          <div className="d-flex flex-column align-items-center justify-content-center py-10">
+            <i className="bi bi-graph-up fs-2x text-gray-400 mb-3"></i>
+            <div className="text-gray-500">Add an update to see the progress graph</div>
+          </div>
         ) : (
           <div ref={chartRef} className="mixed-widget-5-chart card-rounded-top"></div>
         )}
@@ -44,26 +34,19 @@ const KrGraph = ({ className, chartColor, chartHeight, kr }) => {
   );
 };
 
-const chartptions = (chartColor, chartHeight, kr) => {
+const getChartOptions = (chartColor, chartHeight, kr) => {
   const labelColor = getCSSVariableValue('--bs-gray-800');
   const strokeColor = getCSSVariableValue('--bs-gray-300');
   const baseColor = getCSSVariableValue('--bs-' + chartColor);
   const lightColor = getCSSVariableValue('--bs-' + chartColor);
 
   const maxScore = Math.max(Number(kr.score) || 0, Number(kr.targetValue) || 0) * 1.1;
-
   const data = kr.updates ? kr.updates.map(update => [update.createdAt, Number(update.newScore) || 0]) : [];
-
-  const startDate = new Date(kr.start * 1000);
-  const endDate = new Date(kr.end * 1000);
-  const numberOfWeeks = Math.ceil((endDate - startDate) / (7 * 24 * 60 * 60 * 1000));
-
-  const categories = Array.from({ length: numberOfWeeks }, (_, i) => `Week ${i + 1}`);
 
   return {
     series: [
       {
-        name: '',
+        name: 'Score',
         data: data,
       },
     ],
@@ -99,8 +82,7 @@ const chartptions = (chartColor, chartHeight, kr) => {
       colors: [baseColor],
     },
     xaxis: {
-        type: 'datetime',
-      //categories: categories,
+      type: 'datetime',
       axisBorder: {
         show: true,
       },
@@ -145,23 +127,14 @@ const chartptions = (chartColor, chartHeight, kr) => {
     },
     states: {
       normal: {
-        filter: {
-          type: 'none',
-          value: 0,
-        },
+        filter: { type: 'none', value: 0 },
       },
       hover: {
-        filter: {
-          type: 'none',
-          value: 0,
-        },
+        filter: { type: 'none', value: 0 },
       },
       active: {
         allowMultipleDataPointsSelection: false,
-        filter: {
-          type: 'none',
-          value: 0,
-        },
+        filter: { type: 'none', value: 0 },
       },
     },
     tooltip: {
@@ -170,7 +143,8 @@ const chartptions = (chartColor, chartHeight, kr) => {
       },
       y: {
         formatter: function (val) {
-          return kr.mesureAs + ' ' + val  ;
+          const unit = kr.mesureAs === 'dollar' ? '$' : kr.mesureAs === 'percent' ? '%' : '';
+          return kr.mesureAs === 'dollar' ? `${unit}${val}` : `${val}${unit}`;
         },
       },
     },
