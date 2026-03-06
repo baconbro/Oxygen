@@ -2,6 +2,28 @@
 // Content
 //
 
+// Prevent horizontal overflow and ensure content fills available space
+.wrapper {
+	overflow-x: hidden;
+	min-width: 0;
+}
+
+.content {
+	flex: 1;
+	min-width: 0;
+}
+
+// Ensure the post container and content container fill the width
+#xgn_post {
+	flex: 1;
+	min-width: 0;
+}
+
+#xgn_content_container {
+	min-width: 0;
+	width: 100%;
+}
+
 // Desktop mode
 @include media-breakpoint-up(lg) {
 	.content {

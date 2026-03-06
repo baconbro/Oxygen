@@ -1,7 +1,7 @@
-import { FC, useRef, useState } from 'react'
+import { FC, useRef, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import clsx from 'clsx'
-import { useLayout } from '../../core'
+import { useLayout, usePageData } from '../../core'
 import { InlineSVG, toAbsoluteUrl } from '../../../utils'
 import { AsideMenu } from './AsideMenu'
 import FeedbackForm from '../../../components/common/Feedbackform'
@@ -10,9 +10,20 @@ const AsideDefault: FC = () => {
   const { config, classes } = useLayout()
   const asideRef = useRef<HTMLDivElement | null>(null)
   const { aside } = config
+  const { pageSideMenu } = usePageData()
+  const hasMenu = pageSideMenu && pageSideMenu.length > 0
   const [minimized, setMinimized] = useState(aside.minimized)
 
-
+  // Auto-minimize sidebar when there's no menu content
+  useEffect(() => {
+    if (!hasMenu) {
+      document.body.setAttribute('data-xgn-aside-minimize', 'on')
+    } else {
+      if (!minimized) {
+        document.body.removeAttribute('data-xgn-aside-minimize')
+      }
+    }
+  }, [hasMenu, minimized])
 
   const minimize = () => {
     asideRef.current?.classList.add('animating')
@@ -38,14 +49,13 @@ const AsideDefault: FC = () => {
 
       <div className='aside-logo flex-column-auto' id='xgn_aside_logo'>
 
-
         <Link to='/dashboard'>
           <img
             alt='Logo'
             className='h-25px app-sidebar-logo-default'
             src={toAbsoluteUrl('/media/logos/default-dark.svg')}
           />
-          {minimized ? ('') : (
+          {(minimized || !hasMenu) ? ('') : (
             <>
               <span className='me-2'> Oxygen</span>
               <span className="badge badge-light-primary me-auto">Beta</span>
@@ -54,7 +64,7 @@ const AsideDefault: FC = () => {
           }
         </Link>
 
-        {aside.minimize && (
+        {aside.minimize && hasMenu && (
           <div
             id='xgn_aside_toggle'
             className='btn btn-icon w-auto px-0 btn-active-color-primary aside-toggle'
@@ -71,9 +81,11 @@ const AsideDefault: FC = () => {
           </div>
         )}
       </div>
-      <div className='aside-menu flex-column-fluid'>
-        <AsideMenu asideMenuCSSClasses={classes.asideMenu} />
-      </div>
+      {hasMenu && (
+        <div className='aside-menu flex-column-fluid'>
+          <AsideMenu asideMenuCSSClasses={classes.asideMenu} />
+        </div>
+      )}
       <div className='aside-footer flex-column-auto pt-5 pb-7 px-5' id='xgn_aside_footer'>
         <FeedbackForm />
       </div>
