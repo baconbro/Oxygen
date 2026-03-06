@@ -25,7 +25,7 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         // Suppress deprecation warnings from dependencies
-        silenceDeprecations: ['legacy-js-api', 'import', 'global-builtin', 'color-functions'],
+        silenceDeprecations: ['legacy-js-api', 'import', 'global-builtin', 'color-functions', 'if-function', 'abs-percent', 'function-units'],
       },
     },
   },

@@ -9,11 +9,13 @@
 @import "./core/components/mixins";
 @import "./core/vendors/plugins/mixins";
 
+// Bootstrap functions (must be loaded before custom variables that use shift-color, etc.)
+@import "~bootstrap/scss/functions";
+
 // Custom variables
 @import "./core/components/variables";
 
 // Bootstrap initializaton
-@import "~bootstrap/scss/functions";
 @import "~bootstrap/scss/variables";
 @import "~bootstrap/scss/maps";
 @import "~bootstrap/scss/mixins";
