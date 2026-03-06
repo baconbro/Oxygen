@@ -20,7 +20,7 @@ const CreateWorkPackage = ({ modalClose, wpgData }) => {
             });
             modalClose();
         } catch (error) {
-            console.log('error.message', error.message);
+            // Error handled silently
         }
     }
 
@@ -85,7 +85,7 @@ const CreateWorkPackage = ({ modalClose, wpgData }) => {
                         }
                         modalClose();
                     } catch (error) {
-                        console.log('error.message', error.message);
+                        // Error handled silently
                     }
                 }}
             >

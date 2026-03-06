@@ -50,10 +50,10 @@ const AdminPage = () => {
                     setOrg(getOrg.data());
                     setUsers(getOrg.data().users);
                 } else {
-                    console.log("No such document!");
+                    // No document found
                 }
             })
-            .catch((error) => console.log(error));
+            .catch(() => {});
 
     }
 

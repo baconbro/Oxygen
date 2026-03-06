@@ -14,7 +14,7 @@ import toast from '../../../../utils/toast'
 import { isAcronymAvailable } from '../../../../services/workspaceServices'
 import {useAuth} from '../../../../modules/auth'
 import {useNavigate} from 'react-router-dom'
-import {useQueryClient} from 'react-query'
+import {useQueryClient} from '@tanstack/react-query'
 
 type Props = {
   show: boolean
@@ -97,14 +97,12 @@ const CreateWorkspaceModal = ({show, handleClose}: Props) => {
   }
 
   const submit = async () => {
-    console.log('currentUser', currentUser)
     const values = {
       org : currentUser?.all?.currentOrg ?? currentUser?.all?.orgs[0],
       title : data.appBasic.appName,
       config : data.appConfig ,
       acronym: (data.appBasic.acronym || '').toUpperCase().trim()
     }
-    console.log('values', values)
     try {
       // final validation
       const ok = await checkAppBasic()
@@ -116,7 +114,7 @@ const CreateWorkspaceModal = ({show, handleClose}: Props) => {
         navigate(`/workspace/${newSpace}/board`, { replace: true });
       }
     } catch (error) {
-      console.log(error)
+      // Error handled silently
     }
     handleClose()
   }

@@ -88,15 +88,12 @@ export const getCumulativeFlowHistoricalData = async (
   daysBack = 30
 ) => {
   try {
-    console.log("Getting historical data with params:", { orgId, spaceId, issuesCount: issues.length, statusesCount: issueStatuses.length });
 
     // Get raw history data
     const historyData = await getIssueStatusHistory(orgId, spaceId, daysBack);
-    console.log(`Retrieved ${historyData.length} history entries`);
     
     // If we have no historical data and backfill hasn't run, create some initial entries
     if (historyData.length === 0) {
-      console.log("No historical data found - we need to run backfill");
       // Return null to trigger the fallback to simulated data
       return null;
     }
@@ -178,7 +175,6 @@ export const getCumulativeFlowHistoricalData = async (
       };
     });
     
-    console.log("Generated series data:", series.map(s => s.name));
     
     return {
       categories: dates,
@@ -205,7 +201,6 @@ export const getBurndownChartData = async (orgId, spaceId, sprintId) => {
     const querySnapshot = await getDocs(q);
     
     if (querySnapshot.empty) {
-      console.log('Sprint not found');
       return { 
         actual: [], 
         ideal: [], 
@@ -234,7 +229,6 @@ export const getBurndownChartData = async (orgId, spaceId, sprintId) => {
     
     // Get tickets in this sprint
     if (!sprintDocId) {
-      console.log('Sprint document ID not found');
       return emptyResult;
     }
     
@@ -242,7 +236,6 @@ export const getBurndownChartData = async (orgId, spaceId, sprintId) => {
     const ticketsSnapshot = await getDocs(ticketsRef);
     
     if (ticketsSnapshot.empty) {
-      console.log('No tickets found in this sprint');
       return emptyResult;
     }
     
@@ -257,7 +250,6 @@ export const getBurndownChartData = async (orgId, spaceId, sprintId) => {
 
     // If no tickets found, return empty data structure
     if (ticketIds.length === 0) {
-      console.log('No valid tickets found in this sprint');
       return emptyResult;
     }
 
@@ -311,7 +303,6 @@ export const getBurndownChartData = async (orgId, spaceId, sprintId) => {
     
     // Handle case where no story points were found
     if (totalPoints === 0) {
-      console.log('No story points found for tickets in this sprint');
       return {
         actual: [[startDate.getTime(), 0], [endDate.getTime(), 0]],
         ideal: [[startDate.getTime(), 0], [endDate.getTime(), 0]],

@@ -6,7 +6,7 @@ import { KeyCodes } from '../../../../../constants/keyCodes';
 import { useAuth } from '../../../../auth';
 import { useAddItem, useGetItems } from '../../../../../services/itemServices';
 import { useWorkspace } from '../../../../../contexts/WorkspaceProvider';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 
 

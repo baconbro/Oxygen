@@ -38,7 +38,7 @@ const DashboardPage = () => {
 				setOrgs(a)
 
 			})
-			.catch((error) => console.log(error));
+			.catch(() => {});
 
 
 	}, []);

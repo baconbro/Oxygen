@@ -19,7 +19,6 @@ import {
     deleteField,
     orderBy,
     limit,
-    connectFirestoreEmulator,
     writeBatch,
     runTransaction
 } from "firebase/firestore";
@@ -33,23 +32,21 @@ import {
     updateProfile,
     updateEmail,
     sendEmailVerification,
-    connectAuthEmulator
 } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { async } from "@firebase/util";
 import { defaultWorkspaceConfig } from "../constants/defaultConfig";
-import { useFirestoreQuery } from "@react-query-firebase/firestore";
+import { env } from "../utils/env";
 
 
 const firebaseConfig = {
-    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-    authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-    measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
-    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.REACT_APP_FIREBASE_APP_ID
+    apiKey: env.firebase.apiKey,
+    authDomain: env.firebase.authDomain,
+    measurementId: env.firebase.measurementId,
+    projectId: env.firebase.projectId,
+    storageBucket: env.firebase.storageBucket,
+    messagingSenderId: env.firebase.messagingSenderId,
+    appId: env.firebase.appId
 };
 
 const app = initializeApp(firebaseConfig);
@@ -57,11 +54,6 @@ export const db = getFirestore(app)
 export const auth = getAuth();
 export const storage = getStorage(app);
 
-// Connect to the emulators if running locally
-if (window.location.hostname === 'localhost') {
-    connectAuthEmulator(auth, 'http://localhost:9099'); 
-    connectFirestoreEmulator(db, 'localhost', 8080); 
-  }
 
 
 const analytics = getAnalytics(app);
@@ -171,7 +163,6 @@ export const registerWithEmailAndPassword = async (name, email, password, lastna
                 });
                 await batch.commit();
                 
-                console.log("User joined existing organization:", orgId);
             }
         } else {
             // No invitation - create a new organization for the user
@@ -186,7 +177,6 @@ export const registerWithEmailAndPassword = async (name, email, password, lastna
                 orgs: [orgId]
             });
             
-            console.log("Created new organization for user:", orgId);
         }
         
         return res;
@@ -238,7 +228,6 @@ export const addComment = async (orgId, body, issueId, currentUser) => {
 //Dependencies
 //create or modify a dependencie  in the dependencie collection in the organisation collection  based on data received
 export const updateDependencie = async (orgId, field, depId) => {
-    console.log('updateDependencie', orgId, field, depId);
     try {
         const q = query(collection(db, "organisation", orgId, "dependencies"), where("id", "==", depId));
         const querySnapshot = await getDocs(q);
@@ -255,7 +244,6 @@ export const updateDependencie = async (orgId, field, depId) => {
                 await setDoc(doc.ref, { updatedAt: Math.floor(Date.now()) }, { merge: true });
             });
         }
-        console.log('Dependency updated successfully');
     } catch (error) {
         console.error('Error updating dependency:', error);
     }

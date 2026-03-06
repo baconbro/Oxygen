@@ -1,5 +1,5 @@
-import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { collection, getDocs, addDoc, updateDoc, doc, query, where, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from './firestore';
 
 
@@ -108,9 +108,11 @@ const removeTicketFromSprint = async (sprintId, spaceId, orgId, ticketId) => {
   }
 };
 
-// React Query hooks
+// React Query hooks (TanStack Query 5)
 export const useGetSprints = (id, orgId) => {
-  return useQuery(['Sprints', id, orgId], () => getSprints(id, orgId), {
+  return useQuery({
+    queryKey: ['Sprints', id, orgId],
+    queryFn: () => getSprints(id, orgId),
     enabled: !!id,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -118,9 +120,10 @@ export const useGetSprints = (id, orgId) => {
 
 export const useAddSprint = () => {
   const queryClient = useQueryClient();
-  const mutation = useMutation(({ values, spaceId, orgId }) => addSprint(values, spaceId, orgId), {
+  const mutation = useMutation({
+    mutationFn: ({ values, spaceId, orgId }) => addSprint(values, spaceId, orgId),
     onSuccess: (_, { spaceId, orgId }) => {
-      queryClient.invalidateQueries(['Sprints', spaceId, orgId]);
+      queryClient.invalidateQueries({ queryKey: ['Sprints', spaceId, orgId] });
     },
   });
 
@@ -129,9 +132,10 @@ export const useAddSprint = () => {
 
 export const useUpdateSprint = () => {
   const queryClient = useQueryClient();
-  const mutation = useMutation(({ values, sprintId, spaceId, orgId }) => updateSprint(values, sprintId, spaceId, orgId), {
+  const mutation = useMutation({
+    mutationFn: ({ values, sprintId, spaceId, orgId }) => updateSprint(values, sprintId, spaceId, orgId),
     onSuccess: (_, { spaceId, orgId }) => {
-      queryClient.invalidateQueries(['Sprints', spaceId, orgId]);
+      queryClient.invalidateQueries({ queryKey: ['Sprints', spaceId, orgId] });
     },
   });
 
@@ -140,9 +144,10 @@ export const useUpdateSprint = () => {
 
 export const useDeleteSprint = () => {
   const queryClient = useQueryClient();
-  const mutation = useMutation(({ sprintId, spaceId, orgId }) => deleteSprint(sprintId, spaceId, orgId), {
+  const mutation = useMutation({
+    mutationFn: ({ sprintId, spaceId, orgId }) => deleteSprint(sprintId, spaceId, orgId),
     onSuccess: (_, { spaceId, orgId }) => {
-      queryClient.invalidateQueries(['Sprints', spaceId, orgId]);
+      queryClient.invalidateQueries({ queryKey: ['Sprints', spaceId, orgId] });
     },
   });
 
@@ -151,24 +156,20 @@ export const useDeleteSprint = () => {
 
 export const useAddTicketToSprint = () => {
   const queryClient = useQueryClient();
-  return useMutation(
-    ({ sprintId, spaceId, orgId, ticketId }) => addTicketToSprint(sprintId, spaceId, orgId, ticketId),
-    {
-      onSuccess: (_, { spaceId, orgId }) => {
-        queryClient.invalidateQueries(['Sprints', spaceId, orgId]);
-      },
-    }
-  );
+  return useMutation({
+    mutationFn: ({ sprintId, spaceId, orgId, ticketId }) => addTicketToSprint(sprintId, spaceId, orgId, ticketId),
+    onSuccess: (_, { spaceId, orgId }) => {
+      queryClient.invalidateQueries({ queryKey: ['Sprints', spaceId, orgId] });
+    },
+  });
 };
 
 export const useRemoveTicketFromSprint = () => {
   const queryClient = useQueryClient();
-  return useMutation(
-    ({ sprintId, spaceId, orgId, ticketId }) => removeTicketFromSprint(sprintId, spaceId, orgId, ticketId),
-    {
-      onSuccess: (_, { spaceId, orgId }) => {
-        queryClient.invalidateQueries(['Sprints', spaceId, orgId]);
-      },
-    }
-  );
+  return useMutation({
+    mutationFn: ({ sprintId, spaceId, orgId, ticketId }) => removeTicketFromSprint(sprintId, spaceId, orgId, ticketId),
+    onSuccess: (_, { spaceId, orgId }) => {
+      queryClient.invalidateQueries({ queryKey: ['Sprints', spaceId, orgId] });
+    },
+  });
 };

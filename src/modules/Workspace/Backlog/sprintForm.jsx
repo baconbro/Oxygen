@@ -58,7 +58,7 @@ const CreateSprint = ({ modalClose, sprintData }) => {
             });
             modalClose();
         } catch (error) {
-            console.log('error.message', error.message);
+            // Error handled silently
         }
 
     }
@@ -101,7 +101,7 @@ const CreateSprint = ({ modalClose, sprintData }) => {
                         }
                         modalClose();
                     } catch (error) {
-                        console.log('error.message', error.message);
+                        // Error handled silently
                     }
                 }}
             >

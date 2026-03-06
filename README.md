@@ -1,4 +1,5 @@
-Oxygen work management - An Open-Source Jira Alternative
+# Oxygen Work Management - An Open-Source Jira Alternative
+
 <p align="center">
   <img src="https://oxgn.io/images/logo.png" alt="Oxygen agile planning" />
 </p>
@@ -6,7 +7,7 @@ Oxygen work management - An Open-Source Jira Alternative
 
 <div align="center">
 
-Oxygen is a powerful, flexible, and open-source project management platform designed to be a compelling alternative to Jira. Built with React, Oxygen (OXGN) provides a comprehensive suite of features for agile teams to plan, track, and release software.! 💪
+Oxygen is a powerful, flexible, and open-source project management platform designed to be a compelling alternative to Jira. Built with React, Oxygen (OXGN) provides a comprehensive suite of features for agile teams to plan, track, and release software!
 
 ![quote application example](https://oxgn.io/images/kanban.jpeg)
 
@@ -14,115 +15,363 @@ Oxygen is a powerful, flexible, and open-source project management platform desi
 
 </div>
 
-## Features 
+## Features
 
-* **Issue Tracking:** Create, manage, and prioritize issues with customizable workflows, fields, and statuses.
-* **Agile Boards:** Scrum and Kanban boards to visualize progress and manage sprints.
-* **Project Planning:**  Organize projects with epics, stories, and sub-tasks.
-* **Open Source:**  Free to use, modify, and distribute under the [insert license, e.g., MIT License].
+- **Issue Tracking:** Create, manage, and prioritize issues with customizable workflows, fields, and statuses.
+- **Agile Boards:** Scrum and Kanban boards to visualize progress and manage sprints.
+- **Project Planning:** Organize projects with epics, stories, and sub-tasks.
+- **Sprint Management:** Plan and track sprints with velocity charts and burndown reports.
+- **OKR/Goals Tracking:** Set and track objectives and key results for your team.
+- **Timeline/Gantt Views:** Visualize project timelines and dependencies.
+- **Open Source:** Free to use, modify, and distribute.
 
-## Installation
+## Technology Stack
 
-Install the Firebase CLI:
+### Core
 
-```bash
-npm install -g firebase-tools
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **React** | 18.3 | UI framework |
+| **TypeScript** | 5.6 | Type safety |
+| **Vite** | 5.4 | Build tool & dev server |
+| **Firebase** | 9.9 | Backend (Firestore, Auth, Hosting) |
+
+### State Management
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **TanStack Query** | 5.90 | Server state & caching |
+| **Zustand** | 5.0 | Client state management |
+| **React Context** | - | Local component state |
+
+### UI & Styling
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **Tailwind CSS** | 3.4 | Utility-first CSS (tw- prefix) |
+| **Bootstrap** | 5.2 | Component library & grid |
+| **SCSS** | 1.77 | Custom styling |
+| **shadcn/ui patterns** | - | Accessible UI components |
+
+### Forms & Validation
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **React Hook Form** | 7.71 | Form state management |
+| **Zod** | 4.3 | Runtime type validation |
+| **@hookform/resolvers** | 5.2 | Form-Zod integration |
+
+### Drag & Drop
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **dnd-kit** | 6.3 | Modern drag-and-drop |
+| **react-beautiful-dnd** | 13.1 | Legacy boards (migration in progress) |
+
+### Testing
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **Vitest** | 2.1 | Unit & integration testing |
+| **Testing Library** | 14.3 | React component testing |
+| **jsdom** | 25.0 | DOM simulation |
+
+## Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- npm 9+
+- Firebase CLI (for local development)
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-org/oxygen.git
+   cd oxygen
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+
+3. **Configure environment variables:**
+
+   Create a `.env` file in the root directory:
+   ```bash
+   VITE_FIREBASE_API_KEY=your-api-key
+   VITE_FIREBASE_AUTH_DOMAIN=your-auth-domain
+   VITE_FIREBASE_PROJECT_ID=your-project-id
+   VITE_FIREBASE_STORAGE_BUCKET=your-storage-bucket
+   VITE_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+   VITE_FIREBASE_APP_ID=your-app-id
+   VITE_FIREBASE_MEASUREMENT_ID=your-measurement-id
+   ```
+
+4. **Start Firebase emulators (optional, for local development):**
+   ```bash
+   firebase emulators:start
+   ```
+
+5. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+
+   The app will be available at `http://localhost:3000`
+
+## Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server with hot reload |
+| `npm run build` | Build for production |
+| `npm run preview` | Preview production build locally |
+| `npm test` | Run tests in watch mode |
+| `npm run test:run` | Run tests once |
+| `npm run test:coverage` | Run tests with coverage report |
+| `npm run test:ui` | Run tests with Vitest UI |
+| `npm run lint` | Check code for linting errors |
+| `npm run lint:fix` | Fix linting errors automatically |
+| `npm run format` | Format code with Prettier |
+| `npm run format:check` | Check code formatting |
+| `npm run typecheck` | Run TypeScript type checking |
+| `npm run clean` | Clean build artifacts and cache |
+
+## Project Structure
+
+```
+oxygen/
+├── src/
+│   ├── components/
+│   │   ├── common/          # Generic reusable components
+│   │   ├── ui/              # shadcn/ui-style components (Button, Card, Input, etc.)
+│   │   ├── forms/           # React Hook Form components
+│   │   ├── dnd/             # dnd-kit drag-and-drop components
+│   │   └── partials/        # Partial/shared components
+│   ├── hooks/
+│   │   ├── api/             # API-related hooks
+│   │   └── useZodForm.ts    # Form hook with Zod validation
+│   ├── lib/
+│   │   ├── queryClient.ts   # TanStack Query configuration
+│   │   └── utils.ts         # Utility functions (cn, etc.)
+│   ├── modules/
+│   │   ├── auth/            # Authentication
+│   │   ├── Goals/           # OKR/Goals management
+│   │   ├── IssueDetails/    # Issue viewing/editing
+│   │   ├── Workspace/       # Project workspace (board, backlog, sprints)
+│   │   └── ...              # Other feature modules
+│   ├── services/            # Firebase/API service layer
+│   ├── stores/
+│   │   └── okrStore.ts      # Zustand stores
+│   ├── styles/
+│   │   ├── tailwind.css     # Tailwind CSS entry point
+│   │   ├── theme.ts         # Theme configuration
+│   │   └── *.scss           # SCSS stylesheets
+│   ├── types/
+│   │   └── schemas.ts       # Zod validation schemas
+│   └── index.tsx            # Application entry point
+├── vite.config.ts           # Vite configuration
+├── vitest.config.ts         # Vitest test configuration
+├── tailwind.config.ts       # Tailwind CSS configuration
+├── tsconfig.json            # TypeScript configuration
+└── package.json
 ```
 
-Install dependencies:
+## Architecture Overview
 
-```bash
-npm install 
+### State Management Strategy
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Application State                         │
+├─────────────────────────────────────────────────────────────┤
+│  Server State (TanStack Query)                              │
+│  - Issues, Sprints, Projects                                │
+│  - Automatic caching & background refetching                │
+│  - Optimistic updates                                       │
+├─────────────────────────────────────────────────────────────┤
+│  Client State (Zustand)                                     │
+│  - UI state, filters, selections                            │
+│  - Cross-component state                                    │
+├─────────────────────────────────────────────────────────────┤
+│  Local State (React Context / useState)                     │
+│  - Form state, component-specific state                     │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-Initialize the Emulator:
+### Component Patterns
 
-```bash
-firebase init emulators
-```
-Select "Firestore" and "Auth" from the list of available emulators.
+**Using the UI Components:**
+```tsx
+import { Button, Card, Input, Badge } from '@/components/ui'
 
-Start the Emulator
-
-```bash
-firebase emulators:start
-```
-
-Start Oxygen
-
-```bash
-npm start
+function MyComponent() {
+  return (
+    <Card>
+      <Input placeholder="Enter task name" />
+      <Badge variant="success">Active</Badge>
+      <Button variant="primary" size="sm">Save</Button>
+    </Card>
+  )
+}
 ```
 
-Compile Oxygen
+**Using React Hook Form with Zod:**
+```tsx
+import { useZodForm, commonSchemas } from '@/hooks/useZodForm'
+import { Form, FormInput } from '@/components/forms'
+import { z } from 'zod'
 
-```bash
-yarn build
+const schema = z.object({
+  title: commonSchemas.title,
+  description: commonSchemas.description,
+})
+
+function TaskForm() {
+  const form = useZodForm({ schema })
+
+  const onSubmit = (data) => {
+    console.log(data)
+  }
+
+  return (
+    <Form form={form} onSubmit={onSubmit}>
+      <FormInput name="title" label="Title" />
+      <FormInput name="description" label="Description" />
+      <Button type="submit">Create Task</Button>
+    </Form>
+  )
+}
 ```
 
-Publish on Firebase (if only hosting)
+**Using TanStack Query:**
+```tsx
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+
+// Fetching data
+const { data, isLoading, error } = useQuery({
+  queryKey: ['items', workspaceId],
+  queryFn: () => getItems(workspaceId, orgId),
+})
+
+// Mutating data
+const queryClient = useQueryClient()
+const mutation = useMutation({
+  mutationFn: updateItem,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['items', workspaceId] })
+  },
+})
+```
+
+**Using Zustand:**
+```tsx
+import { useOKRStore } from '@/stores/okrStore'
+
+function OKRComponent() {
+  const { selectedOKR, selectOKR, clearSelection } = useOKRStore()
+
+  return (
+    <div>
+      {selectedOKR && <span>{selectedOKR.name}</span>}
+      <button onClick={clearSelection}>Clear</button>
+    </div>
+  )
+}
+```
+
+## Styling
+
+The project uses a hybrid styling approach:
+
+1. **Tailwind CSS** (prefix: `tw-`) - For utility-first styling
+   ```tsx
+   <div className="tw-flex tw-items-center tw-gap-4 tw-p-4">
+   ```
+
+2. **Bootstrap** - For layout grid and existing components
+   ```tsx
+   <div className="card p-4 mb-3">
+   ```
+
+3. **SCSS** - For complex custom styles and theming
+   ```scss
+   .my-component {
+     background-color: var(--xgn-card-bg);
+     color: var(--xgn-text-color);
+   }
+   ```
+
+## Deployment
+
+### Build for Production
+
+```bash
+npm run build
+```
+
+This creates an optimized production build in the `build/` directory with:
+- Code splitting by vendor (React, Firebase, State, Calendar, Charts)
+- Source maps for debugging
+- Minified and tree-shaken bundles
+
+### Deploy to Firebase Hosting
 
 ```bash
 firebase deploy --only hosting
 ```
 
-## Firebase Configuration
-To configure Firebase for your project, follow these steps:
-
-Create a .env file in the root directory of your project.
-
-Add your Firebase configuration to the .env file. You can find these values in your Firebase project settings. The .env file should look like this:
+## Testing
 
 ```bash
-REACT_APP_FIREBASE_API_KEY=your-api-key
-REACT_APP_FIREBASE_AUTH_DOMAIN=your-auth-domain
-REACT_APP_FIREBASE_PROJECT_ID=your-project-id
-REACT_APP_FIREBASE_STORAGE_BUCKET=your-storage-bucket
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-REACT_APP_FIREBASE_APP_ID=your-app-id
-REACT_APP_FIREBASE_MEASUREMENT_ID=your-measurement-id
+# Run all tests
+npm test
+
+# Run tests once (CI mode)
+npm run test:run
+
+# Run with coverage
+npm run test:coverage
+
+# Run with UI
+npm run test:ui
 ```
-Save the .env file.
 
+Tests are written using Vitest and React Testing Library. Test files should be colocated with their components or placed in `__tests__` directories.
 
-## Motivation 
+## Motivation
 
-Oxygen started as a personal quest for a simpler, more powerful project management system. Frustrated with the bloat and cost of existing solutions like Jira, I set out to create something truly open and efficient.  While it's a solo endeavor for now, my hope is that Oxygen will resonate with others who share this vision.
+Oxygen started as a personal quest for a simpler, more powerful project management system. Frustrated with the bloat and cost of existing solutions like Jira, I set out to create something truly open and efficient.
 
-Why Oxygen?
+**Why Oxygen?**
 
-Escape the expensive trap: Tired of expensive licenses and complex setups? Oxygen offers a free and open alternative.
-Built for Speed: Oxygen is designed for a streamlined workflow, helping you focus on what matters most.
-Your Vision, Your Way: Customize and adapt Oxygen to perfectly match your unique needs and preferences.
-Transparency is Key: With Oxygen's open-source, you have complete control and visibility.
+- **Escape the expensive trap:** Tired of expensive licenses and complex setups? Oxygen offers a free and open alternative.
+- **Built for Speed:** Oxygen is designed for a streamlined workflow, helping you focus on what matters most.
+- **Your Vision, Your Way:** Customize and adapt Oxygen to perfectly match your unique needs and preferences.
+- **Transparency is Key:** With Oxygen's open-source nature, you have complete control and visibility.
 
-Oxygen embraces the open-source philosophy:
+## Not Agile?
 
-Reduced Costs: Eliminate licensing fees and redirect resources towards customization and innovation.
-Improved Quality: Harness the collective intelligence of a global community to identify and resolve bugs faster.
-Rapid Development: Embrace agile methodologies and accelerate your development cycles.
-Future-Proof Solutions: Open source fosters continuous improvement and adaptability, ensuring your software remains relevant.
-Community Support: Tap into a vast network of experts and enthusiasts ready to help you succeed.
+Oxygen uses and makes the most of agile methodology, but you don't have to be an expert to use it. You don't even have to know anything about agile to start managing your projects.
 
-While Oxygen is currently a one-person show, your support can make a big difference.  Even if you're not a developer, you can contribute by:
+## Support
 
-Testing Oxygen and providing feedback.
-Spreading the word about the project.
-Sharing your ideas and feature requests.
-Oxygen may be a solo project for now, but with your help, it can become something truly special. Let's build a better ticketing system together!
+- Community support via GitHub Issues
+- Documentation in the `docs/` folder
 
+## Contributing
 
-## Not agile ?
+Contributions are welcome! Please read our contributing guidelines before submitting PRs.
 
-Oxygen uses and make the most of agile methodologie, but you do not have to be an expert to use it. You don't even have to know anything about agile to start managing your projects.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
+## License
 
-### Support 👩‍⚕️
-
-- For now it's community support only.
-
-
-## Collaboration
-
-I really hope to motivate other to join me to build the best sets of tool ever build to help everyone, and every organisation to acheive more. 
-Do not hesitate to be in touch. 
+This project is open source. See the LICENSE file for details.

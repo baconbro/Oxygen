@@ -3,9 +3,10 @@ import {AuthModel, UserModel} from './_models'
 import * as FirestoreService from '../../../services/firestore'
 // Add import for userServices
 import { getUser, getOrgUsers } from '../../../services/userServices'
+import {env} from '../../../utils/env'
 
 
-const API_URL = process.env.REACT_APP_API_URL
+const API_URL = env.apiUrl
 
 export const GET_USER_BY_ACCESSTOKEN_URL = `${API_URL}/verify_token`
 export const LOGIN_URL = `${API_URL}/login`

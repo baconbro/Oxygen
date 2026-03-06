@@ -60,7 +60,6 @@ const chartptions = (chartColor, chartHeight, kr) => {
 
   const categories = Array.from({ length: numberOfWeeks }, (_, i) => `Week ${i + 1}`);
 
-console.log(data)
   return {
     series: [
       {

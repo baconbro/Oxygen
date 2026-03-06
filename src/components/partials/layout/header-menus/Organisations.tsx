@@ -4,9 +4,7 @@ import {FC, Key, useEffect} from 'react'
 import { useAuth } from '../../../../modules/auth'
 
 import { useState } from 'react'
-import { editUser } from '../../../../services/firestore'
-import { string } from 'yup'
-import { getOrgs } from '../../../../services/firestore'
+import { editUser, getOrgs } from '../../../../services/firestore'
 import { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore'
 
 
@@ -29,9 +27,8 @@ const Organisations: FC = () => {
         } else {
         }
       })
-      .catch((error) => console.log(error));
+      .catch(() => {});
       setSpacesC(a)
-      {if(currentOrg &&  organisationsC) {console.log(organisationsC[0])}}
  
   }, [])
   const [currentOrg, setcurrentOrg] = useState<any | null>(currentUser?.all?.currentOrg ?? currentUser?.all?.orgs[0]);

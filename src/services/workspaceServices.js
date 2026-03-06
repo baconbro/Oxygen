@@ -1,5 +1,5 @@
 import { collection, getDocs, updateDoc, doc, query, where, getDoc, collectionGroup } from 'firebase/firestore';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '../services/firestore';
 
 const getSpaces = async (orgId) => {
@@ -48,7 +48,6 @@ const getSpaceConfig = async (id, orgId) => {
 };
 
 const updateWorkspace = async (values, workspaceId, orgId) => {
-  console.log('values: ', values, 'workspaceId: ', workspaceId, 'orgId: ', orgId);
   try {
     // Deep clean to remove undefined values Firestore doesn't accept
     const deepClean = (obj) => {
@@ -83,18 +82,22 @@ const updateWorkspace = async (values, workspaceId, orgId) => {
   }
 };
 
-// React Query hooks
+// React Query hooks (TanStack Query 5)
 export const useGetSpaces = (orgId) => {
-  return useQuery(['Workspaces', orgId], () => getSpaces(orgId), {
+  return useQuery({
+    queryKey: ['Workspaces', orgId],
+    queryFn: () => getSpaces(orgId),
     enabled: !!orgId,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
 
 export const useGetSpace = (id, orgId) => {
-  return useQuery(['Workspace', id], () => getSpace(id, orgId), {
+  return useQuery({
+    queryKey: ['Workspace', id],
+    queryFn: () => getSpace(id, orgId),
     enabled: !!id,
-    staleTime: 1000 * 60 * 1, // 1 minutes
+    staleTime: 1000 * 60 * 1, // 1 minute
   });
 };
 
@@ -114,7 +117,9 @@ const getSpaceByAcronym = async (acronym, orgId) => {
 };
 
 export const useGetSpaceByAcronym = (acronym, orgId) => {
-  return useQuery(['WorkspaceByAcronym', acronym, orgId], () => getSpaceByAcronym(acronym, orgId), {
+  return useQuery({
+    queryKey: ['WorkspaceByAcronym', acronym, orgId],
+    queryFn: () => getSpaceByAcronym(acronym, orgId),
     enabled: !!acronym && !!orgId,
     staleTime: 1000 * 60 * 1,
   });
@@ -122,9 +127,10 @@ export const useGetSpaceByAcronym = (acronym, orgId) => {
 
 export const useUpdateWorkspace = () => {
   const queryClient = useQueryClient();
-  const mutation = useMutation(({ values, workspaceId, orgId }) => updateWorkspace(values, workspaceId, orgId), {
+  const mutation = useMutation({
+    mutationFn: ({ values, workspaceId, orgId }) => updateWorkspace(values, workspaceId, orgId),
     onSuccess: (_, { workspaceId }) => {
-      queryClient.invalidateQueries(['Workspace', workspaceId]);
+      queryClient.invalidateQueries({ queryKey: ['Workspace', workspaceId] });
     },
   });
   return mutation.mutate;

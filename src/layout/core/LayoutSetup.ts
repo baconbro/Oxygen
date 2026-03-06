@@ -11,8 +11,9 @@ import {
   IPageTitle,
 } from './LayoutModels'
 import {DefaultLayoutConfig} from './DefaultLayoutConfig'
+import {env} from '../../utils/env'
 
-const LAYOUT_CONFIG_KEY = process.env.REACT_APP_BASE_LAYOUT_CONFIG_KEY || 'LayoutConfig'
+const LAYOUT_CONFIG_KEY = env.layoutConfigKey
 
 export function getLayout(): ILayout {
   const ls = localStorage.getItem(LAYOUT_CONFIG_KEY)

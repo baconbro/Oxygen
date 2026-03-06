@@ -18,7 +18,7 @@ const SpaceItem = ({org}) => {
 				});
 				setSpaces(a)
 			})
-			.catch((error) => console.log(error));
+			.catch(() => {});
 
 
 	}, []);

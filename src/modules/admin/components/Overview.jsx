@@ -36,7 +36,7 @@ const AdminOverview = () => {
                 setUsers(response.users);
                 setOrg({ users: response.users });
             })
-            .catch((error) => console.log(error));
+            .catch(() => {});
     }
 
     const [show, setShow] = useState(false);

@@ -1,5 +1,5 @@
 import { collection, getDocs, addDoc, query, where, setDoc, deleteDoc } from 'firebase/firestore';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from './firestore';
 
 
@@ -70,9 +70,11 @@ const deleteWorkPackage = async (orgId, wpgId) => {
   });
 };
 
-// React Query hooks
+// React Query hooks (TanStack Query 5)
 export const useGetWorkPackages = (id, orgId) => {
-  return useQuery(['WorkPackages', orgId], () => getWorkPackages(id, orgId), {
+  return useQuery({
+    queryKey: ['WorkPackages', orgId],
+    queryFn: () => getWorkPackages(id, orgId),
     enabled: !!orgId,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -80,9 +82,10 @@ export const useGetWorkPackages = (id, orgId) => {
 
 export const useUpdateWorkPackage = () => {
   const queryClient = useQueryClient();
-  const mutation = useMutation(({ orgId, values, wpgId, wpId }) => updateWorkPackage(orgId, values, wpgId, wpId), {
+  const mutation = useMutation({
+    mutationFn: ({ orgId, values, wpgId, wpId }) => updateWorkPackage(orgId, values, wpgId, wpId),
     onSuccess: (_, { orgId }) => {
-      queryClient.invalidateQueries(['WorkPackages', orgId]);
+      queryClient.invalidateQueries({ queryKey: ['WorkPackages', orgId] });
     },
   });
   return mutation.mutate;
@@ -90,9 +93,10 @@ export const useUpdateWorkPackage = () => {
 
 export const useAddWorkPackage = () => {
   const queryClient = useQueryClient();
-  const mutation = useMutation(({ orgId, item }) => addWorkPackage(orgId, item), {
+  const mutation = useMutation({
+    mutationFn: ({ orgId, item }) => addWorkPackage(orgId, item),
     onSuccess: (_, { orgId }) => {
-      queryClient.invalidateQueries(['WorkPackages', orgId]);
+      queryClient.invalidateQueries({ queryKey: ['WorkPackages', orgId] });
     },
   });
 
@@ -101,9 +105,10 @@ export const useAddWorkPackage = () => {
 
 export const useDeleteWorkPackage = () => {
   const queryClient = useQueryClient();
-  const mutation = useMutation(({ orgId, wpgId }) => deleteWorkPackage(orgId, wpgId), {
+  const mutation = useMutation({
+    mutationFn: ({ orgId, wpgId }) => deleteWorkPackage(orgId, wpgId),
     onSuccess: (_, { orgId }) => {
-      queryClient.invalidateQueries(['WorkPackages', orgId]);
+      queryClient.invalidateQueries({ queryKey: ['WorkPackages', orgId] });
     },
   });
 

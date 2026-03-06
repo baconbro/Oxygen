@@ -104,7 +104,7 @@ const Project = () => {
             }
           }
         } else {
-          console.log('space-not-found');
+          // Space not found
         }
       } catch (error) {
         console.error(error);

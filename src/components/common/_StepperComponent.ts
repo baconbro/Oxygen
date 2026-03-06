@@ -277,7 +277,7 @@ class StepperComponent {
   }
 
   public destroy = () => {
-    console.log('destroy stepper')
+    // Cleanup stepper resources
   }
 
   public trigger = (name: string, event: Event) => {

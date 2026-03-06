@@ -16,7 +16,6 @@ const TagsComponent = ({ issue, updateIssue }) => {
   }
 
   const onChange = useCallback(e => {
-    console.log({ tags: e.detail.tagify.getCleanValue() })
     updateIssue({ tags: e.detail.tagify.getCleanValue() })
   }, [])
 

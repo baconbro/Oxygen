@@ -1,7 +1,8 @@
 import {FC, createContext, useContext} from 'react'
 import {WithChildren} from '../utils'
+import {env} from '../utils/env'
 
-const I18N_CONFIG_KEY = process.env.REACT_APP_I18N_CONFIG_KEY || 'i18nConfig'
+const I18N_CONFIG_KEY = env.i18nConfigKey
 
 type Props = {
   selectedLang: 'en' |  'fr' 

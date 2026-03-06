@@ -75,7 +75,7 @@ const ProjectBoardIssueDetails = ({
             });
           } else {
             // Handle the case where no item was found
-            console.log(`No item found with id ${id.issueId} in workspace ${project.id}`);
+            // No item found
           }
         },
         (error) => console.error('Error fetching item:', error)
