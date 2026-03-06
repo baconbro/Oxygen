@@ -9,7 +9,7 @@ const KRTable = ({ parentGoalId }) => {
   const navigate = useNavigate();
 
   const filteredGoals = (goals || []).filter(
-    goal => String(goal.parent) === String(parentGoalId) && goal.type === 'kr'
+    goal => String(goal.parent) === String(parentGoalId) && (goal.type === 'kr' || goal.type === 'key_result')
   );
 
   const handleRowClick = (goal) => {
@@ -60,11 +60,11 @@ const KRTable = ({ parentGoalId }) => {
               </div>
               <div className="d-flex align-items-center gap-2 ms-3">
                 <Status
-                  className={`btn btn-sm btn-${customStatus.IssueStatusClass[goal.status]}`}
+                  className={`btn btn-sm btn-${customStatus.IssueStatusClass[goal.status] || 'secondary'}`}
                   color={goal.status}
                   style={{ fontSize: '0.75rem', padding: '2px 8px' }}
                 >
-                  {customStatus.IssueStatusCopy[goal.status]}
+                  {customStatus.IssueStatusCopy[goal.status] || goal.status}
                 </Status>
               </div>
             </div>
@@ -92,6 +92,15 @@ const KRTable = ({ parentGoalId }) => {
                 )}
               </div>
             </div>
+
+            {/* Tags */}
+            {goal.tags && goal.tags.length > 0 && (
+              <div className="d-flex gap-1 mt-2">
+                {goal.tags.map(tag => (
+                  <span key={tag} className="badge badge-light fs-9">{tag}</span>
+                ))}
+              </div>
+            )}
           </div>
         );
       })}

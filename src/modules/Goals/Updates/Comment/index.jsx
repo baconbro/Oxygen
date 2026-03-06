@@ -91,30 +91,67 @@ const DetailsUpdate = ({ comment, issue, updateIssue, object }) => {
                   {hasStatusChange && (
                     <>
                       <Status
-                        className={`btn btn-sm btn-${customStatus.IssueStatusClass[comment.oldStatus]}`}
+                        className={`btn btn-sm btn-${customStatus.IssueStatusClass[comment.oldStatus] || 'secondary'}`}
                         color={comment.oldStatus}
                         style={{ fontSize: '0.7rem', padding: '1px 6px' }}
                       >
-                        {customStatus.IssueStatusCopy[comment.oldStatus]}
+                        {customStatus.IssueStatusCopy[comment.oldStatus] || comment.oldStatus}
                       </Status>
                       <i className="bi bi-arrow-right text-gray-400 fs-8"></i>
                     </>
                   )}
                   <Status
-                    className={`btn btn-sm btn-${customStatus.IssueStatusClass[comment.newStatus]}`}
+                    className={`btn btn-sm btn-${customStatus.IssueStatusClass[comment.newStatus] || 'secondary'}`}
                     color={comment.newStatus}
                     style={{ fontSize: '0.7rem', padding: '1px 6px' }}
                   >
-                    {customStatus.IssueStatusCopy[comment.newStatus]}
+                    {customStatus.IssueStatusCopy[comment.newStatus] || comment.newStatus}
                   </Status>
                 </div>
               )}
             </div>
 
-            {/* Comment body */}
+            {/* Summary / Comment body */}
             {comment.body && (
               <div className="mt-3 pt-3 border-top border-gray-200">
                 <span className="text-gray-700 fs-7">{comment.body}</span>
+              </div>
+            )}
+
+            {/* Structured fields from StatusUpdateComposer */}
+            {comment.risks && (
+              <div className="mt-2 pt-2 border-top border-gray-100">
+                <div className="d-flex align-items-start gap-2">
+                  <i className="bi bi-exclamation-triangle text-danger fs-8 mt-1"></i>
+                  <div>
+                    <span className="text-gray-500 fs-8 fw-semibold">Risks: </span>
+                    <span className="text-gray-600 fs-8">{comment.risks}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {comment.decisions && (
+              <div className="mt-2 pt-2 border-top border-gray-100">
+                <div className="d-flex align-items-start gap-2">
+                  <i className="bi bi-signpost-split text-primary fs-8 mt-1"></i>
+                  <div>
+                    <span className="text-gray-500 fs-8 fw-semibold">Decisions: </span>
+                    <span className="text-gray-600 fs-8">{comment.decisions}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {comment.learnings && (
+              <div className="mt-2 pt-2 border-top border-gray-100">
+                <div className="d-flex align-items-start gap-2">
+                  <i className="bi bi-lightbulb text-success fs-8 mt-1"></i>
+                  <div>
+                    <span className="text-gray-500 fs-8 fw-semibold">Learnings: </span>
+                    <span className="text-gray-600 fs-8">{comment.learnings}</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>

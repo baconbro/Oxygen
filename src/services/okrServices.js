@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, query, where, setDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where, setDoc, deleteDoc, doc, orderBy } from 'firebase/firestore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '../services/firestore';
 
@@ -44,6 +44,53 @@ const deleteOKR = async (orgId, itemId) => {
   const data = firstDoc.data();
   await deleteDoc(firstDoc.ref);
   return data;
+};
+
+// --- Status Updates Subcollection ---
+
+const addStatusUpdate = async (orgId, goalDocId, statusUpdate) => {
+  const updatesCollection = collection(db, "organisation", orgId, "goals", goalDocId, "statusUpdates");
+  const docRef = await addDoc(updatesCollection, {
+    ...statusUpdate,
+    createdAt: Math.floor(Date.now()),
+  });
+  return { id: docRef.id, ...statusUpdate };
+};
+
+const fetchStatusUpdates = async (orgId, goalDocId) => {
+  if (!orgId || !goalDocId) return [];
+  const updatesCollection = collection(db, "organisation", orgId, "goals", goalDocId, "statusUpdates");
+  const snapshot = await getDocs(updatesCollection);
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+
+const deleteStatusUpdate = async (orgId, goalDocId, updateId) => {
+  const updateRef = doc(db, "organisation", orgId, "goals", goalDocId, "statusUpdates", updateId);
+  await deleteDoc(updateRef);
+  return updateId;
+};
+
+// --- Saved Views ---
+
+const fetchSavedViews = async (orgId) => {
+  const viewsCollection = collection(db, "organisation", orgId, "savedGoalViews");
+  const snapshot = await getDocs(viewsCollection);
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+
+const addSavedView = async (orgId, view) => {
+  const viewsCollection = collection(db, "organisation", orgId, "savedGoalViews");
+  const docRef = await addDoc(viewsCollection, {
+    ...view,
+    createdAt: Math.floor(Date.now()),
+  });
+  return { id: docRef.id, ...view };
+};
+
+const deleteSavedView = async (orgId, viewId) => {
+  const viewRef = doc(db, "organisation", orgId, "savedGoalViews", viewId);
+  await deleteDoc(viewRef);
+  return viewId;
 };
 
 // React Query hooks
@@ -103,4 +150,71 @@ export const fetchSingleOKR = async (orgId, goalId) => {
 
   const firstDoc = querySnapshot.docs[0];
   return { id: firstDoc.id, ...firstDoc.data() };
+};
+
+// --- Status Updates hooks ---
+
+export const useFetchStatusUpdates = (orgId, goalDocId) => {
+  return useQuery({
+    queryKey: ['statusUpdates', orgId, goalDocId],
+    queryFn: () => fetchStatusUpdates(orgId, goalDocId),
+    enabled: !!orgId && !!goalDocId,
+    staleTime: 1000 * 60 * 2,
+  });
+};
+
+export const useAddStatusUpdate = () => {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: ({ orgId, goalDocId, statusUpdate }) => addStatusUpdate(orgId, goalDocId, statusUpdate),
+    onSuccess: (_, { orgId, goalDocId }) => {
+      queryClient.invalidateQueries({ queryKey: ['statusUpdates', orgId, goalDocId] });
+      queryClient.invalidateQueries({ queryKey: ['okrs', orgId] });
+    },
+  });
+  return mutation;
+};
+
+export const useDeleteStatusUpdate = () => {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: ({ orgId, goalDocId, updateId }) => deleteStatusUpdate(orgId, goalDocId, updateId),
+    onSuccess: (_, { orgId, goalDocId }) => {
+      queryClient.invalidateQueries({ queryKey: ['statusUpdates', orgId, goalDocId] });
+    },
+  });
+  return mutation;
+};
+
+// --- Saved Views hooks ---
+
+export const useFetchSavedViews = (orgId) => {
+  return useQuery({
+    queryKey: ['savedGoalViews', orgId],
+    queryFn: () => fetchSavedViews(orgId),
+    enabled: !!orgId,
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
+export const useAddSavedView = () => {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: ({ orgId, view }) => addSavedView(orgId, view),
+    onSuccess: (_, { orgId }) => {
+      queryClient.invalidateQueries({ queryKey: ['savedGoalViews', orgId] });
+    },
+  });
+  return mutation;
+};
+
+export const useDeleteSavedView = () => {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: ({ orgId, viewId }) => deleteSavedView(orgId, viewId),
+    onSuccess: (_, { orgId }) => {
+      queryClient.invalidateQueries({ queryKey: ['savedGoalViews', orgId] });
+    },
+  });
+  return mutation;
 };

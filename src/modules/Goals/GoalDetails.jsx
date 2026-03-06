@@ -13,7 +13,14 @@ import { useWorkspace } from '../../contexts/WorkspaceProvider';
 import { InputDebounced } from '../../components/common';
 import { isNil } from 'lodash';
 import DatePicker from '../../components/common/DatePicker';
-import { customStatus, getScoreColor, goalType } from '../../constants/custom';
+import {
+  customStatus,
+  getScoreColor,
+  goalType,
+  goalVisibilityCopy,
+  scoringMethodCopy,
+  updateCadenceCopy,
+} from '../../constants/custom';
 import { useUpdateOKR, fetchSingleOKR } from '../../services/okrServices';
 import { Avatar, Select, Icon } from '../../components/common';
 import { User, Username } from '../IssueDetails/Reporter/Styles';
@@ -22,6 +29,7 @@ import { Modal } from 'react-bootstrap';
 import InputValue from './inputValue';
 import CommentsComponent from './Comments';
 import UpdatesComponent from './Updates';
+import StatusUpdateComposer from './StatusUpdateComposer';
 import WorkLink from './workLink';
 import KrGraph from './KrGraph';
 
@@ -37,6 +45,7 @@ const GoalDetails = () => {
   const { search } = useLocation();
   const [isLoading, setIsLoading] = useState(true);
   const [isEditingScore, setIsEditingScore] = useState(false);
+  const [showUpdateComposer, setShowUpdateComposer] = useState(false);
 
   const orgUsersArray = Object.values(orgUsers?.users || {}).map((user) => ({ ...user }));
 
@@ -125,8 +134,9 @@ const GoalDetails = () => {
 
   const getGoalById = goalId => goals?.find(goal => goal.id === goalId);
 
-  const isObjective = issue.type !== 'kr';
+  const isObjective = issue.type === 'objective' || issue.type === 'obj';
   const isKeyResult = issue.type === 'kr';
+  const isInitiative = issue.type === 'initiative';
 
   // Progress calculation
   const getProgress = () => {
@@ -155,12 +165,43 @@ const GoalDetails = () => {
 
   const parentGoal = issue.parent ? getGoalById(issue.parent) : null;
 
+  // Followers
+  const followers = issue.followerIds || [];
+  const isFollowing = followers.includes(currentUser?.all?.uid);
+
+  const handleToggleFollow = () => {
+    const newFollowers = isFollowing
+      ? followers.filter(id => id !== currentUser.all.uid)
+      : [...followers, currentUser.all.uid];
+    updateIssue({ followerIds: newFollowers });
+  };
+
+  // Archive / Pause
+  const handleToggleArchive = () => {
+    updateIssue({ isArchived: !issue.isArchived });
+  };
+
+  const handleTogglePause = () => {
+    if (issue.isPaused) {
+      updateIssue({ isPaused: false, status: 'pending' });
+    } else {
+      updateIssue({ isPaused: true, status: 'paused' });
+    }
+  };
+
+  // Child items for objectives
+  const childGoals = (goals || []).filter(g => String(g.parent) === String(issue.id));
+  const childKRs = childGoals.filter(g => g.type === 'kr');
+  const childInitiatives = childGoals.filter(g => g.type === 'initiative');
+
   // Section navigation items
   const sections = [
     { key: 'updates', label: 'Check-ins', icon: 'bi-graph-up-arrow' },
     ...(isObjective ? [{ key: 'keyresults', label: 'Key Results', icon: 'bi-list-check' }] : []),
+    ...(isObjective ? [{ key: 'initiatives', label: 'Initiatives', icon: 'bi-lightning' }] : []),
     ...(isKeyResult ? [{ key: 'progress', label: 'Progress', icon: 'bi-bar-chart-line' }] : []),
-    ...(isKeyResult ? [{ key: 'worklinked', label: 'Linked Work', icon: 'bi-link-45deg' }] : []),
+    ...((isKeyResult || isInitiative) ? [{ key: 'worklinked', label: 'Linked Work', icon: 'bi-link-45deg' }] : []),
+    ...(issue.metrics && issue.metrics.length > 0 ? [{ key: 'metrics', label: 'Metrics', icon: 'bi-speedometer2' }] : []),
     { key: 'learning', label: 'Learnings', icon: 'bi-lightbulb' },
     { key: 'risks', label: 'Risks', icon: 'bi-exclamation-triangle' },
     { key: 'comments', label: 'Comments', icon: 'bi-chat-dots' },
@@ -185,13 +226,60 @@ const GoalDetails = () => {
               <i className="bi bi-chevron-right mx-2 fs-8"></i>
             </span>
           )}
-          <span className={`badge badge-${goalType.IssueStatusClass[issue.type]}`}>
+          <span className={`badge badge-${goalType.IssueStatusClass[issue.type] || 'light-primary'}`}>
             {goalType.IssueStatusCopy[issue.type] || 'Goal'}
           </span>
+          {issue.isArchived && (
+            <span className="badge badge-light-dark">
+              <i className="bi bi-archive me-1"></i> Archived
+            </span>
+          )}
+          {issue.isPaused && (
+            <span className="badge badge-light-warning">
+              <i className="bi bi-pause-circle me-1"></i> Paused
+            </span>
+          )}
         </div>
         <div className="d-flex align-items-center gap-2">
+          {/* Follow button */}
+          <button
+            className={`btn btn-sm ${isFollowing ? 'btn-light-primary' : 'btn-light'}`}
+            onClick={handleToggleFollow}
+            title={isFollowing ? 'Unfollow' : 'Follow to get updates'}
+          >
+            <i className={`bi ${isFollowing ? 'bi-bell-fill' : 'bi-bell'} me-1`}></i>
+            {isFollowing ? 'Following' : 'Follow'}
+            {followers.length > 0 && (
+              <span className="badge badge-light ms-1">{followers.length}</span>
+            )}
+          </button>
+
           <CopyLinkButton variant="empty" className="btn btn-sm btn-light" />
-          <Delete issue={issue} modalClose={false} />
+
+          {/* More actions dropdown */}
+          <div className="dropdown">
+            <button className="btn btn-sm btn-light btn-icon" data-bs-toggle="dropdown">
+              <i className="bi bi-three-dots"></i>
+            </button>
+            <ul className="dropdown-menu dropdown-menu-end">
+              <li>
+                <button className="dropdown-item" onClick={handleTogglePause}>
+                  <i className={`bi ${issue.isPaused ? 'bi-play-circle' : 'bi-pause-circle'} me-2`}></i>
+                  {issue.isPaused ? 'Resume' : 'Pause'}
+                </button>
+              </li>
+              <li>
+                <button className="dropdown-item" onClick={handleToggleArchive}>
+                  <i className={`bi ${issue.isArchived ? 'bi-box-arrow-up' : 'bi-archive'} me-2`}></i>
+                  {issue.isArchived ? 'Unarchive' : 'Archive'}
+                </button>
+              </li>
+              <li><hr className="dropdown-divider" /></li>
+              <li>
+                <Delete issue={issue} modalClose={false} />
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -291,12 +379,6 @@ const GoalDetails = () => {
                     <div className="fw-semibold fs-7 text-gray-500">Unit</div>
                   </div>
                 </div>
-                <div className="notice d-flex bg-light-primary rounded border-primary border border-dashed p-4 mt-4">
-                  <i className="bi bi-info-circle-fill fs-5 text-primary me-3 mt-1"></i>
-                  <div className="text-gray-700 fs-7">
-                    Update the <strong>current value</strong> by clicking it directly, or use the <strong>Check-ins</strong> section below to log progress with context. Each check-in records both the new value and a status update.
-                  </div>
-                </div>
               </div>
             </div>
           )}
@@ -319,7 +401,7 @@ const GoalDetails = () => {
                   ></div>
                 </div>
                 <div className="text-gray-500 fs-7">
-                  Calculated from the average progress of all key results below.
+                  Calculated from the average progress of {childKRs.length} key result{childKRs.length !== 1 ? 's' : ''}.
                 </div>
               </div>
             </div>
@@ -332,6 +414,7 @@ const GoalDetails = () => {
                 <div className="card-title d-flex align-items-center">
                   <i className="bi bi-list-check fs-4 text-primary me-2"></i>
                   <h3 className="fw-bold text-gray-800 m-0 fs-5">Key Results</h3>
+                  <span className="badge badge-light ms-2">{childKRs.length}</span>
                 </div>
                 <div className="card-toolbar">
                   <button className="btn btn-primary btn-sm" onClick={handleOpenModal}>
@@ -341,14 +424,49 @@ const GoalDetails = () => {
               </div>
               <div className="card-body pt-3">
                 <KRTable parentGoalId={issue.id} />
-                {(!goals || goals.filter(g => String(g.parent) === String(issue.id) && g.type === 'kr').length === 0) && (
+                {childKRs.length === 0 && (
                   <div className="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4 mt-2">
                     <i className="bi bi-lightbulb-fill fs-5 text-warning me-3 mt-1"></i>
                     <div className="text-gray-700 fs-7">
-                      <strong>OKR Tip:</strong> Each objective should have 2-5 measurable key results. Key results answer "How will I know if I've achieved this objective?" They should be specific, measurable, and time-bound.
+                      <strong>OKR Tip:</strong> Each objective should have 2-5 measurable key results. Key results answer "How will I know if I've achieved this objective?"
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* Inline Initiatives for Objectives */}
+          {isObjective && childInitiatives.length > 0 && (
+            <div className="card card-flush border-0 mb-5">
+              <div className="card-header pt-5 pb-0 border-0">
+                <div className="card-title d-flex align-items-center">
+                  <i className="bi bi-lightning fs-4 text-warning me-2"></i>
+                  <h3 className="fw-bold text-gray-800 m-0 fs-5">Initiatives</h3>
+                  <span className="badge badge-light ms-2">{childInitiatives.length}</span>
+                </div>
+              </div>
+              <div className="card-body pt-3">
+                <div className="d-flex flex-column gap-3">
+                  {childInitiatives.map(initiative => (
+                    <div
+                      key={initiative.id}
+                      onClick={() => navigate(`/goals/details?id=${initiative.id}`)}
+                      className="border border-gray-300 border-dashed rounded p-4 cursor-pointer bg-hover-light-warning"
+                      style={{ transition: 'background-color 0.15s ease' }}
+                    >
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="d-flex align-items-center gap-3">
+                          <i className="bi bi-lightning text-warning"></i>
+                          <span className="fw-semibold text-gray-800">{initiative.title}</span>
+                        </div>
+                        <span className={`badge badge-${customStatus.IssueStatusClass[initiative.status] || 'secondary'}`}>
+                          {customStatus.IssueStatusCopy[initiative.status] || initiative.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -373,14 +491,28 @@ const GoalDetails = () => {
             <div className="card-body pt-5">
               {activeSection === 'updates' && (
                 <div>
-                  <div className="d-flex align-items-start mb-5">
-                    <div className="notice d-flex bg-light-info rounded border-info border border-dashed p-4 flex-fill">
-                      <i className="bi bi-info-circle-fill fs-5 text-info me-3 mt-1"></i>
-                      <div className="text-gray-700 fs-7">
-                        <strong>Regular check-ins</strong> keep your team aligned. Log progress, update the score and status, and add context about what's changed. Aim for weekly or bi-weekly check-ins.
-                      </div>
+                  {/* Structured Update Composer */}
+                  {showUpdateComposer ? (
+                    <div className="mb-5">
+                      <StatusUpdateComposer
+                        issue={issue}
+                        updateIssue={updateIssue}
+                        onCancel={() => setShowUpdateComposer(false)}
+                      />
                     </div>
-                  </div>
+                  ) : (
+                    <div className="mb-5">
+                      <button
+                        onClick={() => setShowUpdateComposer(true)}
+                        className="btn btn-outline btn-outline-primary btn-active-light-primary w-100 d-flex align-items-center justify-content-center gap-2 py-4"
+                      >
+                        <i className="bi bi-pencil-square"></i>
+                        <span>Post a status update</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Legacy check-ins */}
                   <UpdatesComponent issue={issue} updateIssue={updateIssue} object="updates" />
                 </div>
               )}
@@ -396,6 +528,43 @@ const GoalDetails = () => {
                 </div>
               )}
 
+              {activeSection === 'initiatives' && isObjective && (
+                <div>
+                  {childInitiatives.length > 0 ? (
+                    <div className="d-flex flex-column gap-3">
+                      {childInitiatives.map(initiative => (
+                        <div
+                          key={initiative.id}
+                          onClick={() => navigate(`/goals/details?id=${initiative.id}`)}
+                          className="border border-gray-300 border-dashed rounded p-4 cursor-pointer bg-hover-light-warning"
+                        >
+                          <div className="d-flex align-items-center justify-content-between">
+                            <div className="d-flex align-items-center gap-3">
+                              <i className="bi bi-lightning text-warning"></i>
+                              <span className="fw-semibold text-gray-800">{initiative.title}</span>
+                            </div>
+                            <span className={`badge badge-${customStatus.IssueStatusClass[initiative.status] || 'secondary'}`}>
+                              {customStatus.IssueStatusCopy[initiative.status] || initiative.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="d-flex flex-column align-items-center py-8">
+                      <i className="bi bi-lightning fs-2x text-gray-300 mb-3"></i>
+                      <div className="text-gray-500 fw-semibold mb-1">No initiatives yet</div>
+                      <div className="text-gray-400 fs-7">Add initiatives to track the work that drives this objective.</div>
+                    </div>
+                  )}
+                  <div className="mt-4">
+                    <button className="btn btn-warning btn-sm" onClick={handleOpenModal}>
+                      <i className="bi bi-plus me-1"></i> Add Initiative
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {activeSection === 'progress' && isKeyResult && (
                 <KrGraph
                   kr={issue}
@@ -405,15 +574,31 @@ const GoalDetails = () => {
                 />
               )}
 
-              {activeSection === 'worklinked' && isKeyResult && (
+              {activeSection === 'worklinked' && (isKeyResult || isInitiative) && (
                 <div>
                   <div className="notice d-flex bg-light-primary rounded border-primary border border-dashed p-4 mb-5">
                     <i className="bi bi-link-45deg fs-5 text-primary me-3 mt-1"></i>
                     <div className="text-gray-700 fs-7">
-                      Link work items (tasks, stories, bugs) to this key result to track how execution contributes to your goal. Link items from any workspace's issue detail page.
+                      Link work items (tasks, stories, bugs) to this {isKeyResult ? 'key result' : 'initiative'} to track how execution contributes to your goal.
                     </div>
                   </div>
                   <WorkLink issueId={issue.id} />
+                </div>
+              )}
+
+              {activeSection === 'metrics' && issue.metrics && issue.metrics.length > 0 && (
+                <div>
+                  <div className="row g-4">
+                    {issue.metrics.map((metric, idx) => (
+                      <div key={metric.id || idx} className="col-md-6">
+                        <MetricCard metric={metric} onUpdate={(updated) => {
+                          const newMetrics = [...issue.metrics];
+                          newMetrics[idx] = { ...newMetrics[idx], ...updated };
+                          updateIssue({ metrics: newMetrics });
+                        }} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -422,7 +607,7 @@ const GoalDetails = () => {
                   <div className="notice d-flex bg-light-success rounded border-success border border-dashed p-4 mb-5">
                     <i className="bi bi-lightbulb-fill fs-5 text-success me-3 mt-1"></i>
                     <div className="text-gray-700 fs-7">
-                      Capture insights and lessons as you work toward this goal. What's working? What did you learn? These notes help with retrospectives and future planning.
+                      Capture insights and lessons as you work toward this goal.
                     </div>
                   </div>
                   <CommentsComponent issue={issue} updateIssue={updateIssue} object="learnings" />
@@ -434,7 +619,7 @@ const GoalDetails = () => {
                   <div className="notice d-flex bg-light-danger rounded border-danger border border-dashed p-4 mb-5">
                     <i className="bi bi-exclamation-triangle-fill fs-5 text-danger me-3 mt-1"></i>
                     <div className="text-gray-700 fs-7">
-                      Document blockers, dependencies, and risks that could prevent this goal from being achieved. Flagging risks early helps the team address them before they become problems.
+                      Document blockers, dependencies, and risks that could prevent this goal from being achieved.
                     </div>
                   </div>
                   <CommentsComponent issue={issue} updateIssue={updateIssue} object="risks" />
@@ -499,10 +684,82 @@ const GoalDetails = () => {
                 </div>
               )}
 
+              {/* Scoring method */}
+              {issue.scoringMethod && (
+                <div className="mb-5">
+                  <label className="form-label fw-semibold text-gray-600 fs-7 mb-1">Scoring Method</label>
+                  <div>
+                    <Select
+                      variant="empty"
+                      dropdownWidth={200}
+                      withClearValue={false}
+                      name="scoringMethod"
+                      value={issue.scoringMethod}
+                      options={Object.entries(scoringMethodCopy).map(([value, label]) => ({ value, label }))}
+                      onChange={val => updateIssue({ scoringMethod: val })}
+                      renderValue={({ value }) => (
+                        <span className="btn btn-sm btn-light">{scoringMethodCopy[value] || value}</span>
+                      )}
+                      renderOption={({ value }) => <span>{scoringMethodCopy[value]}</span>}
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="mb-5">
                 <label className="form-label fw-semibold text-gray-600 fs-7 mb-1">Owner</label>
                 <div>
                   <ProjectBoardIssueDetailsReporter issue={issue} updateIssue={updateIssue} projectUsers={orgUsersArray} />
+                </div>
+              </div>
+
+              <div className="separator my-5"></div>
+
+              {/* Visibility */}
+              <div className="mb-5">
+                <label className="form-label fw-semibold text-gray-600 fs-7 mb-1">Visibility</label>
+                <div>
+                  <Select
+                    variant="empty"
+                    dropdownWidth={200}
+                    withClearValue={false}
+                    name="visibility"
+                    value={issue.visibility || 'public'}
+                    options={Object.entries(goalVisibilityCopy).map(([value, label]) => ({ value, label }))}
+                    onChange={val => updateIssue({ visibility: val })}
+                    renderValue={({ value }) => (
+                      <span className="btn btn-sm btn-light">
+                        <i className={`bi ${value === 'public' ? 'bi-globe' : value === 'private' ? 'bi-lock' : 'bi-people'} me-1`}></i>
+                        {goalVisibilityCopy[value] || 'Public'}
+                      </span>
+                    )}
+                    renderOption={({ value }) => (
+                      <span>
+                        <i className={`bi ${value === 'public' ? 'bi-globe' : value === 'private' ? 'bi-lock' : 'bi-people'} me-2`}></i>
+                        {goalVisibilityCopy[value]}
+                      </span>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Update cadence */}
+              <div className="mb-5">
+                <label className="form-label fw-semibold text-gray-600 fs-7 mb-1">Update Cadence</label>
+                <div>
+                  <Select
+                    variant="empty"
+                    dropdownWidth={200}
+                    withClearValue={false}
+                    name="updateCadence"
+                    value={issue.updateCadence || 'monthly'}
+                    options={Object.entries(updateCadenceCopy).map(([value, label]) => ({ value, label }))}
+                    onChange={val => updateIssue({ updateCadence: val })}
+                    renderValue={({ value }) => (
+                      <span className="btn btn-sm btn-light">{updateCadenceCopy[value] || value}</span>
+                    )}
+                    renderOption={({ value }) => <span>{updateCadenceCopy[value]}</span>}
+                  />
                 </div>
               </div>
 
@@ -539,6 +796,28 @@ const GoalDetails = () => {
                 <label className="form-label fw-semibold text-gray-600 fs-7 mb-1">Tags</label>
                 <TagsComponent issue={issue} updateIssue={updateIssue} />
               </div>
+
+              {/* Followers */}
+              <div className="mb-5">
+                <label className="form-label fw-semibold text-gray-600 fs-7 mb-1">
+                  Followers
+                  <span className="badge badge-light ms-1">{followers.length}</span>
+                </label>
+                <div className="d-flex flex-wrap gap-2">
+                  {followers.map(followerId => {
+                    const user = orgUsersArray.find(u => u.uid === followerId);
+                    if (!user) return null;
+                    return (
+                      <div key={followerId} className="d-flex align-items-center gap-1" title={user.name || user.fName || user.email}>
+                        <Avatar avatarUrl={user.photoURL} name={user.name || user.fName || ''} size={24} className="avatar-circle" />
+                      </div>
+                    );
+                  })}
+                  {followers.length === 0 && (
+                    <span className="text-gray-400 fs-8">No followers yet</span>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -552,7 +831,7 @@ const GoalDetails = () => {
               {isObjective ? (
                 <div className="fs-7 text-gray-700">
                   <p className="mb-2">
-                    <strong>Objectives</strong> should be qualitative, inspirational, and time-bound. They describe <em>what</em> you want to achieve.
+                    <strong>Objectives</strong> should be qualitative, inspirational, and time-bound.
                   </p>
                   <ul className="ps-4 mb-0">
                     <li className="mb-1">Keep it short and memorable</li>
@@ -561,10 +840,22 @@ const GoalDetails = () => {
                     <li>70% completion is a healthy target</li>
                   </ul>
                 </div>
+              ) : isInitiative ? (
+                <div className="fs-7 text-gray-700">
+                  <p className="mb-2">
+                    <strong>Initiatives</strong> are the projects and activities that drive progress on key results and objectives.
+                  </p>
+                  <ul className="ps-4 mb-0">
+                    <li className="mb-1">Link to a parent objective</li>
+                    <li className="mb-1">Connect work items for traceability</li>
+                    <li className="mb-1">Track status through regular check-ins</li>
+                    <li>Focus on outputs that move the needle</li>
+                  </ul>
+                </div>
               ) : (
                 <div className="fs-7 text-gray-700">
                   <p className="mb-2">
-                    <strong>Key Results</strong> are measurable outcomes that indicate whether the objective is being met. They describe <em>how</em> you'll measure success.
+                    <strong>Key Results</strong> are measurable outcomes. They describe <em>how</em> you'll measure success.
                   </p>
                   <ul className="ps-4 mb-0">
                     <li className="mb-1">Must be measurable with a number</li>
@@ -601,6 +892,19 @@ const GoalDetails = () => {
                   <span className="text-gray-600 fs-7">Risks</span>
                   <span className="badge badge-light-danger fs-7">{issue.risks?.length || 0}</span>
                 </div>
+                {isObjective && (
+                  <>
+                    <div className="separator my-1"></div>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span className="text-gray-600 fs-7">Key Results</span>
+                      <span className="badge badge-light-info fs-7">{childKRs.length}</span>
+                    </div>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span className="text-gray-600 fs-7">Initiatives</span>
+                      <span className="badge badge-light-warning fs-7">{childInitiatives.length}</span>
+                    </div>
+                  </>
+                )}
                 {issue.createdAt && (
                   <>
                     <div className="separator my-1"></div>
@@ -621,16 +925,83 @@ const GoalDetails = () => {
       </div>
 
       {isModalOpen && (
-        <Modal show={isModalOpen} onHide={handleCloseModal} centered>
+        <Modal show={isModalOpen} onHide={handleCloseModal} centered size="lg">
           <Modal.Header closeButton>
-            <Modal.Title>New Key Result</Modal.Title>
+            <Modal.Title>
+              {isObjective ? 'Add to Objective' : 'New Goal'}
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <CreateGoal modalClose={handleCloseModal} parent={issue.id} />
+            <CreateGoal
+              modalClose={handleCloseModal}
+              parent={isObjective ? issue.id : undefined}
+              defaultType={isObjective ? 'kr' : undefined}
+            />
           </Modal.Body>
         </Modal>
       )}
     </>
+  );
+};
+
+// MetricCard component for displaying success metrics
+const MetricCard = ({ metric, onUpdate }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentValue, setCurrentValue] = useState(metric.currentValue || 0);
+
+  const progress = metric.targetValue
+    ? Math.round(((metric.currentValue - metric.startValue) / (metric.targetValue - metric.startValue)) * 100)
+    : 0;
+
+  const unitSymbol = metric.unit === 'dollar' ? '$' : metric.unit === 'percent' ? '%' : '';
+
+  const handleSave = () => {
+    onUpdate({ currentValue: Number(currentValue) });
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="card card-flush border border-gray-200">
+      <div className="card-body p-4">
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <span className="fw-semibold text-gray-800 fs-6">{metric.name || 'Metric'}</span>
+          <span className={`badge badge-light-${getScoreColor(Math.max(0, progress))} fs-8`}>
+            {progress}%
+          </span>
+        </div>
+        <div className="progress h-6px mb-3">
+          <div
+            className={`progress-bar bg-${getScoreColor(Math.max(0, progress))}`}
+            style={{ width: `${Math.min(Math.max(0, progress), 100)}%` }}
+          ></div>
+        </div>
+        <div className="d-flex justify-content-between text-gray-500 fs-8">
+          <span>Start: {unitSymbol}{metric.startValue}</span>
+          <span>
+            Current: {isEditing ? (
+              <span className="d-inline-flex gap-1">
+                <input
+                  type="number"
+                  className="form-control form-control-sm"
+                  style={{ width: 70 }}
+                  value={currentValue}
+                  onChange={e => setCurrentValue(e.target.value)}
+                  autoFocus
+                />
+                <button className="btn btn-sm btn-primary py-0 px-2" onClick={handleSave}>
+                  <i className="bi bi-check"></i>
+                </button>
+              </span>
+            ) : (
+              <span className="cursor-pointer text-primary" onClick={() => setIsEditing(true)}>
+                {unitSymbol}{metric.currentValue}
+              </span>
+            )}
+          </span>
+          <span>Target: {unitSymbol}{metric.targetValue}</span>
+        </div>
+      </div>
+    </div>
   );
 };
 
