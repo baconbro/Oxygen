@@ -19,9 +19,6 @@ export default defineConfig({
       '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
       '~bootstrap-icons': path.resolve(__dirname, 'node_modules/bootstrap-icons'),
       '~animate.css': path.resolve(__dirname, 'node_modules/animate.css'),
-      '~socicon': path.resolve(__dirname, 'node_modules/socicon'),
-      '~line-awesome': path.resolve(__dirname, 'node_modules/line-awesome'),
-      '~@fortawesome': path.resolve(__dirname, 'node_modules/@fortawesome'),
     },
   },
   css: {
