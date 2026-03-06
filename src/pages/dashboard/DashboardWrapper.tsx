@@ -6,6 +6,8 @@ import { FocusToday } from './Components/FocusToday'
 import { RecentlyViewed } from './Components/RecentlyViewed'
 import { SprintProgress } from './Components/SprintProgress'
 import { GoalsProgress } from './Components/GoalsProgress'
+import { ActivityFeed } from './Components/ActivityFeed'
+import { BlockedItems } from './Components/BlockedItems'
 import { QuickCreate } from './Components/QuickCreate'
 import { useAuth } from '../../modules/auth'
 import { Avatar } from '../../components/common'
@@ -103,7 +105,7 @@ const DashboardWrapper = () => {
         </div>
       </div>
 
-      {/* Sprint Progress + Goals + Recently Viewed - 3 column layout */}
+      {/* Sprint Progress + Goals + Blocked Items - 3 column layout */}
       <div className="row g-5 g-xl-8 mb-5">
         <div className="col-xl-4 col-lg-6">
           <SprintProgress
@@ -117,6 +119,16 @@ const DashboardWrapper = () => {
           <GoalsProgress />
         </div>
         <div className="col-xl-4 col-lg-12">
+          <BlockedItems />
+        </div>
+      </div>
+
+      {/* Activity Feed + Recently Viewed - 2 column layout */}
+      <div className="row g-5 g-xl-8 mb-5">
+        <div className="col-xl-6 col-lg-6">
+          <ActivityFeed />
+        </div>
+        <div className="col-xl-6 col-lg-6">
           <RecentlyViewed />
         </div>
       </div>

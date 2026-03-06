@@ -1,4 +1,4 @@
-import { collection, getDocs, query, where, doc, setDoc, orderBy, limit, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, setDoc, orderBy, limit, deleteDoc, getDoc } from 'firebase/firestore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from './firestore';
 import { getSpaceConfig } from './workspaceServices';
@@ -176,6 +176,195 @@ export const useGetActiveSprints = (orgId) => {
     queryKey: ['ActiveSprints', orgId],
     queryFn: () => getActiveSprints(orgId),
     enabled: !!orgId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+// Activity Feed - aggregates recent activity across workspaces
+export const getActivityFeed = async (orgId, userId, daysBack = 7) => {
+  if (!orgId) return [];
+
+  try {
+    const activities = [];
+    const cutoffTime = Date.now() - (daysBack * 24 * 60 * 60 * 1000);
+
+    // Get all items updated recently
+    const itemsColRef = collection(db, 'organisation', orgId, 'items');
+    const recentItemsQuery = query(
+      itemsColRef,
+      where('updatedAt', '>=', cutoffTime),
+      orderBy('updatedAt', 'desc'),
+      limit(50)
+    );
+
+    const itemsSnapshot = await getDocs(recentItemsQuery);
+
+    itemsSnapshot.docs.forEach(docSnap => {
+      const item = { id: docSnap.id, ...docSnap.data() };
+
+      // Determine activity type based on timestamps
+      const wasCreatedRecently = item.createdAt && item.createdAt >= cutoffTime;
+      const wasUpdatedAfterCreation = item.updatedAt && item.createdAt &&
+        (item.updatedAt - item.createdAt > 60000); // More than 1 minute difference
+
+      if (wasCreatedRecently && !wasUpdatedAfterCreation) {
+        activities.push({
+          id: `created-${item.id}`,
+          type: 'item_created',
+          itemId: item.id,
+          itemTitle: item.title,
+          projectId: item.projectId,
+          userId: item.reporterId || item.createdBy,
+          timestamp: item.createdAt,
+          data: { itemType: item.type, priority: item.priority }
+        });
+      } else if (item.updatedAt >= cutoffTime) {
+        // Check if status changed to 'done'
+        if (item.status === 'done' || item.status === 'closed') {
+          activities.push({
+            id: `completed-${item.id}-${item.updatedAt}`,
+            type: 'item_completed',
+            itemId: item.id,
+            itemTitle: item.title,
+            projectId: item.projectId,
+            userId: item.userIds?.[0],
+            timestamp: item.updatedAt,
+            data: { itemType: item.type }
+          });
+        } else {
+          activities.push({
+            id: `updated-${item.id}-${item.updatedAt}`,
+            type: 'item_updated',
+            itemId: item.id,
+            itemTitle: item.title,
+            projectId: item.projectId,
+            userId: item.userIds?.[0],
+            timestamp: item.updatedAt,
+            data: { status: item.status }
+          });
+        }
+      }
+
+      // Check for assignments to current user
+      if (item.userIds?.includes(userId) && item.createdAt >= cutoffTime) {
+        activities.push({
+          id: `assigned-${item.id}`,
+          type: 'item_assigned',
+          itemId: item.id,
+          itemTitle: item.title,
+          projectId: item.projectId,
+          userId: item.reporterId,
+          timestamp: item.createdAt,
+          data: { assigneeId: userId }
+        });
+      }
+    });
+
+    // Sort by timestamp descending and dedupe
+    const seen = new Set();
+    return activities
+      .filter(a => {
+        const key = `${a.type}-${a.itemId}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 20);
+
+  } catch (error) {
+    console.error('Error fetching activity feed:', error);
+    return [];
+  }
+};
+
+export const useGetActivityFeed = (orgId, userId) => {
+  return useQuery({
+    queryKey: ['ActivityFeed', orgId, userId],
+    queryFn: () => getActivityFeed(orgId, userId),
+    enabled: !!orgId,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes
+  });
+};
+
+// Blocked Items - items with blocked status or unresolved blockers
+export const getBlockedItems = async (orgId, userId) => {
+  if (!orgId) return [];
+
+  try {
+    const itemsColRef = collection(db, 'organisation', orgId, 'items');
+
+    // Query for items with blocked status
+    const blockedQuery = query(
+      itemsColRef,
+      where('status', '==', 'blocked')
+    );
+
+    const blockedSnapshot = await getDocs(blockedQuery);
+    const blockedItems = blockedSnapshot.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...docSnap.data(),
+      blockReason: 'status'
+    }));
+
+    // Also check for items with blockedBy field
+    const withBlockersQuery = query(
+      itemsColRef,
+      where('blockedBy', '!=', null)
+    );
+
+    try {
+      const withBlockersSnapshot = await getDocs(withBlockersQuery);
+      withBlockersSnapshot.docs.forEach(docSnap => {
+        const item = docSnap.data();
+        // Only add if not already in blocked list and has actual blockers
+        if (item.blockedBy?.length > 0 && !blockedItems.find(b => b.id === docSnap.id)) {
+          blockedItems.push({
+            id: docSnap.id,
+            ...item,
+            blockReason: 'dependency'
+          });
+        }
+      });
+    } catch {
+      // blockedBy field might not exist, that's ok
+    }
+
+    // Filter for items relevant to user (assigned to them or they reported)
+    const userRelevant = blockedItems.filter(item =>
+      item.userIds?.includes(userId) || item.reporterId === userId
+    );
+
+    // Get project details for each item
+    const projectCache = {};
+    for (const item of userRelevant) {
+      if (item.projectId && !projectCache[item.projectId]) {
+        try {
+          const spaceDoc = await getDoc(doc(db, 'organisation', orgId, 'spaces', item.projectId));
+          if (spaceDoc.exists()) {
+            projectCache[item.projectId] = spaceDoc.data().title || 'Unknown';
+          }
+        } catch {
+          projectCache[item.projectId] = 'Unknown';
+        }
+      }
+      item.projectName = projectCache[item.projectId] || 'Unknown';
+    }
+
+    return userRelevant.slice(0, 10);
+
+  } catch (error) {
+    console.error('Error fetching blocked items:', error);
+    return [];
+  }
+};
+
+export const useGetBlockedItems = (orgId, userId) => {
+  return useQuery({
+    queryKey: ['BlockedItems', orgId, userId],
+    queryFn: () => getBlockedItems(orgId, userId),
+    enabled: !!orgId && !!userId,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
