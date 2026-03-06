@@ -521,3 +521,233 @@ export const useGetWaitingForReview = (orgId, userId) => {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
+
+// Favorites - user's starred items, projects, goals
+export const getFavorites = async (userId) => {
+  if (!userId) return [];
+
+  try {
+    const favoritesColRef = collection(db, 'users', userId, 'favorites');
+    const favoritesQuery = query(favoritesColRef, orderBy('addedAt', 'desc'), limit(20));
+    const snapshot = await getDocs(favoritesQuery);
+    return snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+  } catch (error) {
+    console.error('Error fetching favorites:', error);
+    return [];
+  }
+};
+
+export const addFavorite = async (userId, item) => {
+  if (!userId || !item?.id) return;
+
+  try {
+    const favoriteRef = doc(db, 'users', userId, 'favorites', String(item.id));
+    await setDoc(favoriteRef, {
+      itemId: item.id,
+      title: item.title || item.name || 'Untitled',
+      type: item.type || 'item', // 'item', 'project', 'goal'
+      projectId: item.projectId || null,
+      projectName: item.projectName || null,
+      addedAt: Date.now(),
+    });
+  } catch (error) {
+    console.error('Error adding favorite:', error);
+    throw error;
+  }
+};
+
+export const removeFavorite = async (userId, itemId) => {
+  if (!userId || !itemId) return;
+
+  try {
+    const favoriteRef = doc(db, 'users', userId, 'favorites', String(itemId));
+    await deleteDoc(favoriteRef);
+  } catch (error) {
+    console.error('Error removing favorite:', error);
+    throw error;
+  }
+};
+
+export const useGetFavorites = (userId) => {
+  return useQuery({
+    queryKey: ['Favorites', userId],
+    queryFn: () => getFavorites(userId),
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+  });
+};
+
+export const useAddFavorite = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, item }) => addFavorite(userId, item),
+    onSuccess: (_, { userId }) => {
+      queryClient.invalidateQueries(['Favorites', userId]);
+    },
+  });
+};
+
+export const useRemoveFavorite = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, itemId }) => removeFavorite(userId, itemId),
+    onSuccess: (_, { userId }) => {
+      queryClient.invalidateQueries(['Favorites', userId]);
+    },
+  });
+};
+
+// Workload - calculate user's current workload
+export const getWorkload = async (orgId, userId) => {
+  if (!orgId || !userId) return null;
+
+  try {
+    const itemsColRef = collection(db, 'organisation', orgId, 'items');
+
+    // Get all items assigned to user
+    const assignedQuery = query(
+      itemsColRef,
+      where('userIds', 'array-contains', userId)
+    );
+
+    const assignedSnapshot = await getDocs(assignedQuery);
+    const assignedItems = assignedSnapshot.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...docSnap.data()
+    }));
+
+    // Calculate workload metrics
+    const activeStatuses = ['todo', 'inprogress', 'in_progress', 'inProgress', 'review', 'in_review'];
+    const doneStatuses = ['done', 'closed', 'complete', 'completed'];
+
+    const activeItems = assignedItems.filter(item =>
+      activeStatuses.includes(item.status) ||
+      (!doneStatuses.includes(item.status) && item.status !== 'backlog')
+    );
+
+    const inProgressItems = assignedItems.filter(item =>
+      item.status === 'inprogress' || item.status === 'in_progress' || item.status === 'inProgress'
+    );
+
+    const highPriorityItems = activeItems.filter(item =>
+      item.priority === 'highest' || item.priority === 'high'
+    );
+
+    // Calculate story points if available
+    const totalStoryPoints = activeItems.reduce((sum, item) =>
+      sum + (item.storyPoints || 0), 0
+    );
+
+    // Calculate overdue items
+    const now = Date.now();
+    const overdueItems = activeItems.filter(item => {
+      if (!item.dueDate) return false;
+      return new Date(item.dueDate).getTime() < now;
+    });
+
+    // Default capacity (can be made configurable)
+    const defaultCapacity = 10; // items
+    const defaultStoryPointCapacity = 20; // story points
+
+    const workloadPercent = Math.min(100, Math.round((activeItems.length / defaultCapacity) * 100));
+    const storyPointPercent = totalStoryPoints > 0
+      ? Math.min(100, Math.round((totalStoryPoints / defaultStoryPointCapacity) * 100))
+      : null;
+
+    return {
+      totalAssigned: assignedItems.length,
+      activeItems: activeItems.length,
+      inProgress: inProgressItems.length,
+      highPriority: highPriorityItems.length,
+      overdue: overdueItems.length,
+      storyPoints: totalStoryPoints,
+      workloadPercent,
+      storyPointPercent,
+      capacity: defaultCapacity,
+      status: workloadPercent >= 100 ? 'overloaded' : workloadPercent >= 75 ? 'high' : workloadPercent >= 50 ? 'moderate' : 'light'
+    };
+
+  } catch (error) {
+    console.error('Error calculating workload:', error);
+    return null;
+  }
+};
+
+export const useGetWorkload = (orgId, userId) => {
+  return useQuery({
+    queryKey: ['Workload', orgId, userId],
+    queryFn: () => getWorkload(orgId, userId),
+    enabled: !!orgId && !!userId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+// Dashboard Configuration - user's widget preferences
+export const getDashboardConfig = async (userId) => {
+  if (!userId) return null;
+
+  try {
+    const configRef = doc(db, 'users', userId, 'preferences', 'dashboard');
+    const configSnap = await getDoc(configRef);
+
+    if (configSnap.exists()) {
+      return configSnap.data();
+    }
+
+    // Return default config
+    return {
+      widgetOrder: [
+        'focusToday',
+        'sprintProgress',
+        'goalsProgress',
+        'blockedItems',
+        'activityFeed',
+        'waitingForReview',
+        'recentlyViewed',
+        'favorites',
+        'workload',
+        'myWork',
+        'lastWeek'
+      ],
+      hiddenWidgets: [],
+      compactMode: false,
+    };
+  } catch (error) {
+    console.error('Error fetching dashboard config:', error);
+    return null;
+  }
+};
+
+export const saveDashboardConfig = async (userId, config) => {
+  if (!userId) return;
+
+  try {
+    const configRef = doc(db, 'users', userId, 'preferences', 'dashboard');
+    await setDoc(configRef, {
+      ...config,
+      updatedAt: Date.now(),
+    });
+  } catch (error) {
+    console.error('Error saving dashboard config:', error);
+    throw error;
+  }
+};
+
+export const useGetDashboardConfig = (userId) => {
+  return useQuery({
+    queryKey: ['DashboardConfig', userId],
+    queryFn: () => getDashboardConfig(userId),
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  });
+};
+
+export const useSaveDashboardConfig = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, config }) => saveDashboardConfig(userId, config),
+    onSuccess: (_, { userId }) => {
+      queryClient.invalidateQueries(['DashboardConfig', userId]);
+    },
+  });
+};

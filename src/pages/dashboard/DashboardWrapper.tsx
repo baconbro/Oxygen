@@ -1,4 +1,5 @@
 import { useIntl } from 'react-intl'
+import { useState, useEffect } from 'react'
 import { PageTitle } from '../../layout/core'
 import { LastWeek } from './Components/LastWeek'
 import { MyWork } from './Components/MyWork'
@@ -9,14 +10,16 @@ import { GoalsProgress } from './Components/GoalsProgress'
 import { ActivityFeed } from './Components/ActivityFeed'
 import { BlockedItems } from './Components/BlockedItems'
 import { WaitingForReview } from './Components/WaitingForReview'
+import { Favorites } from './Components/Favorites'
+import { WorkloadIndicator } from './Components/WorkloadIndicator'
+import { DashboardCustomizer } from './Components/DashboardCustomizer'
 import { QuickCreate } from './Components/QuickCreate'
 import { CommandPalette } from '../../components/common/CommandPalette'
 import { useAuth } from '../../modules/auth'
 import { Avatar } from '../../components/common'
 import { useWorkspace } from '../../contexts/WorkspaceProvider'
 import { useGetOrgUsers } from '../../services/userServices'
-import { useGetAssignedTasks, useGetActiveSprints } from '../../services/dashboardServices'
-import { useEffect } from 'react'
+import { useGetAssignedTasks, useGetActiveSprints, useGetDashboardConfig } from '../../services/dashboardServices'
 
 
 const DashboardWrapper = () => {
@@ -40,6 +43,17 @@ const DashboardWrapper = () => {
   // Fetch active sprints
   const { data: activeSprints = [], isLoading: sprintsLoading } = useGetActiveSprints(orgId)
 
+  // Fetch dashboard configuration
+  const { data: savedConfig } = useGetDashboardConfig(userId)
+  const [dashboardConfig, setDashboardConfig] = useState({ hiddenWidgets: [], compactMode: false })
+
+  // Update config when saved config loads
+  useEffect(() => {
+    if (savedConfig) {
+      setDashboardConfig(savedConfig)
+    }
+  }, [savedConfig])
+
   // Update org users when data is available
   useEffect(() => {
     if (orgUsers) {
@@ -62,6 +76,16 @@ const DashboardWrapper = () => {
       month: 'long',
       day: 'numeric'
     })
+  }
+
+  // Check if widget is visible
+  const isVisible = (widgetId: string) => {
+    return !dashboardConfig.hiddenWidgets?.includes(widgetId)
+  }
+
+  // Handle config change from customizer
+  const handleConfigChange = (newConfig: any) => {
+    setDashboardConfig(newConfig)
   }
 
   return (
@@ -90,65 +114,106 @@ const DashboardWrapper = () => {
                 </p>
               </div>
             </div>
-            <div className="d-none d-md-block">
-              <span className="badge badge-light-primary fs-7 px-4 py-2">
-                <i className="bi bi-search me-2"></i>
-                Press <kbd className="bg-primary text-white border-0 mx-1">Ctrl+K</kbd> to search & navigate
-              </span>
+            <div className="d-flex align-items-center gap-3">
+              <div className="d-none d-md-block">
+                <span className="badge badge-light-primary fs-7 px-4 py-2">
+                  <i className="bi bi-search me-2"></i>
+                  <kbd className="bg-primary text-white border-0 mx-1">Ctrl+K</kbd>
+                </span>
+              </div>
+              <DashboardCustomizer onConfigChange={handleConfigChange} />
             </div>
           </div>
         </div>
       </div>
 
       {/* Focus Today - Full width, highest priority */}
-      <div className="row g-5 g-xl-8 mb-5">
-        <div className="col-12">
-          <FocusToday tasks={assignedTasks} isLoading={tasksLoading} />
+      {isVisible('focusToday') && (
+        <div className="row g-5 g-xl-8 mb-5">
+          <div className="col-12">
+            <FocusToday tasks={assignedTasks} isLoading={tasksLoading} />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Sprint Progress + Goals + Blocked Items - 3 column layout */}
-      <div className="row g-5 g-xl-8 mb-5">
-        <div className="col-xl-4 col-lg-6">
-          <SprintProgress
-            tasks={assignedTasks}
-            sprints={activeSprints}
-            workspaceId={activeSprints[0]?.workspaceId}
-            isLoading={sprintsLoading}
-          />
+      {(isVisible('sprintProgress') || isVisible('goalsProgress') || isVisible('blockedItems')) && (
+        <div className="row g-5 g-xl-8 mb-5">
+          {isVisible('sprintProgress') && (
+            <div className="col-xl-4 col-lg-6">
+              <SprintProgress
+                tasks={assignedTasks}
+                sprints={activeSprints}
+                workspaceId={activeSprints[0]?.workspaceId}
+                isLoading={sprintsLoading}
+              />
+            </div>
+          )}
+          {isVisible('goalsProgress') && (
+            <div className="col-xl-4 col-lg-6">
+              <GoalsProgress />
+            </div>
+          )}
+          {isVisible('blockedItems') && (
+            <div className="col-xl-4 col-lg-12">
+              <BlockedItems />
+            </div>
+          )}
         </div>
-        <div className="col-xl-4 col-lg-6">
-          <GoalsProgress />
-        </div>
-        <div className="col-xl-4 col-lg-12">
-          <BlockedItems />
-        </div>
-      </div>
+      )}
 
       {/* Activity Feed + Waiting for Review + Recently Viewed - 3 column layout */}
-      <div className="row g-5 g-xl-8 mb-5">
-        <div className="col-xl-4 col-lg-6">
-          <ActivityFeed />
+      {(isVisible('activityFeed') || isVisible('waitingForReview') || isVisible('recentlyViewed')) && (
+        <div className="row g-5 g-xl-8 mb-5">
+          {isVisible('activityFeed') && (
+            <div className="col-xl-4 col-lg-6">
+              <ActivityFeed />
+            </div>
+          )}
+          {isVisible('waitingForReview') && (
+            <div className="col-xl-4 col-lg-6">
+              <WaitingForReview />
+            </div>
+          )}
+          {isVisible('recentlyViewed') && (
+            <div className="col-xl-4 col-lg-12">
+              <RecentlyViewed />
+            </div>
+          )}
         </div>
-        <div className="col-xl-4 col-lg-6">
-          <WaitingForReview />
+      )}
+
+      {/* Favorites + Workload - 2 column layout */}
+      {(isVisible('favorites') || isVisible('workload')) && (
+        <div className="row g-5 g-xl-8 mb-5">
+          {isVisible('favorites') && (
+            <div className="col-xl-6 col-lg-6">
+              <Favorites />
+            </div>
+          )}
+          {isVisible('workload') && (
+            <div className="col-xl-6 col-lg-6">
+              <WorkloadIndicator />
+            </div>
+          )}
         </div>
-        <div className="col-xl-4 col-lg-12">
-          <RecentlyViewed />
-        </div>
-      </div>
+      )}
 
       {/* My Work section - Full width */}
-      <div className="row g-5 g-xl-8 mb-5">
-        <div className="col-12">
-          <MyWork />
+      {isVisible('myWork') && (
+        <div className="row g-5 g-xl-8 mb-5">
+          <div className="col-12">
+            <MyWork />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Quick stats - Last week metrics */}
-      <div className="row g-5 g-xl-8 mb-5">
-        <LastWeek />
-      </div>
+      {isVisible('lastWeek') && (
+        <div className="row g-5 g-xl-8 mb-5">
+          <LastWeek />
+        </div>
+      )}
 
       {/* Quick Create FAB */}
       <QuickCreate />
