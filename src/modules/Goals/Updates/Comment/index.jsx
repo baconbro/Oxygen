@@ -1,7 +1,5 @@
-import { useState } from 'react';
 import { formatDateTimeConversational } from '../../../../utils/dateTime';
 import { ConfirmModal } from '../../../../components/common';
-import BodyForm from '../BodyForm';
 import {
   Comment,
   UserAvatar,
@@ -13,12 +11,8 @@ import { Status } from '../../../IssueDetails/Status/Styles';
 
 
 const DetailsUpdate = ({ comment, issue, updateIssue, object }) => {
-  const [isFormOpen, setFormOpen] = useState(false);
-  const [isUpdating, setUpdating] = useState(false);
-  const [body, setBody] = useState(comment.body);
   const { orgUsers } = useWorkspace();
 
-  // Find the user in orgUsers - orgUsers has a .users property that is an object
   const findUser = () => {
     if (orgUsers?.users) {
       return Object.values(orgUsers.users).find(u => u.email === comment.user);
@@ -37,99 +31,92 @@ const DetailsUpdate = ({ comment, issue, updateIssue, object }) => {
     }
   };
 
-  const handleCommentUpdate = async () => {
-    try {
-      setUpdating(true);
-      const updatedComments = issue[object].map(c =>
-        c.id === comment.id ? { ...c, body } : c
-      );
-      updateIssue({ [object]: updatedComments });
-      setUpdating(false);
-      setFormOpen(false);
-    } catch (error) {
-      console.error('Error updating:', error);
-    }
-  };
+  const hasScoreChange = comment.oldScore !== null && comment.oldScore !== undefined;
+  const hasStatusChange = comment.oldStatus && comment.oldStatus !== comment.newStatus;
 
   return (
     <Comment>
-      <div className="mb-7">
-        <div className="d-flex mb-5">
-          <div className="avatar avatar-45px me-5">
-            <UserAvatar name={user?.name} avatarUrl={user?.avatarUrl} />
-          </div>
-          <div className="d-flex flex-column flex-row-fluid">
-            <div className="d-flex align-items-center flex-wrap mb-1">
+      <div className="d-flex mb-6">
+        <div className="me-4">
+          <UserAvatar name={user?.name} avatarUrl={user?.avatarUrl} />
+        </div>
+        <div className="flex-fill">
+          {/* Header */}
+          <div className="d-flex align-items-center justify-content-between mb-2">
+            <div>
               <span className="text-gray-800 fw-bold me-2">{displayName}</span>
               <span className="text-gray-400 fw-semibold fs-7">
                 {formatDateTimeConversational(comment.createdAt)}
-                {comment.editedAt && <span> - edited</span>}
               </span>
-              {!isFormOpen && (
-                <span className="ms-auto text-gray-400 text-hover-primary fw-semibold fs-7">
-                  <ConfirmModal
-                    title="Are you sure you want to delete this update?"
-                    message="Once you delete, it's gone for good."
-                    confirmText="Delete update"
-                    onConfirm={handleCommentDelete}
-                    className="card card-flush border-0 h-md-100"
-                    renderLink={modal => <DeleteLink onClick={modal.open}>Delete</DeleteLink>}
-                  />
-                </span>
+            </div>
+            <ConfirmModal
+              title="Delete this check-in?"
+              message="This will remove the check-in record. The goal's current score and status won't be affected."
+              confirmText="Delete"
+              onConfirm={handleCommentDelete}
+              className="card card-flush border-0 h-md-100"
+              renderLink={modal => (
+                <DeleteLink onClick={modal.open} className="text-gray-400 text-hover-danger">
+                  <i className="bi bi-trash fs-7"></i>
+                </DeleteLink>
+              )}
+            />
+          </div>
+
+          {/* Changes */}
+          <div className="border border-gray-200 rounded p-3">
+            <div className="d-flex flex-wrap gap-4 align-items-center">
+              {/* Score change */}
+              {comment.newScore !== null && comment.newScore !== undefined && (
+                <div className="d-flex align-items-center gap-2">
+                  <span className="text-gray-500 fs-7 fw-semibold">Value:</span>
+                  {hasScoreChange && (
+                    <>
+                      <span className={`badge badge-light-${getScoreColor(comment.oldScore)} fs-7`}>
+                        {comment.oldScore}
+                      </span>
+                      <i className="bi bi-arrow-right text-gray-400 fs-8"></i>
+                    </>
+                  )}
+                  <span className={`badge badge-light-${getScoreColor(comment.newScore)} fs-7`}>
+                    {comment.newScore}
+                  </span>
+                </div>
+              )}
+
+              {/* Status change */}
+              {comment.newStatus && (
+                <div className="d-flex align-items-center gap-2">
+                  <span className="text-gray-500 fs-7 fw-semibold">Status:</span>
+                  {hasStatusChange && (
+                    <>
+                      <Status
+                        className={`btn btn-sm btn-${customStatus.IssueStatusClass[comment.oldStatus]}`}
+                        color={comment.oldStatus}
+                        style={{ fontSize: '0.7rem', padding: '1px 6px' }}
+                      >
+                        {customStatus.IssueStatusCopy[comment.oldStatus]}
+                      </Status>
+                      <i className="bi bi-arrow-right text-gray-400 fs-8"></i>
+                    </>
+                  )}
+                  <Status
+                    className={`btn btn-sm btn-${customStatus.IssueStatusClass[comment.newStatus]}`}
+                    color={comment.newStatus}
+                    style={{ fontSize: '0.7rem', padding: '1px 6px' }}
+                  >
+                    {customStatus.IssueStatusCopy[comment.newStatus]}
+                  </Status>
+                </div>
               )}
             </div>
 
-            <span className="text-gray-800 fs-7 fw-normal pt-1">
-              {isFormOpen ? (
-                <BodyForm
-                  value={body}
-                  onChange={setBody}
-                  isWorking={isUpdating}
-                  onSubmit={handleCommentUpdate}
-                  onCancel={() => setFormOpen(false)}
-                />
-              ) : (
-                <div className="timeline-item">
-                  <div className="timeline-content mb-10 mt-n1">
-                    {comment.body && (
-                      <div className="pe-3 mb-5">
-                        <div className="fs-5 fw-semibold mb-2">{comment.body}</div>
-                      </div>
-                    )}
-                    <div className="overflow-auto pb-5">
-                      <div className="d-flex align-items-center border border-dashed border-gray-300 rounded px-7 py-3 mb-5">
-                        {(comment.oldScore !== null || comment.newScore) && (
-                          <div className="min-w-175px pe-2">
-                            <span className={`badge badge-light-${getScoreColor(comment.oldScore)} fs-base me-2`}>
-                              {comment.oldScore ?? '-'}
-                            </span>
-                            <i className="bi bi-arrow-right fs-2 text-muted me-2"></i>
-                            <span className={`badge badge-light-${getScoreColor(comment.newScore)} fs-base me-2`}>
-                              {comment.newScore}
-                            </span>
-                          </div>
-                        )}
-                        {(comment.oldStatus || comment.newStatus) && (
-                          <div className="min-w-125px pe-2">
-                            {comment.oldStatus && (
-                              <>
-                                <Status className={`btn btn-sm btn-${customStatus.IssueStatusClass[comment.oldStatus]} me-2`} color={comment.oldStatus}>
-                                  {customStatus.IssueStatusCopy[comment.oldStatus]}
-                                </Status>
-                                <i className="bi bi-arrow-right fs-2 text-muted me-2"></i>
-                              </>
-                            )}
-                            <Status className={`btn btn-sm btn-${customStatus.IssueStatusClass[comment.newStatus]} me-2`} color={comment.newStatus}>
-                              {customStatus.IssueStatusCopy[comment.newStatus]}
-                            </Status>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </span>
+            {/* Comment body */}
+            {comment.body && (
+              <div className="mt-3 pt-3 border-top border-gray-200">
+                <span className="text-gray-700 fs-7">{comment.body}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

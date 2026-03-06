@@ -1,6 +1,6 @@
 import { Actions, FormButton } from './Styles';
 import { Form } from '../../../../components/common';
-import { FormElement, FormHeading } from '../../../Workspace/WorkspaceSettings/Styles';
+import { FormElement } from '../../../Workspace/WorkspaceSettings/Styles';
 import { useFormikContext } from 'formik';
 import { customStatus } from '../../../../constants/custom';
 import { Status } from '../../../IssueDetails/Status/Styles';
@@ -29,85 +29,91 @@ const UpdatesBodyForm = ({
   };
 
   return (
-    <>
-      <Form
-        enableReinitialize
-        initialValues={{
-          body: '',
-          newStatus: newStatus,
-          newScore: '',
-          date: new Date().toISOString(),
-          id: generateRandomId(),
-        }}
-        validations={{
-          date: Form.is.required(),
-          body: [Form.is.maxLength(200)],
-          newScore: [Form.is.required()],
-          newStatus: [Form.is.required()],
-        }}
-        onSubmit={async (values, form) => {
-          try {
-            values.date = new Date(values.date).getTime();
-            onSubmit(values);
-          } catch (error) {
-            // Error handled silently
-          }
-        }}
-      >
-        <FormElement>
-          <FormHeading>Update</FormHeading>
-          <div className="row g-9 mb-8">
-            <div className="col-md-6 fv-row fv-plugins-icon-container">
-              <label className="required fs-6 fw-semibold mb-2">New value</label>
-              <Form.Field.Input
-                name="newScore"
-                tip="Score will be automaticaly calculate on the basis of update value"
-                className="form-control form-control-solid"
-                inputMode="numeric"
-                pattern="[0-9]*"
-              />
-            </div>
-            <div className="col-md-6 fv-row">
-              <label className="required fs-6 fw-semibold mb-2">New Status</label>
-              <Form.Field.Select
-                name="newStatus"
-                variant="empty"
-                dropdownWidth={343}
-                with00ClearValue={false}
-                options={Object.values(customStatus.IssueStatus).map(newStatus => ({
-                  value: newStatus,
-                  label: customStatus.IssueStatusCopy[newStatus],
-                }))}
-                renderValue={({ value: newStatus }) => (
-                  <Status isValue color={newStatus} className={`btn btn-${customStatus.IssueStatusClass[newStatus]}`}>
-                    <div>{customStatus.IssueStatusCopy[newStatus]}</div>
-                    <i className='bi bi-chevron-down'></i>
-                  </Status>
-                )}
-                renderOption={({ value: Status }) => (
-                  <Status className={`btn btn-${customStatus.IssueStatusClass[Status]}`} color={Status}>{customStatus.IssueStatusCopy[Status]}</Status>
-                )}
-              />
-            </div>
+    <Form
+      enableReinitialize
+      initialValues={{
+        body: '',
+        newStatus: newStatus,
+        newScore: '',
+        date: new Date().toISOString(),
+        id: generateRandomId(),
+      }}
+      validations={{
+        date: Form.is.required(),
+        newScore: [Form.is.required()],
+        newStatus: [Form.is.required()],
+      }}
+      onSubmit={async (values, form) => {
+        try {
+          values.date = new Date(values.date).getTime();
+          onSubmit(values);
+        } catch (error) {
+          // Error handled silently
+        }
+      }}
+    >
+      <FormElement>
+        <div className="d-flex align-items-center mb-4">
+          <i className="bi bi-graph-up-arrow fs-4 text-primary me-2"></i>
+          <h5 className="fw-bold text-gray-800 m-0">New Check-in</h5>
+        </div>
+        <div className="row g-4 mb-5">
+          <div className="col-md-6">
+            <label className="required fs-7 fw-semibold mb-2 text-gray-700">New Value</label>
+            <Form.Field.Input
+              name="newScore"
+              tip="The current measured value for this key result"
+              className="form-control form-control-solid"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              placeholder="Enter current value"
+            />
           </div>
+          <div className="col-md-6">
+            <label className="required fs-7 fw-semibold mb-2 text-gray-700">Status</label>
+            <Form.Field.Select
+              name="newStatus"
+              variant="empty"
+              dropdownWidth={343}
+              with00ClearValue={false}
+              options={Object.values(customStatus.IssueStatus).map(newStatus => ({
+                value: newStatus,
+                label: customStatus.IssueStatusCopy[newStatus],
+              }))}
+              renderValue={({ value: newStatus }) => (
+                <Status isValue color={newStatus} className={`btn btn-${customStatus.IssueStatusClass[newStatus]}`}>
+                  <div>{customStatus.IssueStatusCopy[newStatus]}</div>
+                  <i className='bi bi-chevron-down'></i>
+                </Status>
+              )}
+              renderOption={({ value: statusVal }) => (
+                <Status className={`btn btn-${customStatus.IssueStatusClass[statusVal]}`} color={statusVal}>{customStatus.IssueStatusCopy[statusVal]}</Status>
+              )}
+            />
+          </div>
+        </div>
+        <div className="mb-4">
           <Form.Field.Input
             name="body"
-            label="Comment"
-            tip="Add a comment to explain the update"
-            className="form-control"
+            label="What changed? (optional)"
+            tip="Brief context about this update"
+            className="form-control form-control-solid"
+            placeholder="e.g., Closed 3 new deals this week..."
           />
+        </div>
+        <div className="mb-4">
           <FormikDatePickerField name="date" label="Date" />
-          <Actions>
-            <FormButton variant="primary" isWorking={isWorking} type="submit" className="btn">
-              Save
-            </FormButton>
-            <FormButton variant="empty" onClick={onCancel} className="btn">
-              Cancel
-            </FormButton>
-          </Actions>
-        </FormElement>
-      </Form>
-    </>
+        </div>
+        <Actions>
+          <FormButton variant="primary" isWorking={isWorking} type="submit" className="btn btn-primary btn-sm">
+            <i className="bi bi-check2 me-1"></i> Save Check-in
+          </FormButton>
+          <FormButton variant="empty" onClick={onCancel} className="btn btn-light btn-sm">
+            Cancel
+          </FormButton>
+        </Actions>
+      </FormElement>
+    </Form>
   );
 };
 
