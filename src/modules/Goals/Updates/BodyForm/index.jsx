@@ -47,11 +47,10 @@ const UpdatesBodyForm = ({
         }}
         onSubmit={async (values, form) => {
           try {
-            console.log('values', values);
             values.date = new Date(values.date).getTime();
             onSubmit(values);
           } catch (error) {
-            console.log('error.message', error.message);
+            // Error handled silently
           }
         }}
       >

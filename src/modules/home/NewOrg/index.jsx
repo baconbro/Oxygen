@@ -43,7 +43,7 @@ const CreateOrg = ({ project, onCreate, modalClose }) => {
           toast.success('Issue has been successfully created.');
           modalClose();
         } catch (error) {
-          console.log(error)
+          toast.error('Failed to create organisation.');
         }
       }}
     >

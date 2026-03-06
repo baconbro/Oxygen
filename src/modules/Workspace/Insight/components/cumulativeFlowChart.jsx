@@ -68,8 +68,6 @@ const CumulativeFlowChart = () => {
 
     useEffect(() => {
         if (!isLoading && flowData) {
-            console.log("Flow data received:", flowData); // Debug log
-            
             // Update chart options with real dates
             setChartOptions(prev => ({
                 ...prev,
@@ -85,7 +83,6 @@ const CumulativeFlowChart = () => {
                 data: series.data
             }));
             
-            console.log("Mapped series:", mappedSeries); // Debug log
             setSeries(mappedSeries);
             setLoading(false);
         }

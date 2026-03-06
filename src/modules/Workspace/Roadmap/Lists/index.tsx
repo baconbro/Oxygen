@@ -160,12 +160,11 @@ const ProjectBoardLists = ({ project, filters, updateLocalProjectIssues }: { pro
   };
 
   const handleSelect = (task: any, isSelected: boolean) => {
-    console.log(task.name + " has " + (isSelected ? "selected" : "unselected"));
+    // Selection handled
   };
 
   const handleExpanderClick = (task: any) => {
     setTasks(tasks.map((t: any) => (t.id === task.id ? task : t)));
-    console.log("On expander click Id:" + task.id);
   };
 
   const handleRelationChange: OnRelationChange = async (
@@ -224,7 +223,7 @@ const ProjectBoardLists = ({ project, filters, updateLocalProjectIssues }: { pro
     if (lastClickEvent.current) {
       if (lastClickEvent.current.status != event.status) {
         lastClickEvent.current = null; // Reset the last click event
-        console.log('Cannot move task with multiple status, try filter a status first');
+        // Cannot move task with multiple statuses
         return null; 
       }
       //find the index of the task in the tasks array
@@ -260,7 +259,6 @@ const ProjectBoardLists = ({ project, filters, updateLocalProjectIssues }: { pro
       setTasks(updatedTasks);
       lastClickEvent.current = null; // Reset the last click event
     } else {
-      console.log('onMoveTask event:', event);
     }
   };
 
@@ -271,9 +269,8 @@ const ProjectBoardLists = ({ project, filters, updateLocalProjectIssues }: { pro
       if (index > 0) {
         handleMoveTaskBefore(tasks[index - 1])
       }
-      return null; 
+      return null;
     } else {
-      console.log('onMoveTask event:', task);
     }
   };
 
@@ -296,8 +293,8 @@ const ProjectBoardLists = ({ project, filters, updateLocalProjectIssues }: { pro
         onMoveTaskBefore={handleMoveTaskBefore}
         onMoveTaskAfter={handleMoveTaskAfter}
         onClick={handleClick}
-        onMoveTaskInside={(task => console.log("On move task inside Id:", task))}
-        onArrowDoubleClick={(task => console.log("On arrow double click Id:", task))}
+        onMoveTaskInside={() => {}}
+        onArrowDoubleClick={() => {}}
       /></> : <><EmptyTimeline /></>}
 
     </div>

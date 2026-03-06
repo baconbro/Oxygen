@@ -55,7 +55,7 @@ const CreateGoal = ({ modalClose, parent }) => {
 
                         modalClose();
                     } catch (error) {
-                        console.log('error.message', error.message);
+                        // Error handled silently
                     }
                 }}
             >

@@ -35,9 +35,7 @@ import {
 } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { async } from "@firebase/util";
 import { defaultWorkspaceConfig } from "../constants/defaultConfig";
-import { useFirestoreQuery } from "@react-query-firebase/firestore";
 import { env } from "../utils/env";
 
 

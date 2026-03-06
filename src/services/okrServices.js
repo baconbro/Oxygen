@@ -1,7 +1,6 @@
-import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where, setDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, doc, query, where, setDoc, deleteDoc } from 'firebase/firestore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '../services/firestore';
-import { useAuth } from '../modules/auth'
 
 
  const fetchOKRs = async (orgId) => {

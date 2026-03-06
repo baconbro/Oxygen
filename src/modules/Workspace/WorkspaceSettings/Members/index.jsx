@@ -64,7 +64,7 @@ const SpaceMembers = ({ project, spaceId }) => {
       .then(userInfo => {
         setSpaceMembers(members.members)
       })
-      .catch((error) => console.log(error));
+      .catch(() => {});
   };
 
   // Custom render option that shows status indicator

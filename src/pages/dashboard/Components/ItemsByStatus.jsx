@@ -14,10 +14,6 @@ const ChartItemByStatus = () => {
         //  Extract values from the issueStatus object
 //const issueStatusValues = Object.values(project.config.issueStatus);
 
-// Create an array of names
-//const names = issueStatusValues.map(status => status.name);
-//console.log(names)
-
   useEffect(() => {
     const statuses = Object.values(IssueStatus); 
 

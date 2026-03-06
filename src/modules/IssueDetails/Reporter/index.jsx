@@ -77,8 +77,7 @@ const ProjectBoardIssueDetailsReporter = ({ issue, updateIssue, projectUsers }) 
     // Allow clearing the reporter by accepting falsy reporterId
     if (reporterId) {
       const reporterUser = getUserById(reporterId);
-      console.log("reporterUser", reporterId);
-      updateIssue({ 
+      updateIssue({
         reporterId, 
       });
     } else {

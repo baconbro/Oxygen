@@ -78,7 +78,6 @@ const ProjectBoardLists = ({ project, filters, updateLocalProjectIssues }) => {
           orgId: currentUser?.all?.currentOrg,
           ticketId: issueId
         });
-        //console.log('Ticket removed from sprint successfully');
       } else {
         await addTicketToSprint.mutateAsync({
           sprintId,
@@ -86,7 +85,6 @@ const ProjectBoardLists = ({ project, filters, updateLocalProjectIssues }) => {
           orgId: currentUser?.all?.currentOrg,
           ticketId: issueId
         });
-        //console.log('Ticket added to sprint successfully');
       }
     } catch (error) {
       console.error('Error updating ticket in sprint:', error);

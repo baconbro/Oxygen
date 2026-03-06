@@ -33,7 +33,6 @@ const ProjectBoardList = ({ status, project, filters, currentUserId, isCollapsed
     }
     return 1;
   };
-console.log('sprint', sprint)
   return (
     <div
       className={classNames('kanban-column scrollbar', {
