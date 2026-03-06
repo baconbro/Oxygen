@@ -33,21 +33,15 @@ export const QuickCreate = () => {
     }
   }, [spaces, selectedProject]);
 
-  // Keyboard shortcut: Ctrl/Cmd + K
+  // Listen for openQuickCreate event from Command Palette
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setShowModal(true);
-      }
-      if (e.key === "Escape" && showModal) {
-        setShowModal(false);
-      }
+    const handleOpenQuickCreate = () => {
+      setShowModal(true);
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [showModal]);
+    window.addEventListener("openQuickCreate", handleOpenQuickCreate);
+    return () => window.removeEventListener("openQuickCreate", handleOpenQuickCreate);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -368,3 +368,156 @@ export const useGetBlockedItems = (orgId, userId) => {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
+
+// Global Search - search across items, projects, goals
+export const globalSearch = async (orgId, searchQuery, options = {}) => {
+  if (!orgId || !searchQuery || searchQuery.length < 2) return { items: [], projects: [], goals: [] };
+
+  const results = { items: [], projects: [], goals: [] };
+  const queryLower = searchQuery.toLowerCase();
+  const maxResults = options.maxResults || 10;
+
+  try {
+    // Search items
+    const itemsColRef = collection(db, 'organisation', orgId, 'items');
+    const itemsSnapshot = await getDocs(itemsColRef);
+
+    itemsSnapshot.docs.forEach(docSnap => {
+      const item = { id: docSnap.id, ...docSnap.data() };
+      const titleMatch = item.title?.toLowerCase().includes(queryLower);
+      const descMatch = item.description?.toLowerCase().includes(queryLower);
+      const idMatch = String(item.id).includes(searchQuery);
+
+      if (titleMatch || descMatch || idMatch) {
+        results.items.push({
+          ...item,
+          matchType: titleMatch ? 'title' : descMatch ? 'description' : 'id',
+          type: 'item',
+          icon: item.type === 'bug' ? 'bi-bug' : item.type === 'story' ? 'bi-book' : 'bi-check2-square'
+        });
+      }
+    });
+
+    // Search projects/workspaces
+    const spacesColRef = collection(db, 'organisation', orgId, 'spaces');
+    const spacesSnapshot = await getDocs(spacesColRef);
+
+    spacesSnapshot.docs.forEach(docSnap => {
+      const space = { id: docSnap.id, ...docSnap.data() };
+      const titleMatch = space.title?.toLowerCase().includes(queryLower);
+      const acronymMatch = space.acronym?.toLowerCase().includes(queryLower);
+
+      if (titleMatch || acronymMatch) {
+        results.projects.push({
+          ...space,
+          matchType: titleMatch ? 'title' : 'acronym',
+          type: 'project',
+          icon: 'bi-folder'
+        });
+      }
+    });
+
+    // Search goals
+    const goalsColRef = collection(db, 'organisation', orgId, 'goals');
+    const goalsSnapshot = await getDocs(goalsColRef);
+
+    goalsSnapshot.docs.forEach(docSnap => {
+      const goal = { id: docSnap.id, ...docSnap.data() };
+      const titleMatch = goal.title?.toLowerCase().includes(queryLower);
+      const nameMatch = goal.name?.toLowerCase().includes(queryLower);
+
+      if (titleMatch || nameMatch) {
+        results.goals.push({
+          ...goal,
+          matchType: 'title',
+          type: 'goal',
+          icon: 'bi-trophy'
+        });
+      }
+    });
+
+    // Limit results
+    results.items = results.items.slice(0, maxResults);
+    results.projects = results.projects.slice(0, 5);
+    results.goals = results.goals.slice(0, 5);
+
+    return results;
+  } catch (error) {
+    console.error('Error in global search:', error);
+    return { items: [], projects: [], goals: [] };
+  }
+};
+
+// Waiting for Review - items in review status that user created/reported
+export const getWaitingForReview = async (orgId, userId) => {
+  if (!orgId || !userId) return [];
+
+  try {
+    const itemsColRef = collection(db, 'organisation', orgId, 'items');
+
+    // Query for items in review status
+    const reviewQuery = query(
+      itemsColRef,
+      where('status', 'in', ['review', 'in_review', 'inReview', 'code_review'])
+    );
+
+    const reviewSnapshot = await getDocs(reviewQuery);
+    const reviewItems = [];
+
+    reviewSnapshot.docs.forEach(docSnap => {
+      const item = { id: docSnap.id, ...docSnap.data() };
+
+      // Only include items the user reported or is assigned to
+      const isReporter = item.reporterId === userId;
+      const isAssigned = item.userIds?.includes(userId);
+
+      if (isReporter || isAssigned) {
+        // Calculate days in review
+        const daysInReview = item.updatedAt
+          ? Math.floor((Date.now() - item.updatedAt) / (1000 * 60 * 60 * 24))
+          : 0;
+
+        reviewItems.push({
+          ...item,
+          daysInReview,
+          isReporter,
+          isAssigned
+        });
+      }
+    });
+
+    // Get project names
+    const projectCache = {};
+    for (const item of reviewItems) {
+      if (item.projectId && !projectCache[item.projectId]) {
+        try {
+          const spaceDoc = await getDoc(doc(db, 'organisation', orgId, 'spaces', item.projectId));
+          if (spaceDoc.exists()) {
+            projectCache[item.projectId] = spaceDoc.data().title || 'Unknown';
+          }
+        } catch {
+          projectCache[item.projectId] = 'Unknown';
+        }
+      }
+      item.projectName = projectCache[item.projectId] || 'Unknown';
+    }
+
+    // Sort by days in review (longest first)
+    return reviewItems
+      .sort((a, b) => b.daysInReview - a.daysInReview)
+      .slice(0, 10);
+
+  } catch (error) {
+    console.error('Error fetching waiting for review:', error);
+    return [];
+  }
+};
+
+export const useGetWaitingForReview = (orgId, userId) => {
+  return useQuery({
+    queryKey: ['WaitingForReview', orgId, userId],
+    queryFn: () => getWaitingForReview(orgId, userId),
+    enabled: !!orgId && !!userId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
