@@ -1,9 +1,15 @@
 import { DefaultTitle } from '../../layout/components/header/page-title/DefaultTitle'
 import { ToolbarMenuMain } from '../../layout/components/toolbar/ToolbarMenuMain'
+import { usePageData } from '../../layout/core'
 
 
 const Toolbar = () => {
+  const { pageTitle, pageInnerNavigation } = usePageData()
 
+  // Don't render the toolbar when there's no content to show (e.g. Goals, Dashboard)
+  if (!pageTitle && (!pageInnerNavigation || pageInnerNavigation.length === 0)) {
+    return null
+  }
 
   return (
     <>
