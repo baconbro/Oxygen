@@ -16,7 +16,7 @@ const DefaultTitle: FC = () => {
       id='xgn_page_title'
       data-xgn-swapper='true'
       data-xgn-swapper-mode='prepend'
-      data-xgn-swapper-parent="{default: '#xgn_content_container', 'lg': '#xgn_toolbar_container'}"
+      data-xgn-swapper-parent="{default: '#xgn_content_container', 'lg': '#xgn_content_container'}"
       className={clsx('page-title d-flex', classes.pageTitle.join(' '))}
     >
       {pageTitle && (

@@ -41,7 +41,7 @@ export const DefaultLayoutConfig: ILayout = {
     layout: 'default',
   },
   toolbar: {
-    display: true, // Display toolbar
+    display: false, // Toolbar removed
     width: 'fluid', // Set fixed|fluid to change width type,
     fixed: {
       desktop: true,
@@ -82,6 +82,6 @@ export const DefaultLayoutConfig: ILayout = {
     direction: 'row',
     responsive: true,
     responsiveBreakpoint: 'lg',
-    responsiveTarget: '#xgn_toolbar_container',
+    responsiveTarget: '#xgn_content_container',
   },
 }

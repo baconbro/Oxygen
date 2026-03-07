@@ -123,7 +123,7 @@ const LayoutProvider: FC<WithChildren> = ({children}) => {
           "direction": "row",
           "responsive": true,
           "responsiveBreakpoint": "lg",
-          "responsiveTarget": "#xgn_toolbar_container"
+          "responsiveTarget": "#xgn_content_container"
         }
       },
       "classes": {
