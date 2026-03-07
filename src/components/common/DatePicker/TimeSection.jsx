@@ -5,7 +5,7 @@ import { range } from 'lodash';
 
 import { formatDate, formatDateTimeForAPI } from '../../../utils/dateTime';
 
-import { TimeSection, Time } from './Styles';
+
 
 const propTypes = {
   value: PropTypes.string,
@@ -36,18 +36,21 @@ const DatePickerTimeSection = ({ value, onChange, setDropdownOpen }) => {
   };
 
   return (
-    <TimeSection ref={$sectionRef}>
-      {generateTimes().map(time => (
-        <Time
-          key={time}
-          data-time={time}
-          isSelected={time === formatTime(value)}
-          onClick={() => handleTimeChange(time)}
-        >
-          {time}
-        </Time>
-      ))}
-    </TimeSection>
+    <div ref={$sectionRef} className="absolute top-0 right-0 h-full w-[90px] py-[5px] border-l border-gray-200 overflow-y-auto">
+      {generateTimes().map(time => {
+        const isSelected = time === formatTime(value);
+        return (
+          <div
+            key={time}
+            data-time={time}
+            className={`py-[5px] pl-[20px] text-[14px] cursor-pointer hover:bg-[#f1faff] hover:text-[#009ef7] ${isSelected ? 'bg-[#009ef7] text-white !hover:text-white' : ''}`}
+            onClick={() => handleTimeChange(time)}
+          >
+            {time}
+          </div>
+        );
+      })}
+    </div>
   );
 };
 

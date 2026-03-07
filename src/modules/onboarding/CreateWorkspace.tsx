@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { Modal } from 'react-bootstrap';
+
 import { toAbsoluteUrl } from '../../utils';
 import { CreateWorkspaceModal } from '../../components/partials';
 

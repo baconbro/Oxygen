@@ -1,0 +1,117 @@
+
+> oxygenbeta@1.0.0 typecheck
+> tsc --noEmit
+
+src/components/forms/Form.tsx(69,11): error TS2430: Interface 'FormProps<TSchema>' incorrectly extends interface 'Omit<FormHTMLAttributes<HTMLFormElement>, "onSubmit">'.
+  Types of property 'children' are incompatible.
+    Type 'ReactNode | ((form: UseFormReturn<output<TSchema>>) => ReactNode)' is not assignable to type 'ReactNode'.
+      Type '(form: UseFormReturn<output<TSchema>>) => ReactNode' is not assignable to type 'ReactNode'.
+src/components/forms/Form.tsx(73,32): error TS2344: Type 'output<TSchema>' does not satisfy the constraint 'FieldValues'.
+  Type 'unknown' is not assignable to type 'FieldValues'.
+src/components/forms/Form.tsx(76,29): error TS2344: Type 'output<TSchema>' does not satisfy the constraint 'FieldValues'.
+  Type 'unknown' is not assignable to type 'FieldValues'.
+src/components/forms/Form.tsx(77,24): error TS2344: Type 'output<TSchema>' does not satisfy the constraint 'FieldValues'.
+  Type 'unknown' is not assignable to type 'FieldValues'.
+src/components/forms/Form.tsx(89,32): error TS2344: Type 'output<TSchema>' does not satisfy the constraint 'FieldValues'.
+  Type 'unknown' is not assignable to type 'FieldValues'.
+src/components/forms/Form.tsx(90,27): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(schema: Zod3Type<unknown, FieldValues>, schemaOptions?: ParseParams | undefined, resolverOptions?: NonRawResolverOptions | undefined): Resolver<...>', gave the following error.
+    Argument of type 'TSchema' is not assignable to parameter of type 'Zod3Type<unknown, FieldValues>'.
+      Type 'ZodType<unknown, unknown, $ZodTypeInternals<unknown, unknown>>' is not assignable to type 'Zod3Type<unknown, FieldValues>'.
+        Types of property '_input' are incompatible.
+          Type 'unknown' is not assignable to type 'FieldValues'.
+  Overload 2 of 4, '(schema: $ZodType<unknown, FieldValues, $ZodTypeInternals<unknown, FieldValues>>, schemaOptions?: ParseContext<$ZodIssue> | undefined, resolverOptions?: NonRawResolverOptions | undefined): Resolver<...>', gave the following error.
+    Argument of type 'TSchema' is not assignable to parameter of type '$ZodType<unknown, FieldValues, $ZodTypeInternals<unknown, FieldValues>>'.
+      Type 'ZodType<unknown, unknown, $ZodTypeInternals<unknown, unknown>>' is not assignable to type '$ZodType<unknown, FieldValues, $ZodTypeInternals<unknown, FieldValues>>'.
+        Types of property '_zod' are incompatible.
+          Type '$ZodTypeInternals<unknown, unknown>' is not assignable to type '$ZodTypeInternals<unknown, FieldValues>'.
+            Type 'unknown' is not assignable to type 'FieldValues'.
+src/components/forms/Form.tsx(97,6): error TS2322: Type '{ children: Element; watch: UseFormWatch<output<TSchema>>; getValues: UseFormGetValues<output<TSchema>>; ... 13 more ...; subscribe: UseFormSubscribe<...>; } | { ...; }' is not assignable to type 'IntrinsicAttributes & { children: ReactNode | ReactNode[]; } & UseFormReturn<FieldValues, any, output<TSchema>>'.
+  Type '{ children: Element; watch: UseFormWatch<output<TSchema>>; getValues: UseFormGetValues<output<TSchema>>; ... 13 more ...; subscribe: UseFormSubscribe<...>; }' is not assignable to type 'UseFormReturn<FieldValues, any, output<TSchema>>'.
+    The types returned by 'watch()' are incompatible between these types.
+      Type 'output<TSchema>' is not assignable to type 'FieldValues'.
+        Type 'unknown' is not assignable to type 'FieldValues'.
+src/components/forms/Form.tsx(99,37): error TS2345: Argument of type 'SubmitHandler<output<TSchema>>' is not assignable to parameter of type 'SubmitHandler<TFieldValues> & SubmitHandler<output<TSchema>>'.
+  Type 'SubmitHandler<output<TSchema>>' is not assignable to type 'SubmitHandler<TFieldValues>'.
+    Type 'TFieldValues' is not assignable to type 'output<TSchema>'.
+      Type 'FieldValues' is not assignable to type 'output<TSchema>'.
+src/components/forms/Form.tsx(103,52): error TS2345: Argument of type 'UseFormReturn<output<TSchema>> | UseFormReturn<output<TSchema>, any, TFieldValues>' is not assignable to parameter of type 'UseFormReturn<output<TSchema>>'.
+  Type 'UseFormReturn<output<TSchema>, any, TFieldValues>' is not assignable to type 'UseFormReturn<output<TSchema>>'.
+    Types of property 'handleSubmit' are incompatible.
+      Type 'UseFormHandleSubmit<output<TSchema>, TFieldValues>' is not assignable to type 'UseFormHandleSubmit<output<TSchema>, output<TSchema>>'.
+        Types of parameters 'onValid' and 'onValid' are incompatible.
+          Types of parameters 'data' and 'data' are incompatible.
+            Type 'TFieldValues' is not assignable to type 'output<TSchema>'.
+              Type 'FieldValues' is not assignable to type 'output<TSchema>'.
+src/components/forms/FormInput.tsx(3,17): error TS2305: Module '"../ui/input"' has no exported member 'InputProps'.
+src/components/forms/FormInput.tsx(5,20): error TS2305: Module '"../ui/textarea"' has no exported member 'TextareaProps'.
+src/components/forms/FormInput.tsx(40,35): error TS2322: Type '{ children: string; htmlFor: Path<T>; required: InputProps; }' is not assignable to type 'IntrinsicAttributes & LabelProps & RefAttributes<HTMLLabelElement>'.
+  Property 'required' does not exist on type 'IntrinsicAttributes & LabelProps & RefAttributes<HTMLLabelElement>'.
+src/components/forms/FormInput.tsx(46,13): error TS2322: Type '{ onChange: (...event: any[]) => void; onBlur: Noop; value: PathValueImpl<T, Path<T>>; disabled?: boolean | undefined; name: Path<T>; ref: RefCallBack; id: Path<...>; error: boolean; helperText: string | undefined; }' is not assignable to type 'IntrinsicAttributes & ClassAttributes<HTMLInputElement> & InputHTMLAttributes<HTMLInputElement>'.
+  Property 'error' does not exist on type 'IntrinsicAttributes & ClassAttributes<HTMLInputElement> & InputHTMLAttributes<HTMLInputElement>'. Did you mean 'onError'?
+src/components/forms/FormInput.tsx(89,35): error TS2322: Type '{ children: string; htmlFor: Path<T>; required: TextareaProps; }' is not assignable to type 'IntrinsicAttributes & LabelProps & RefAttributes<HTMLLabelElement>'.
+  Property 'required' does not exist on type 'IntrinsicAttributes & LabelProps & RefAttributes<HTMLLabelElement>'.
+src/components/forms/FormInput.tsx(95,13): error TS2322: Type '{ onChange: (...event: any[]) => void; onBlur: Noop; value: PathValueImpl<T, Path<T>>; disabled?: boolean | undefined; name: Path<T>; ref: RefCallBack; id: Path<...>; error: boolean; helperText: string | undefined; }' is not assignable to type 'IntrinsicAttributes & ClassAttributes<HTMLTextAreaElement> & TextareaHTMLAttributes<HTMLTextAreaElement>'.
+  Property 'error' does not exist on type 'IntrinsicAttributes & ClassAttributes<HTMLTextAreaElement> & TextareaHTMLAttributes<HTMLTextAreaElement>'. Did you mean 'onError'?
+src/components/forms/FormInput.tsx(143,35): error TS2322: Type '{ children: string; htmlFor: Path<T>; required: boolean | undefined; }' is not assignable to type 'IntrinsicAttributes & LabelProps & RefAttributes<HTMLLabelElement>'.
+  Property 'required' does not exist on type 'IntrinsicAttributes & LabelProps & RefAttributes<HTMLLabelElement>'.
+src/components/ui/index.ts(4,39): error TS2305: Module '"./button"' has no exported member 'ButtonProps'.
+src/components/ui/index.ts(13,22): error TS2305: Module '"./input"' has no exported member 'InputProps'.
+src/components/ui/index.ts(14,22): error TS2305: Module '"./label"' has no exported member 'LabelProps'.
+src/components/ui/index.ts(15,25): error TS2305: Module '"./textarea"' has no exported member 'TextareaProps'.
+src/components/ui/index.ts(16,37): error TS2305: Module '"./badge"' has no exported member 'BadgeProps'.
+src/components/ui/index.ts(17,19): error TS2305: Module '"./spinner"' has no exported member 'spinnerVariants'.
+src/components/ui/index.ts(17,41): error TS2305: Module '"./spinner"' has no exported member 'SpinnerProps'.
+src/hooks/useZodForm.ts(18,28): error TS2344: Type 'output<TSchema>' does not satisfy the constraint 'FieldValues'.
+  Type 'unknown' is not assignable to type 'FieldValues'.
+src/hooks/useZodForm.ts(21,18): error TS2344: Type 'output<TSchema>' does not satisfy the constraint 'FieldValues'.
+  Type 'unknown' is not assignable to type 'FieldValues'.
+src/hooks/useZodForm.ts(24,3): error TS2322: Type 'UseFormReturn<output<TSchema>, any, TFieldValues>' is not assignable to type 'UseFormReturn<output<TSchema>>'.
+  Types of property 'handleSubmit' are incompatible.
+    Type 'UseFormHandleSubmit<output<TSchema>, TFieldValues>' is not assignable to type 'UseFormHandleSubmit<output<TSchema>, output<TSchema>>'.
+      Types of parameters 'onValid' and 'onValid' are incompatible.
+        Types of parameters 'data' and 'data' are incompatible.
+          Type 'TFieldValues' is not assignable to type 'output<TSchema>'.
+            Type 'FieldValues' is not assignable to type 'output<TSchema>'.
+src/hooks/useZodForm.ts(24,18): error TS2344: Type 'output<TSchema>' does not satisfy the constraint 'FieldValues'.
+  Type 'unknown' is not assignable to type 'FieldValues'.
+src/hooks/useZodForm.ts(26,27): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(schema: Zod3Type<unknown, FieldValues>, schemaOptions?: ParseParams | undefined, resolverOptions?: NonRawResolverOptions | undefined): Resolver<...>', gave the following error.
+    Argument of type 'TSchema' is not assignable to parameter of type 'Zod3Type<unknown, FieldValues>'.
+      Type 'ZodType<unknown, unknown, $ZodTypeInternals<unknown, unknown>>' is not assignable to type 'Zod3Type<unknown, FieldValues>'.
+        Types of property '_input' are incompatible.
+          Type 'unknown' is not assignable to type 'FieldValues'.
+  Overload 2 of 4, '(schema: $ZodType<unknown, FieldValues, $ZodTypeInternals<unknown, FieldValues>>, schemaOptions?: ParseContext<$ZodIssue> | undefined, resolverOptions?: NonRawResolverOptions | undefined): Resolver<...>', gave the following error.
+    Argument of type 'TSchema' is not assignable to parameter of type '$ZodType<unknown, FieldValues, $ZodTypeInternals<unknown, FieldValues>>'.
+      Type 'ZodType<unknown, unknown, $ZodTypeInternals<unknown, unknown>>' is not assignable to type '$ZodType<unknown, FieldValues, $ZodTypeInternals<unknown, FieldValues>>'.
+        Types of property '_zod' are incompatible.
+          Type '$ZodTypeInternals<unknown, unknown>' is not assignable to type '$ZodTypeInternals<unknown, FieldValues>'.
+            Type 'unknown' is not assignable to type 'FieldValues'.
+src/modules/auth/core/_requests.ts(107,11): error TS2322: Type '{ users: {}; }' is not assignable to type 'null'.
+src/pages/dashboard/DashboardWrapper.tsx(40,5): error TS2554: Expected 0-2 arguments, but got 3.
+src/pages/dashboard/DashboardWrapper.tsx(53,26): error TS2345: Argument of type 'DocumentData' is not assignable to parameter of type 'SetStateAction<{ hiddenWidgets: never[]; compactMode: boolean; }>'.
+  Type 'DocumentData' is missing the following properties from type '{ hiddenWidgets: never[]; compactMode: boolean; }': hiddenWidgets, compactMode
+src/pages/dashboard/DashboardWrapper.tsx(83,53): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+src/pages/dashboard/DashboardWrapper.tsx(134,25): error TS2322: Type '{ projectDetails: any; statusName: any; statusColor: any; id: string; }[]' is not assignable to type 'never[]'.
+  Type '{ projectDetails: any; statusName: any; statusColor: any; id: string; }' is not assignable to type 'never'.
+src/pages/dashboard/DashboardWrapper.tsx(145,17): error TS2322: Type '{ projectDetails: any; statusName: any; statusColor: any; id: string; }[]' is not assignable to type 'never[]'.
+  Type '{ projectDetails: any; statusName: any; statusColor: any; id: string; }' is not assignable to type 'never'.
+src/pages/dashboard/DashboardWrapper.tsx(146,17): error TS2322: Type 'any[]' is not assignable to type 'never[]'.
+  Type 'any' is not assignable to type 'never'.
+src/routing/WorkspaceAcronymRedirect.tsx(13,7): error TS2367: This comparison appears to be unintentional because the types '"error" | "pending" | "success"' and '"loading"' have no overlap.
+src/test/components/ui.test.tsx(39,22): error TS2322: Type '{ children: string; isLoading: true; }' is not assignable to type 'IntrinsicAttributes & ClassAttributes<HTMLButtonElement> & ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<...> & { ...; }'.
+  Property 'isLoading' does not exist on type 'IntrinsicAttributes & ClassAttributes<HTMLButtonElement> & ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<...> & { ...; }'.
+src/test/components/ui.test.tsx(86,21): error TS2322: Type '{ error: true; helperText: string; }' is not assignable to type 'IntrinsicAttributes & ClassAttributes<HTMLInputElement> & InputHTMLAttributes<HTMLInputElement>'.
+  Property 'error' does not exist on type 'IntrinsicAttributes & ClassAttributes<HTMLInputElement> & InputHTMLAttributes<HTMLInputElement>'. Did you mean 'onError'?
+src/test/components/ui.test.tsx(113,21): error TS2322: Type '"success"' is not assignable to type '"link" | "default" | "secondary" | "outline" | "ghost" | "destructive" | null | undefined'.
+src/test/components/ui.test.tsx(125,21): error TS2322: Type '{ children: string; required: true; }' is not assignable to type 'IntrinsicAttributes & LabelProps & RefAttributes<HTMLLabelElement>'.
+  Property 'required' does not exist on type 'IntrinsicAttributes & LabelProps & RefAttributes<HTMLLabelElement>'.
+src/test/components/ui.test.tsx(137,24): error TS2322: Type '{ error: true; helperText: string; }' is not assignable to type 'IntrinsicAttributes & ClassAttributes<HTMLTextAreaElement> & TextareaHTMLAttributes<HTMLTextAreaElement>'.
+  Property 'error' does not exist on type 'IntrinsicAttributes & ClassAttributes<HTMLTextAreaElement> & TextareaHTMLAttributes<HTMLTextAreaElement>'. Did you mean 'onError'?
+src/test/components/ui.test.tsx(149,44): error TS2322: Type '{ size: string; "data-testid": string; }' is not assignable to type 'IntrinsicAttributes & SVGProps<SVGSVGElement>'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & SVGProps<SVGSVGElement>'.
+src/test/components/ui.test.tsx(152,25): error TS2322: Type '{ size: string; "data-testid": string; }' is not assignable to type 'IntrinsicAttributes & SVGProps<SVGSVGElement>'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & SVGProps<SVGSVGElement>'.
+src/test/components/ui.test.tsx(157,23): error TS2322: Type '{ label: string; }' is not assignable to type 'IntrinsicAttributes & SVGProps<SVGSVGElement>'.
+  Property 'label' does not exist on type 'IntrinsicAttributes & SVGProps<SVGSVGElement>'.
+src/types/schemas.ts(61,19): error TS2554: Expected 2-3 arguments, but got 1.

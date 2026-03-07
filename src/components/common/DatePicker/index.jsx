@@ -7,7 +7,6 @@ import Input from '../Input';
 
 import DateSection from './DateSection';
 import TimeSection from './TimeSection';
-import { StyledDatePicker, Dropdown } from './Styles';
 
 const propTypes = {
   className: PropTypes.string,
@@ -42,7 +41,7 @@ const DatePicker = ({ className, withTime, value, onChange, ...inputProps }) => 
   };
 
   return (
-    <StyledDatePicker ref={$containerRef}>
+    <div className="relative" ref={$containerRef}>
       <div className="position-relative w-100">
         <Input
           icon="calendar"
@@ -68,7 +67,7 @@ const DatePicker = ({ className, withTime, value, onChange, ...inputProps }) => 
         )}
       </div>
       {isDropdownOpen && (
-        <Dropdown withTime={withTime}>
+        <div className={`absolute z-50 top-[130%] right-0 bg-white rounded shadow-lg ${withTime ? "w-[360px] pr-[90px]" : "w-[270px]"}`}>
           <DateSection
             withTime={withTime}
             value={ensureValidDateValue(value)}
@@ -76,15 +75,15 @@ const DatePicker = ({ className, withTime, value, onChange, ...inputProps }) => 
             setDropdownOpen={setDropdownOpen}
           />
           {withTime && (
-            <TimeSection 
-              value={ensureValidDateValue(value)} 
-              onChange={onChange} 
-              setDropdownOpen={setDropdownOpen} 
+            <TimeSection
+              value={ensureValidDateValue(value)}
+              onChange={onChange}
+              setDropdownOpen={setDropdownOpen}
             />
           )}
-        </Dropdown>
+        </div>
       )}
-    </StyledDatePicker>
+    </div>
   );
 };
 

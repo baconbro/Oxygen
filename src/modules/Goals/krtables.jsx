@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import { useWorkspace } from '../../contexts/WorkspaceProvider';
 import { customStatus, getScoreColor } from '../../constants/custom';
-import { Status } from '../IssueDetails/Status/Styles';
 import { useNavigate } from 'react-router-dom';
 
 const KRTable = ({ parentGoalId }) => {
@@ -59,13 +58,12 @@ const KRTable = ({ parentGoalId }) => {
                 </span>
               </div>
               <div className="d-flex align-items-center gap-2 ms-3">
-                <Status
-                  className={`btn btn-sm btn-${customStatus.IssueStatusClass[goal.status] || 'secondary'}`}
-                  color={goal.status}
+                <div
+                  className={`btn btn-sm btn-${customStatus.IssueStatusClass[goal.status] || 'secondary'} uppercase transition-all duration-100`}
                   style={{ fontSize: '0.75rem', padding: '2px 8px' }}
                 >
                   {customStatus.IssueStatusCopy[goal.status] || goal.status}
-                </Status>
+                </div>
               </div>
             </div>
 

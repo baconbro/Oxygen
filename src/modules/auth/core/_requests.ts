@@ -1,9 +1,9 @@
 import axios from 'axios'
-import {AuthModel, UserModel} from './_models'
+import { AuthModel, UserModel } from './_models'
 import * as FirestoreService from '../../../services/firestore'
 // Add import for userServices
 import { getUser, getOrgUsers } from '../../../services/userServices'
-import {env} from '../../../utils/env'
+import { env } from '../../../utils/env'
 
 
 const API_URL = env.apiUrl
@@ -16,18 +16,20 @@ export const REQUEST_PASSWORD_URL = `${API_URL}/forgot_password`
 // Server should return AuthModel
 export async function login(email: string, password: string) {
   const userCredential = await FirestoreService.logInWithEmailAndPassword(email, password)
-  const auth = {api_token: userCredential.user.email,
-  created_at: "novalue",
-  email: userCredential.user.email,
-  first_name: "novalue",
-  id: 0,
-  last_name: "novalue",
-  updated_at: "novalue"}
-  return  auth
-/*   return axios.post<AuthModel>(LOGIN_URL, {
-    email,
-    password,
-  }) */
+  const auth = {
+    api_token: userCredential.user.email,
+    created_at: "novalue",
+    email: userCredential.user.email,
+    first_name: "novalue",
+    id: 0,
+    last_name: "novalue",
+    updated_at: "novalue"
+  }
+  return auth
+  /*   return axios.post<AuthModel>(LOGIN_URL, {
+      email,
+      password,
+    }) */
 }
 
 // Server should return AuthModel
@@ -39,21 +41,23 @@ export async function register(
   password_confirmation: string
 ) {
   const userCredential = await FirestoreService.registerWithEmailAndPassword(firstname, email, password, lastname)
-  const auth = {api_token: userCredential.user.email,
-  created_at: "novalue",
-  email: userCredential.user.email,
-  first_name: "novalue",
-  id: 0,
-  last_name: "novalue",
-  updated_at: "novalue"}
-  return  auth
-/*   return axios.post(REGISTER_URL, {
-    email,
-    first_name: firstname,
-    last_name: lastname,
-    password,
-    password_confirmation,
-  }) */
+  const auth = {
+    api_token: userCredential.user.email,
+    created_at: "novalue",
+    email: userCredential.user.email,
+    first_name: "novalue",
+    id: 0,
+    last_name: "novalue",
+    updated_at: "novalue"
+  }
+  return auth
+  /*   return axios.post(REGISTER_URL, {
+      email,
+      first_name: firstname,
+      last_name: lastname,
+      password,
+      password_confirmation,
+    }) */
 }
 
 // Server should return object => { result: boolean } (Is Email in DB)
@@ -66,46 +70,46 @@ export function requestPassword(email: string) {
 
 export async function getUserByToken(token: string | null, setOrgUsersFunc: ((orgUsers: any) => void) | null = null) { // get user info from user tab
   type user = {
-    photoURL?:string; 
-    email?:string | undefined;
-    name?:string | undefined;
+    photoURL?: string;
+    email?: string | undefined;
+    name?: string | undefined;
     orgs?: string[];
     currentOrg?: string;
     orgUserData?: any;
     // Add other possible user properties
   };
-  
+
   // Maximum number of retry attempts
   const maxRetries = 5;
   // Initial delay (longer to allow for Firebase initialization)
-  let retryDelay = 2000; 
+  let retryDelay = 2000;
   // Exponential backoff factor
   const backoffFactor = 1.5;
-  
+
   // Function to try getting user info
   const tryGetUserInfo = async (attempt: number): Promise<user> => {
     let userInfo: user = {};
-    let orgUsers = null;
-    
+    let orgUsers: any = null;
+
     try {
       // Get user data from combined sources
       const userData = await getUser(token);
-      
+
       if (!userData || userData.length === 0) {
         throw new Error("User data not found");
       }
-      
+
       userInfo = userData[0].data();
-      
+
       // If we found user data and they have an organization
       if (userInfo && userInfo.currentOrg) {
         const orgId = userInfo.currentOrg;
-        
+
         try {
           // Get all users from the organization
           const orgUsersResult = await getOrgUsers(orgId);
           orgUsers = orgUsersResult;
-          
+
           // Set org users in context if function was provided
           if (setOrgUsersFunc && typeof setOrgUsersFunc === 'function') {
             setOrgUsersFunc(orgUsers);
@@ -114,12 +118,12 @@ export async function getUserByToken(token: string | null, setOrgUsersFunc: ((or
           console.error('Error fetching organization users:', error);
         }
       }
-      
+
       if (Object.keys(userInfo).length === 0) {
         if (attempt < maxRetries) {
           // Implement exponential backoff
           retryDelay = Math.floor(retryDelay * backoffFactor);
-          
+
           return new Promise(resolve => {
             setTimeout(async () => {
               resolve(await tryGetUserInfo(attempt + 1));
@@ -132,13 +136,13 @@ export async function getUserByToken(token: string | null, setOrgUsersFunc: ((or
           return userInfo;
         }
       }
-      
+
       return userInfo;
     } catch (error) {
       if (attempt < maxRetries) {
         // Also retry on errors, with exponential backoff
         retryDelay = Math.floor(retryDelay * backoffFactor);
-        
+
         return new Promise(resolve => {
           setTimeout(async () => {
             resolve(await tryGetUserInfo(attempt + 1));
@@ -152,12 +156,12 @@ export async function getUserByToken(token: string | null, setOrgUsersFunc: ((or
       }
     }
   };
-  
+
   // Start the retry process
   const userInfo = await tryGetUserInfo(1);
-  
+
   const data = {
-    user:{
+    user: {
       all: userInfo,
     }
   };

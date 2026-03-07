@@ -66,18 +66,23 @@ export function useFormField() {
 /**
  * Form component with Zod validation
  */
-interface FormProps<TSchema extends z.ZodType>
-  extends Omit<React.FormHTMLAttributes<HTMLFormElement>, 'onSubmit'> {
+interface FormProps<
+  TSchema extends z.ZodType<any, any, any>,
+  TFieldValues extends FieldValues = z.infer<TSchema>
+> extends Omit<React.FormHTMLAttributes<HTMLFormElement>, 'onSubmit' | 'children'> {
   schema: TSchema
-  onSubmit: SubmitHandler<z.infer<TSchema>>
-  defaultValues?: UseFormProps<z.infer<TSchema>>['defaultValues']
+  onSubmit: SubmitHandler<TFieldValues>
+  defaultValues?: UseFormProps<TFieldValues>['defaultValues']
   children:
-    | React.ReactNode
-    | ((form: UseFormReturn<z.infer<TSchema>>) => React.ReactNode)
-  form?: UseFormReturn<z.infer<TSchema>>
+  | React.ReactNode
+  | ((form: UseFormReturn<TFieldValues>) => React.ReactNode)
+  form?: UseFormReturn<TFieldValues>
 }
 
-export function Form<TSchema extends z.ZodType>({
+export function Form<
+  TSchema extends z.ZodType<any, any, any>,
+  TFieldValues extends FieldValues = z.infer<TSchema>
+>({
   schema,
   onSubmit,
   defaultValues,
@@ -85,22 +90,22 @@ export function Form<TSchema extends z.ZodType>({
   form: externalForm,
   className,
   ...props
-}: FormProps<TSchema>) {
-  const internalForm = useForm<z.infer<TSchema>>({
-    resolver: zodResolver(schema),
+}: FormProps<TSchema, TFieldValues>) {
+  const internalForm = useForm<TFieldValues>({
+    resolver: zodResolver(schema) as any,
     defaultValues,
-  })
+  } as any) as any
 
   const form = externalForm ?? internalForm
 
   return (
     <FormProvider {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit as any) as any}
         className={className}
         {...props}
       >
-        {typeof children === 'function' ? children(form) : children}
+        {typeof children === 'function' ? children(form as any) : children}
       </form>
     </FormProvider>
   )
@@ -130,7 +135,7 @@ export function FormField<
 /**
  * Form item container
  */
-interface FormItemProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface FormItemProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export const FormItem = React.forwardRef<HTMLDivElement, FormItemProps>(
   ({ className, ...props }, ref) => {
@@ -148,7 +153,7 @@ FormItem.displayName = 'FormItem'
 /**
  * Form label
  */
-interface FormLabelProps extends React.ComponentPropsWithoutRef<typeof Label> {}
+interface FormLabelProps extends React.ComponentPropsWithoutRef<typeof Label> { }
 
 export const FormLabel = React.forwardRef<HTMLLabelElement, FormLabelProps>(
   ({ className, ...props }, ref) => {
@@ -169,7 +174,7 @@ FormLabel.displayName = 'FormLabel'
 /**
  * Form control wrapper for inputs
  */
-interface FormControlProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface FormControlProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export const FormControl = React.forwardRef<HTMLDivElement, FormControlProps>(
   ({ ...props }, ref) => {
@@ -196,7 +201,7 @@ FormControl.displayName = 'FormControl'
  * Form description text
  */
 interface FormDescriptionProps
-  extends React.HTMLAttributes<HTMLParagraphElement> {}
+  extends React.HTMLAttributes<HTMLParagraphElement> { }
 
 export const FormDescription = React.forwardRef<
   HTMLParagraphElement,
@@ -218,7 +223,7 @@ FormDescription.displayName = 'FormDescription'
 /**
  * Form error message
  */
-interface FormMessageProps extends React.HTMLAttributes<HTMLParagraphElement> {}
+interface FormMessageProps extends React.HTMLAttributes<HTMLParagraphElement> { }
 
 export const FormMessage = React.forwardRef<
   HTMLParagraphElement,

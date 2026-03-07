@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { SearchComponent } from '../../../../components/common'
 import { InlineSVG } from '../../../../utils'
 import { useWorkspace } from '../../../../contexts/WorkspaceProvider'
-import { Status } from '../../../../modules/IssueDetails/Status/Styles'
+
 
 interface IssueTypeDetails {
   id: number; // Or string, if your IDs are strings
@@ -89,11 +89,11 @@ const Search = ({ orgId, scope, currentId, onAddDependency }: { orgId: any, scop
 
         </div>
         <div className='d-flex flex-column'>
-          <Status color={issue.status}>
+          <div className="px-2 py-1 text-[11px] font-bold uppercase rounded bg-gray-100 text-gray-600">
             {project.config.issueStatus.find((statusName: any) => statusName.id === issue.status)?.name
               || 'Status Not Found' // Provide a default value
             }
-          </Status>
+          </div>
         </div>
       </div>
     )
@@ -109,8 +109,8 @@ const Search = ({ orgId, scope, currentId, onAddDependency }: { orgId: any, scop
       createdAt: new Date().getTime(),
       description: '',
       sourceTarget: "endOfTask", // DateExtremity of from
-        ownTarget: "startOfTask", // DateExtremity of to
-        sourceId: issue.id.toString()// for Gantt plugin only
+      ownTarget: "startOfTask", // DateExtremity of to
+      sourceId: issue.id.toString()// for Gantt plugin only
     };
     onAddDependency(newDependency);
 
@@ -139,11 +139,11 @@ const Search = ({ orgId, scope, currentId, onAddDependency }: { orgId: any, scop
 
         </div>
         <div className='d-flex flex-column'>
-          <Status color={issue.status}>
+          <div className="px-2 py-1 text-[11px] font-bold uppercase rounded bg-gray-100 text-gray-600">
             {project.config.issueStatus.find((statusName: any) => statusName.id === issue.status)?.name
               || 'Status Not Found' // Provide a default value
             }
-          </Status>
+          </div>
         </div>
       </div>
     )

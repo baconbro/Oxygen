@@ -2,15 +2,8 @@ import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { xor } from 'lodash';
 import { useNavigate, useLocation } from 'react-router-dom';
-import {
-  Filters,
-  SearchInput,
-  Avatars,
-  AvatarIsActiveBorder,
-  StyledAvatar,
-  ClearAll,
-} from './Styles';
-import { Modal } from 'react-bootstrap'
+import { InputDebounced, Avatar } from '../../../../components/common';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import ProjectMembers from '../../WorkspaceSettings/Members';
 import { useWorkspace } from '../../../../contexts/WorkspaceProvider';
 import findAvailableParameters from '../../../../utils/issueVariables';
@@ -49,7 +42,7 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
         const userId = typeof projectUser.id === "number" ? projectUser.id.toString() : projectUser.id;
         // Find matching user in orgUsers by uid
         const orgUserData = orgUsers.users[userId];
-        
+
         if (orgUserData) {
           return {
             ...projectUser,
@@ -69,7 +62,7 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
           };
         }
       });
-      
+
       setProjectMembers(mappedUsers);
       setIsLoading(false);
     }
@@ -79,7 +72,7 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
   const updateURLWithFilters = (updatedFilters) => {
     const currentFilters = { ...filters, ...updatedFilters };
     const searchParams = new URLSearchParams(location.search);
-    
+
     // Preserve non-filter related params that might exist in the URL
     const otherParams = [];
     searchParams.forEach((value, key) => {
@@ -87,10 +80,10 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
         otherParams.push([key, value]);
       }
     });
-    
+
     // Clear existing params and set new ones
     searchParams.forEach((_, key) => searchParams.delete(key));
-    
+
     // Add filter params
     if (currentFilters.searchTerm) searchParams.set('search', currentFilters.searchTerm);
     if (currentFilters.userIds.length > 0) searchParams.set('users', currentFilters.userIds.join(','));
@@ -101,10 +94,10 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
     if (currentFilters.hideOld !== 30) searchParams.set('hideOld', currentFilters.hideOld.toString());
     if (currentFilters.sprint) searchParams.set('sprint', currentFilters.sprint);
     if (currentFilters.wpkg) searchParams.set('wpkg', currentFilters.wpkg);
-    
+
     // Restore other params
     otherParams.forEach(([key, value]) => searchParams.set(key, value));
-    
+
     navigate({ pathname: location.pathname, search: searchParams.toString() }, { replace: true });
   };
 
@@ -118,7 +111,7 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const urlFilters = {};
-    
+
     if (searchParams.has('search')) urlFilters.searchTerm = searchParams.get('search');
     if (searchParams.has('users')) urlFilters.userIds = searchParams.get('users').split(',');
     if (searchParams.has('recent')) urlFilters.recent = searchParams.get('recent') === 'true';
@@ -128,7 +121,7 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
     if (searchParams.has('hideOld')) urlFilters.hideOld = parseInt(searchParams.get('hideOld'));
     if (searchParams.has('sprint')) urlFilters.sprint = searchParams.get('sprint');
     if (searchParams.has('wpkg')) urlFilters.wpkg = searchParams.get('wpkg');
-    
+
     if (Object.keys(urlFilters).length > 0) {
       mergeFilters(urlFilters);
     }
@@ -173,12 +166,12 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
     const typeIn = type.split(':')[0];
     mergeFiltersWithURL({ viewType: xor(viewType, [typeIn]) });
   }
-  
+
   const handleStatusChange = status => {
     const statusIn = status.split(':')[0];
     mergeFiltersWithURL({ viewStatus: xor(viewStatus, [statusIn]) });
   }
-  
+
   //reset filters
   const clearFilters = () => {
     mergeFiltersWithURL(defaultFilters);
@@ -188,146 +181,131 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
   if (!project || Object.keys(project).length === 0) {
     return null;
   }
-  
+
   return (
     <div className="d-flex flex-wrap flex-stack pb-7">
-      <Filters data-testid="board-filters">
-        <SearchInput
+      <div className="flex items-center" data-testid="board-filters">
+        <InputDebounced
           value={searchTerm}
           onChange={value => mergeFiltersWithURL({ searchTerm: value })}
           placeholder='Search'
-          className="form-control"
+          className="form-control mr-[18px] w-[160px]"
         />
-        <Avatars>
+        <div className="flex flex-row-reverse mx-[2px] mr-[12px]">
           {projectMembers && projectMembers.map(user => (
-            <AvatarIsActiveBorder key={user.uid} isActive={userIds.includes(user.uid)}>
-              <StyledAvatar
+            <div
+              key={user.uid}
+              className={`inline-flex -ml-[2px] rounded-full transition-transform duration-100 cursor-pointer hover:-translate-y-[5px] ${userIds.includes(user.uid) ? 'shadow-[0_0_0_4px_#007bff]' : ''}`}
+            >
+              <Avatar
                 avatarUrl={user.photoURL || ""}
                 name={user.name}
                 size={35}
-                className='avatar-circle'
+                className={`avatar-circle shadow-[0_0_0_2px_#fff]`}
                 onClick={() => mergeFiltersWithURL({ userIds: xor(userIds, [user.uid]) })}
               />
-            </AvatarIsActiveBorder>
+            </div>
           ))}
-        </Avatars>
+        </div>
         {isLoading && <span className='spinner-border spinner-border-sm align-middle ms-2'></span>}
 
         <a href="#" className="avatar avatar-35px avatar-circle" onClick={() => setShowMembersModal(true)} >
           <span className="avatar-label bg-secondary text-gray-300 fs-8 fw-bold"><i className="bi bi-person-plus-fill"></i> </span>
         </a>
-        <Modal
-          id='modal_issueDetail'
-          tabIndex={-1}
-          aria-hidden='true'
-          dialogClassName='modal-dialog modal-dialog-centered mw-900px'
-          show={showMembersModal}
-          onHide={() => closeModal()}
-          animation={false}
-        >
-          <div className='modal-header'>
-            <h2>Add user to workspace</h2>
-            <div className='btn btn-sm btn-icon btn-active-color-primary' onClick={() => closeModal()}>
-              <i className='bi bi-x fs-2'></i>
+        <Dialog open={showMembersModal} onOpenChange={(open) => !open && closeModal()}>
+          <DialogContent className="sm:max-w-[900px]">
+            <DialogHeader>
+              <DialogTitle>Add user to workspace</DialogTitle>
+            </DialogHeader>
+            <div className='py-4'>
+              <ProjectMembers project={project} spaceId={project?.spaceId} />
             </div>
-          </div>
-          <div className='modal-body py-lg-10 px-lg-10'>
-            <ProjectMembers project={project} spaceId={project?.spaceId} />
-          </div>
-        </Modal>
+          </DialogContent>
+        </Dialog>
         <button
           onClick={() => mergeFiltersWithURL({ recent: !recent })}
           className="btn btn-sm btn-flex bg-body btn-color-gray-700 btn-active-color-primary fw-bold ms-2"
         >
           Recently Updated
         </button>
-        <Modal
-          id='modal_issueFilter'
-          tabIndex={-1}
-          aria-hidden='true'
-          dialogClassName='modal-dialog modal-dialog-centered mw-900px'
-          show={showFilterModal}
-          onHide={() => closeModal()}
-          animation={false}
-        >
-          <div className='modal-header'>
-            <h2>Filter</h2>
-            <div className='btn btn-sm btn-icon btn-active-color-primary' onClick={() => closeModal()}>
-              <i className='bi bi-x fs-2'></i>
-            </div>
-          </div>
-          <div className='modal-body py-lg-10 px-lg-10'>
-            <div className="px-7 py-5">
-              <div className="mb-10">
-                <label className="form-label fw-semibold">Issues Type:</label>
-                {project.config.issueType && Object.values(project.config.issueType).map(({ id, name }) => (
-                  <div className="d-flex mb-1" key={id}>
-                    <label className="form-check form-check-sm form-check-custom form-check-solid me-5">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        checked={viewType.includes(id)}
-                        onChange={() => handleTypeChange(id)}
-                      />
-                      <span className="form-check-label">
-                        {name}
-                      </span>
-                    </label>
-                  </div>
-                ))}
-              </div>
-              <div className="mb-10">
-                <label className="form-label fw-semibold">Issues Status:</label>
+        <Dialog open={showFilterModal} onOpenChange={(open) => !open && closeModal()}>
+          <DialogContent className="sm:max-w-[900px]">
+            <DialogHeader>
+              <DialogTitle>Filter</DialogTitle>
+            </DialogHeader>
+            <div className='py-4'>
+              <div className="px-7 py-5">
+                <div className="mb-10">
+                  <label className="form-label fw-semibold">Issues Type:</label>
+                  {project.config.issueType && Object.values(project.config.issueType).map(({ id, name }) => (
+                    <div className="d-flex mb-1" key={id}>
+                      <label className="form-check form-check-sm form-check-custom form-check-solid me-5">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          checked={viewType.includes(id)}
+                          onChange={() => handleTypeChange(id)}
+                        />
+                        <span className="form-check-label">
+                          {name}
+                        </span>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                <div className="mb-10">
+                  <label className="form-label fw-semibold">Issues Status:</label>
 
-                {project.config.issueStatus && Object.values(project.config.issueStatus).map(({ id, name }) => (
-                  <div className="d-flex mb-1" key={id}>
-                    <label className="form-check form-check-sm form-check-custom form-check-solid me-5">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        checked={viewStatus.includes(id)}
-                        onChange={() => handleStatusChange(id)}
-                      />
-                      <span className="form-check-label">
-                        {name}
-                      </span>
-                    </label>
-                  </div>
-                ))}
-              </div>
-              <div className="mb-10">
-                <label className="form-label fw-semibold">Active and future sprints</label>
-                <select className="form-select" onChange={(e) => mergeFiltersWithURL({ sprint: e.target.value })}>
-                  <option value=''>
-                    No sprint selected
-                  </option>
-                  {activeSprints.map(sprint => (
-                    <option key={sprint.id} value={sprint.id}>
-                      {sprint.name}
-                    </option>
+                  {project.config.issueStatus && Object.values(project.config.issueStatus).map(({ id, name }) => (
+                    <div className="d-flex mb-1" key={id}>
+                      <label className="form-check form-check-sm form-check-custom form-check-solid me-5">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          checked={viewStatus.includes(id)}
+                          onChange={() => handleStatusChange(id)}
+                        />
+                        <span className="form-check-label">
+                          {name}
+                        </span>
+                      </label>
+                    </div>
                   ))}
-                </select>
-              </div>
-              <div className="mb-10">
-                <label className="form-label fw-semibold">Work packages</label>
-                <select className="form-select" onChange={(e) => mergeFiltersWithURL({ wpkg: e.target.value })}>
-                  <option value=''>
-                    No work package selected
-                  </option>
-                  {wpkgs.map(wpkg => (
-                    <option key={wpkg.id} value={wpkg.title}>
-                      {wpkg.title}
+                </div>
+                <div className="mb-10">
+                  <label className="form-label fw-semibold">Active and future sprints</label>
+                  <select className="form-select" onChange={(e) => mergeFiltersWithURL({ sprint: e.target.value })}>
+                    <option value=''>
+                      No sprint selected
                     </option>
-                  ))}
-                </select>
-              </div>
-              <div className="d-flex justify-content-end">
-                <button type="reset" className="btn btn-sm btn-light btn-active-light-primary me-2" onClick={() => { clearFilters(); closeModal(); }}>Reset</button>
-                <button type="submit" className="btn btn-sm btn-primary" onClick={() => closeModal()} >Apply</button>
+                    {activeSprints.map(sprint => (
+                      <option key={sprint.id} value={sprint.id}>
+                        {sprint.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mb-10">
+                  <label className="form-label fw-semibold">Work packages</label>
+                  <select className="form-select" onChange={(e) => mergeFiltersWithURL({ wpkg: e.target.value })}>
+                    <option value=''>
+                      No work package selected
+                    </option>
+                    {wpkgs.map(wpkg => (
+                      <option key={wpkg.id} value={wpkg.title}>
+                        {wpkg.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="d-flex justify-content-end">
+                  <button type="reset" className="btn btn-sm btn-light btn-active-light-primary me-2" onClick={() => { clearFilters(); closeModal(); }}>Reset</button>
+                  <button type="submit" className="btn btn-sm btn-primary" onClick={() => closeModal()} >Apply</button>
+                </div>
               </div>
             </div>
-          </div>
-        </Modal>
+          </DialogContent>
+        </Dialog>
         <a href="#" className="btn btn-sm btn-flex bg-body btn-color-gray-700 btn-active-color-primary fw-bold ms-2" onClick={() => setShowFilterModal(true)}>
           <i className={`bi bi-funnel${viewType.length != 0 || viewStatus.length != 0 ? '-fill' : ''} fs-6 text-muted p-0`}><span className="path1"></span><span className="path2"></span></i>
         </a>
@@ -338,9 +316,14 @@ const ProjectBoardFilters = ({ projectUsers, defaultFilters, filters, mergeFilte
           Show old
         </button>
         {!areFiltersCleared && (
-          <ClearAll onClick={() => mergeFiltersWithURL(defaultFilters)}>Clear all</ClearAll>
+          <div
+            className="h-[32px] leading-[32px] ml-[15px] pl-[12px] border-l border-gray-200 text-gray-700 text-[14.5px] cursor-pointer hover:text-gray-500 transition-colors"
+            onClick={() => mergeFiltersWithURL(defaultFilters)}
+          >
+            Clear all
+          </div>
         )}
-      </Filters>
+      </div>
     </div>
   );
 };

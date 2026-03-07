@@ -49,6 +49,7 @@
     outline: 2px solid var(--xgn-primary, #3b82f6);
     outline-offset: 2px;
   }
+
   .dark {
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
@@ -82,89 +83,140 @@
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
   }
+
   .theme {
     --font-sans: 'Geist Variable', sans-serif;
   }
+
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
   }
+
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
   }
+
   html {
-    @apply font-sans;
+    font-family: var(--font-sans, theme('fontFamily.sans'));
   }
 }
 
 /* Component layer for reusable patterns */
 @layer components {
+
   /* Card component with theme awareness */
-  .tw-card {
-    @apply tw-bg-card tw-text-card-foreground tw-rounded-lg tw-border tw-border-border tw-shadow-sm;
+  .card {
+    background-color: var(--card);
+    color: var(--card-foreground);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--xgn-box-shadow-sm);
   }
 
-  /* Button base styles */
-  .tw-btn {
-    @apply tw-inline-flex tw-items-center tw-justify-center tw-whitespace-nowrap tw-rounded-md tw-text-sm tw-font-medium tw-transition-colors;
-    @apply focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-ring focus-visible:tw-ring-offset-2;
-    @apply disabled:tw-pointer-events-none disabled:tw-opacity-50;
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border-radius: calc(var(--radius) - 2px);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
   }
 
-  .tw-btn-primary {
-    @apply tw-btn tw-bg-primary tw-text-primary-foreground hover:tw-bg-primary-700;
+  .btn-primary {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
   }
 
-  .tw-btn-secondary {
-    @apply tw-btn tw-bg-secondary tw-text-secondary-foreground hover:tw-opacity-80;
+  .btn-secondary {
+    background-color: var(--secondary);
+    color: var(--secondary-foreground);
   }
 
-  .tw-btn-outline {
-    @apply tw-btn tw-border tw-border-input tw-bg-background hover:tw-bg-accent hover:tw-text-accent-foreground;
+  .btn-outline {
+    border: 1px solid var(--input);
+    background-color: var(--background);
   }
 
-  .tw-btn-ghost {
-    @apply tw-btn hover:tw-bg-accent hover:tw-text-accent-foreground;
+  .btn-outline:hover {
+    background-color: var(--accent);
+    color: var(--accent-foreground);
   }
 
-  /* Input styles */
-  .tw-input {
-    @apply tw-flex tw-h-10 tw-w-full tw-rounded-md tw-border tw-border-input tw-bg-background tw-px-3 tw-py-2 tw-text-sm;
-    @apply file:tw-border-0 file:tw-bg-transparent file:tw-text-sm file:tw-font-medium;
-    @apply placeholder:tw-text-muted-foreground;
-    @apply focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-ring focus-visible:tw-ring-offset-2;
-    @apply disabled:tw-cursor-not-allowed disabled:tw-opacity-50;
+  .btn-ghost:hover {
+    background-color: var(--accent);
+    color: var(--accent-foreground);
+  }
+
+  .input {
+    display: flex;
+    height: 2.5rem;
+    width: 100%;
+    border-radius: calc(var(--radius) - 2px);
+    border: 1px solid var(--input);
+    background-color: var(--background);
+    padding: 0.5rem 0.75rem;
+  }
+
+  .input::file-selector-button {
+    border-width: 0;
+    background-color: transparent;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .input::placeholder {
+    color: var(--muted-foreground);
+  }
+
+  .input:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+  }
+
+  .input:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
   }
 
   /* Label styles */
-  .tw-label {
-    @apply tw-text-sm tw-font-medium tw-leading-none;
-    @apply peer-disabled:tw-cursor-not-allowed peer-disabled:tw-opacity-70;
+  .label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1;
   }
 }
 
 /* Utility layer for custom utilities */
 @layer utilities {
+
   /* Scrollbar styling */
-  .tw-scrollbar-thin {
+  .scrollbar-thin {
     scrollbar-width: thin;
   }
 
-  .tw-scrollbar-none {
+  .scrollbar-none {
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
 
-  .tw-scrollbar-none::-webkit-scrollbar {
+  .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
 
   /* Text balance for headings */
-  .tw-text-balance {
+  .text-balance {
     text-wrap: balance;
   }
 
-  /* Gradient text */
-  .tw-text-gradient {
-    @apply tw-bg-gradient-to-r tw-from-primary tw-to-info tw-bg-clip-text tw-text-transparent;
+  .text-gradient {
+    background-image: linear-gradient(to right, var(--primary), var(--info));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 }

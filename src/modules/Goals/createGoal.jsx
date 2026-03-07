@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Form } from '../../components/common';
-import { FormElement, FormHeading } from '../Workspace/WorkspaceSettings/Styles';
 import { useAuth } from '../auth';
 import { useAddOKR } from '../../services/okrServices';
 import { useWorkspace } from '../../contexts/WorkspaceProvider';
@@ -128,10 +127,10 @@ const CreateGoal = ({ modalClose, parent, defaultType }) => {
                 }
             }}
         >
-            <FormElement>
-                <FormHeading>
+            <div className="w-full max-w-[640px]">
+                <h1 className="py-1.5 pb-[15px] text-[24px] font-medium">
                     {parent ? (isInitiative ? 'New Initiative' : 'New Key Result') : 'New Goal'}
-                </FormHeading>
+                </h1>
 
                 {/* Goal Type Selector (only when no parent) */}
                 {!parent && (
@@ -415,11 +414,11 @@ const CreateGoal = ({ modalClose, parent, defaultType }) => {
                     </button>
                     <button type="submit" className="btn btn-primary">
                         {goalType === 'kr' ? 'Create Key Result' :
-                         goalType === 'initiative' ? 'Create Initiative' :
-                         'Create Goal'}
+                            goalType === 'initiative' ? 'Create Initiative' :
+                                'Create Goal'}
                     </button>
                 </div>
-            </FormElement>
+            </div>
         </Form>
     );
 };

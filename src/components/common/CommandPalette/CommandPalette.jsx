@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Modal } from "react-bootstrap";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../modules/auth";
 import { globalSearch } from "../../../services/dashboardServices";
@@ -174,190 +174,173 @@ export const CommandPalette = () => {
   const allResults = getAllResults();
 
   return (
-    <Modal
-      show={isOpen}
-      onHide={handleClose}
-      centered
-      size="lg"
-      dialogClassName="command-palette-modal"
-      contentClassName="border-0 shadow-lg"
-    >
-      <div className="command-palette">
-        {/* Search Input */}
-        <div className="p-3 border-bottom">
-          <div className="d-flex align-items-center">
-            <i className="bi bi-search text-muted fs-4 me-3"></i>
-            <input
-              ref={inputRef}
-              type="text"
-              className="form-control form-control-lg border-0 shadow-none ps-0"
-              placeholder="Search items, projects, goals..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              style={{ fontSize: "1.1rem" }}
-            />
-            {isSearching && (
-              <div className="spinner-border spinner-border-sm text-muted" role="status">
-                <span className="visually-hidden">Searching...</span>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="sm:max-w-3xl p-0 overflow-hidden bg-background border-none shadow-lg">
+        <DialogTitle className="sr-only">Command Palette</DialogTitle>
+        <DialogDescription className="sr-only">Search for items, projects, goals and more.</DialogDescription>
+        <div className="command-palette">
+          {/* Search Input */}
+          <div className="p-3 border-b">
+            <div className="flex items-center">
+              <i className="bi bi-search text-muted-foreground text-xl mr-3"></i>
+              <input
+                ref={inputRef}
+                type="text"
+                className="flex h-12 w-full bg-transparent mx-2 rounded-md outline-none placeholder:text-muted-foreground"
+                placeholder="Search items, projects, goals..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              {isSearching && (
+                <div className="animate-spin mr-2">
+                  <i className="bi bi-arrow-repeat text-muted-foreground"></i>
+                </div>
+              )}
+              <kbd className="hidden sm:inline-block bg-muted text-muted-foreground border px-2 py-0.5 rounded text-xs ml-2">esc</kbd>
+            </div>
+          </div>
+
+          {/* Results */}
+          <div
+            ref={resultsRef}
+            className="max-h-[400px] overflow-y-auto"
+          >
+            {allResults.length === 0 && query.length >= 2 && !isSearching && (
+              <div className="text-center py-10 text-muted-foreground">
+                <i className="bi bi-search text-4xl mb-2 block"></i>
+                <p>No results found for "{query}"</p>
               </div>
             )}
-            <kbd className="bg-light text-muted border px-2 ms-2">esc</kbd>
-          </div>
-        </div>
 
-        {/* Results */}
-        <div
-          ref={resultsRef}
-          className="command-palette-results"
-          style={{ maxHeight: "400px", overflowY: "auto" }}
-        >
-          {allResults.length === 0 && query.length >= 2 && !isSearching && (
-            <div className="text-center py-5 text-muted">
-              <i className="bi bi-search fs-2 mb-2 d-block"></i>
-              <p>No results found for "{query}"</p>
-            </div>
-          )}
-
-          {/* Quick Actions (when no query) */}
-          {!query && (
-            <div className="p-2">
-              <div className="text-muted text-uppercase fs-8 fw-bold px-3 py-2">
-                Quick Actions
-              </div>
-              {quickActions.map((action, index) => (
-                <div
-                  key={action.id}
-                  data-index={index}
-                  className={`d-flex align-items-center px-3 py-2 rounded cursor-pointer ${
-                    selectedIndex === index ? "bg-light-primary" : "bg-hover-light"
-                  }`}
-                  onClick={() => handleSelect({ ...action, resultType: "action" })}
-                >
-                  <span className={`symbol symbol-30px me-3`}>
-                    <span className="symbol-label bg-light-primary">
-                      <i className={`bi ${action.icon} text-primary fs-5`}></i>
-                    </span>
-                  </span>
-                  <span className="fw-semibold text-gray-800">{action.label}</span>
-                  {action.shortcut && (
-                    <kbd className="bg-light text-muted border px-2 ms-auto">{action.shortcut}</kbd>
-                  )}
+            {/* Quick Actions (when no query) */}
+            {!query && (
+              <div className="p-2">
+                <div className="text-muted-foreground uppercase text-xs font-bold px-3 py-2">
+                  Quick Actions
                 </div>
-              ))}
-            </div>
-          )}
-
-          {/* Projects */}
-          {results.projects.length > 0 && (
-            <div className="p-2">
-              <div className="text-muted text-uppercase fs-8 fw-bold px-3 py-2">Projects</div>
-              {results.projects.map((project, index) => {
-                const globalIndex = index;
-                return (
+                {quickActions.map((action, index) => (
                   <div
-                    key={project.id}
-                    data-index={globalIndex}
-                    className={`d-flex align-items-center px-3 py-2 rounded cursor-pointer ${
-                      selectedIndex === globalIndex ? "bg-light-primary" : "bg-hover-light"
-                    }`}
-                    onClick={() => handleSelect({ ...project, resultType: "project" })}
+                    key={action.id}
+                    data-index={index}
+                    className={`flex items-center px-3 py-2 rounded-md cursor-pointer transition-colors ${selectedIndex === index ? "bg-accent text-accent-foreground" : "hover:bg-muted/50"
+                      }`}
+                    onClick={() => handleSelect({ ...action, resultType: "action" })}
                   >
-                    <span className="symbol symbol-30px me-3">
-                      <span className="symbol-label bg-light-info">
-                        <i className="bi bi-folder text-info fs-5"></i>
-                      </span>
+                    <span className="flex items-center justify-center w-8 h-8 rounded-md bg-primary/10 mr-3">
+                      <i className={`bi ${action.icon} text-primary text-lg`}></i>
                     </span>
-                    <div className="d-flex flex-column">
-                      <span className="fw-semibold text-gray-800">{project.title}</span>
-                      {project.acronym && (
-                        <span className="text-muted fs-7">{project.acronym}</span>
-                      )}
-                    </div>
+                    <span className="font-medium flex-1">{action.label}</span>
+                    {action.shortcut && (
+                      <kbd className="bg-muted text-muted-foreground border px-2 py-0.5 rounded text-xs ml-auto">{action.shortcut}</kbd>
+                    )}
                   </div>
-                );
-              })}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
 
-          {/* Items */}
-          {results.items.length > 0 && (
-            <div className="p-2">
-              <div className="text-muted text-uppercase fs-8 fw-bold px-3 py-2">Items</div>
-              {results.items.map((item, index) => {
-                const globalIndex = results.projects.length + index;
-                return (
-                  <div
-                    key={item.id}
-                    data-index={globalIndex}
-                    className={`d-flex align-items-center px-3 py-2 rounded cursor-pointer ${
-                      selectedIndex === globalIndex ? "bg-light-primary" : "bg-hover-light"
-                    }`}
-                    onClick={() => handleSelect({ ...item, resultType: "item" })}
-                  >
-                    <span className="symbol symbol-30px me-3">
-                      <span className={`symbol-label bg-light-${getResultColor(item)}`}>
-                        <i className={`bi ${getResultIcon(item)} text-${getResultColor(item)} fs-5`}></i>
+            {/* Projects */}
+            {results.projects.length > 0 && (
+              <div className="p-2">
+                <div className="text-muted-foreground uppercase text-xs font-bold px-3 py-2">Projects</div>
+                {results.projects.map((project, index) => {
+                  const globalIndex = index;
+                  return (
+                    <div
+                      key={project.id}
+                      data-index={globalIndex}
+                      className={`flex items-center px-3 py-2 rounded-md cursor-pointer transition-colors ${selectedIndex === globalIndex ? "bg-accent text-accent-foreground" : "hover:bg-muted/50"
+                        }`}
+                      onClick={() => handleSelect({ ...project, resultType: "project" })}
+                    >
+                      <span className="flex items-center justify-center w-8 h-8 rounded-md bg-info/10 mr-3">
+                        <i className="bi bi-folder text-info text-lg"></i>
                       </span>
-                    </span>
-                    <div className="d-flex flex-column flex-grow-1 overflow-hidden">
-                      <span className="fw-semibold text-gray-800 text-truncate">{item.title}</span>
-                      <span className="text-muted fs-7">#{item.id}</span>
+                      <div className="flex flex-col flex-1 overflow-hidden">
+                        <span className="font-medium truncate">{project.title}</span>
+                        {project.acronym && (
+                          <span className="text-muted-foreground text-xs">{project.acronym}</span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            )}
 
-          {/* Goals */}
-          {results.goals.length > 0 && (
-            <div className="p-2">
-              <div className="text-muted text-uppercase fs-8 fw-bold px-3 py-2">Goals</div>
-              {results.goals.map((goal, index) => {
-                const globalIndex = results.projects.length + results.items.length + index;
-                return (
-                  <div
-                    key={goal.id}
-                    data-index={globalIndex}
-                    className={`d-flex align-items-center px-3 py-2 rounded cursor-pointer ${
-                      selectedIndex === globalIndex ? "bg-light-primary" : "bg-hover-light"
-                    }`}
-                    onClick={() => handleSelect({ ...goal, resultType: "goal" })}
-                  >
-                    <span className="symbol symbol-30px me-3">
-                      <span className="symbol-label bg-light-warning">
-                        <i className="bi bi-trophy text-warning fs-5"></i>
+            {/* Items */}
+            {results.items.length > 0 && (
+              <div className="p-2">
+                <div className="text-muted-foreground uppercase text-xs font-bold px-3 py-2">Items</div>
+                {results.items.map((item, index) => {
+                  const globalIndex = results.projects.length + index;
+                  return (
+                    <div
+                      key={item.id}
+                      data-index={globalIndex}
+                      className={`flex items-center px-3 py-2 rounded-md cursor-pointer transition-colors ${selectedIndex === globalIndex ? "bg-accent text-accent-foreground" : "hover:bg-muted/50"
+                        }`}
+                      onClick={() => handleSelect({ ...item, resultType: "item" })}
+                    >
+                      <span className={`flex items-center justify-center w-8 h-8 rounded-md bg-${getResultColor(item)}/10 mr-3`}>
+                        <i className={`bi ${getResultIcon(item)} text-${getResultColor(item)} text-lg`}></i>
                       </span>
-                    </span>
-                    <div className="d-flex flex-column">
-                      <span className="fw-semibold text-gray-800">{goal.title || goal.name}</span>
-                      {goal.progress !== undefined && (
-                        <span className="text-muted fs-7">{goal.progress}% complete</span>
-                      )}
+                      <div className="flex flex-col flex-1 overflow-hidden">
+                        <span className="font-medium truncate">{item.title}</span>
+                        <span className="text-muted-foreground text-xs">#{item.id}</span>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                  );
+                })}
+              </div>
+            )}
 
-        {/* Footer */}
-        <div className="p-2 border-top bg-light">
-          <div className="d-flex justify-content-center gap-4 text-muted fs-8">
-            <span>
-              <kbd className="bg-white border px-1 me-1">↑↓</kbd> Navigate
-            </span>
-            <span>
-              <kbd className="bg-white border px-1 me-1">↵</kbd> Select
-            </span>
-            <span>
-              <kbd className="bg-white border px-1 me-1">esc</kbd> Close
-            </span>
+            {/* Goals */}
+            {results.goals.length > 0 && (
+              <div className="p-2">
+                <div className="text-muted-foreground uppercase text-xs font-bold px-3 py-2">Goals</div>
+                {results.goals.map((goal, index) => {
+                  const globalIndex = results.projects.length + results.items.length + index;
+                  return (
+                    <div
+                      key={goal.id}
+                      data-index={globalIndex}
+                      className={`flex items-center px-3 py-2 rounded-md cursor-pointer transition-colors ${selectedIndex === globalIndex ? "bg-accent text-accent-foreground" : "hover:bg-muted/50"
+                        }`}
+                      onClick={() => handleSelect({ ...goal, resultType: "goal" })}
+                    >
+                      <span className="flex items-center justify-center w-8 h-8 rounded-md bg-warning/10 mr-3">
+                        <i className="bi bi-trophy text-warning text-lg"></i>
+                      </span>
+                      <div className="flex flex-col flex-1 overflow-hidden">
+                        <span className="font-medium truncate">{goal.title || goal.name}</span>
+                        {goal.progress !== undefined && (
+                          <span className="text-muted-foreground text-xs">{goal.progress}% complete</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="p-2 border-t bg-muted/30">
+            <div className="flex justify-center gap-4 text-muted-foreground text-xs">
+              <span className="flex items-center">
+                <kbd className="bg-background border rounded px-1 min-w-[1.25rem] text-center mr-1.5">↑↓</kbd> Navigate
+              </span>
+              <span className="flex items-center">
+                <kbd className="bg-background border rounded px-1 min-w-[1.25rem] text-center mr-1.5">↵</kbd> Select
+              </span>
+              <span className="flex items-center">
+                <kbd className="bg-background border rounded px-1 mr-1.5">esc</kbd> Close
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 };
 

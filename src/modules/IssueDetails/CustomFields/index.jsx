@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Form as RBForm } from 'react-bootstrap';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useWorkspace } from '../../../contexts/WorkspaceProvider';
 import { useAuth } from '../../auth';
 import { useUpdateWorkspace } from '../../../services/workspaceServices';
@@ -70,7 +70,7 @@ const CustomFields = ({ issue, updateIssue }) => {
       type: newField.type,
       description: newField.description?.trim() || '',
       required: !!newField.required,
-      ...( ['select', 'multiselect', 'radio'].includes(newField.type) && {
+      ...(['select', 'multiselect', 'radio'].includes(newField.type) && {
         options: (newField.options || '')
           .split(',')
           .map(s => s.trim())
@@ -369,144 +369,152 @@ const CustomFields = ({ issue, updateIssue }) => {
         </div>
       ))}
 
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Add New Field</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="mb-3">
-            <label className="form-label">Field Name</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="e.g., Browser Version"
-              value={newField.name}
-              onChange={(e) => setNewField({ ...newField, name: e.target.value })}
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Field Type</label>
-            <select
-              className="form-select"
-              value={newField.type}
-              onChange={(e) => setNewField({ ...newField, type: e.target.value })}
-            >
-              {FIELD_TYPES.map(t => (
-                <option key={t.value} value={t.value}>{t.label}</option>
-              ))}
-            </select>
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Description (optional)</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Help text shown under the field"
-              value={newField.description}
-              onChange={(e) => setNewField({ ...newField, description: e.target.value })}
-            />
-          </div>
-          <div className="form-check form-switch mb-3">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="cf_required"
-              checked={newField.required}
-              onChange={(e) => setNewField({ ...newField, required: e.target.checked })}
-            />
-            <label className="form-check-label" htmlFor="cf_required">Required</label>
-          </div>
-          {['select', 'multiselect', 'radio'].includes(newField.type) && (
+      <Dialog open={showModal} onOpenChange={(open) => !open && setShowModal(false)}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add New Field</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
             <div className="mb-3">
-              <label className="form-label">Options (comma-separated)</label>
+              <label className="form-label">Field Name</label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="e.g., Low, Medium, High"
-                value={newField.options}
-                onChange={(e) => setNewField({ ...newField, options: e.target.value })}
+                placeholder="e.g., Browser Version"
+                value={newField.name}
+                onChange={(e) => setNewField({ ...newField, name: e.target.value })}
               />
             </div>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <button className="btn btn-light" onClick={() => setShowModal(false)}>Cancel</button>
-          <button
-            className="btn btn-primary"
-            onClick={addField}
-            disabled={!newField.name.trim()}
-          >
-            Create
-          </button>
-        </Modal.Footer>
-      </Modal>
+            <div className="mb-3">
+              <label className="form-label">Field Type</label>
+              <select
+                className="form-select"
+                value={newField.type}
+                onChange={(e) => setNewField({ ...newField, type: e.target.value })}
+              >
+                {FIELD_TYPES.map(t => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Description (optional)</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Help text shown under the field"
+                value={newField.description}
+                onChange={(e) => setNewField({ ...newField, description: e.target.value })}
+              />
+            </div>
+            <div className="form-check form-switch mb-3">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="cf_required"
+                checked={newField.required}
+                onChange={(e) => setNewField({ ...newField, required: e.target.checked })}
+              />
+              <label className="form-check-label" htmlFor="cf_required">Required</label>
+            </div>
+            {['select', 'multiselect', 'radio'].includes(newField.type) && (
+              <div className="mb-3">
+                <label className="form-label">Options (comma-separated)</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="e.g., Low, Medium, High"
+                  value={newField.options}
+                  onChange={(e) => setNewField({ ...newField, options: e.target.value })}
+                />
+              </div>
+            )}
+          </div>
+          <div className="flex justify-end gap-2 mt-4">
+            <button className="btn btn-light" onClick={() => setShowModal(false)}>Cancel</button>
+            <button
+              className="btn btn-primary"
+              onClick={addField}
+              disabled={!newField.name.trim()}
+            >
+              Create
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Field Modal */}
-  <Modal show={editModal.open} onHide={() => setEditModal({ open: false, key: null, name: '', description: '', required: false })} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Edit Field</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="mb-3">
-            <label className="form-label">Field Name</label>
-            <input
-              type="text"
-              className="form-control"
-              value={editModal.name}
-              onChange={(e) => setEditModal({ ...editModal, name: e.target.value })}
-            />
+      <Dialog open={editModal.open} onOpenChange={(open) => !open && setEditModal({ open: false, key: null, name: '', description: '', required: false })}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Field</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="mb-3">
+              <label className="form-label">Field Name</label>
+              <input
+                type="text"
+                className="form-control"
+                value={editModal.name}
+                onChange={(e) => setEditModal({ ...editModal, name: e.target.value })}
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Description</label>
+              <input
+                type="text"
+                className="form-control"
+                value={editModal.description}
+                onChange={(e) => setEditModal({ ...editModal, description: e.target.value })}
+              />
+            </div>
+            <div className="form-check form-switch">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="cf_edit_required"
+                checked={!!editModal.required}
+                onChange={(e) => setEditModal({ ...editModal, required: e.target.checked })}
+              />
+              <label className="form-check-label" htmlFor="cf_edit_required">Required</label>
+            </div>
+            <div className="text-muted small mt-3">Note: Field key and type are fixed to keep data consistent across issues.</div>
           </div>
-          <div className="mb-3">
-            <label className="form-label">Description</label>
-            <input
-              type="text"
-              className="form-control"
-              value={editModal.description}
-              onChange={(e) => setEditModal({ ...editModal, description: e.target.value })}
-            />
+          <div className="flex justify-between items-center mt-4">
+            <button
+              className="btn btn-outline-danger"
+              onClick={() => {
+                const { key, name } = editModal;
+                setEditModal({ open: false, key: null, name: '', description: '', required: false });
+                setDeleteModal({ open: true, key, name });
+              }}
+            >
+              Delete field
+            </button>
+            <div className="flex gap-2">
+              <button className="btn btn-light" onClick={() => setEditModal({ open: false, key: null, name: '', description: '', required: false })}>Cancel</button>
+              <button className="btn btn-primary" onClick={saveEdit} disabled={!editModal.name.trim()}>Save</button>
+            </div>
           </div>
-          <div className="form-check form-switch">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="cf_edit_required"
-              checked={!!editModal.required}
-              onChange={(e) => setEditModal({ ...editModal, required: e.target.checked })}
-            />
-            <label className="form-check-label" htmlFor="cf_edit_required">Required</label>
-          </div>
-          <div className="text-muted small mt-3">Note: Field key and type are fixed to keep data consistent across issues.</div>
-        </Modal.Body>
-        <Modal.Footer>
-          <button
-            className="btn btn-outline-danger me-auto"
-            onClick={() => {
-              const { key, name } = editModal;
-              setEditModal({ open: false, key: null, name: '', description: '', required: false });
-              setDeleteModal({ open: true, key, name });
-            }}
-          >
-            Delete field
-          </button>
-          <button className="btn btn-light" onClick={() => setEditModal({ open: false, key: null, name: '', description: '', required: false })}>Cancel</button>
-          <button className="btn btn-primary" onClick={saveEdit} disabled={!editModal.name.trim()}>Save</button>
-        </Modal.Footer>
-      </Modal>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirm Modal */}
-      <Modal show={deleteModal.open} onHide={() => setDeleteModal({ open: false, key: null, name: '' })} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Delete Custom Field</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="text-danger fw-semibold mb-2">This action cannot be undone.</div>
-          <div>Are you sure you want to delete the field "{deleteModal.name}" for this issue type? It will no longer be shown on issues. Existing saved values on other issues will not be automatically removed.</div>
-        </Modal.Body>
-        <Modal.Footer>
-          <button className="btn btn-light" onClick={() => setDeleteModal({ open: false, key: null, name: '' })}>Cancel</button>
-          <button className="btn btn-danger" onClick={confirmDelete}>Delete</button>
-        </Modal.Footer>
-      </Modal>
+      <Dialog open={deleteModal.open} onOpenChange={(open) => !open && setDeleteModal({ open: false, key: null, name: '' })}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Delete Custom Field</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="text-danger fw-semibold mb-2">This action cannot be undone.</div>
+            <div>Are you sure you want to delete the field "{deleteModal.name}" for this issue type? It will no longer be shown on issues. Existing saved values on other issues will not be automatically removed.</div>
+          </div>
+          <div className="flex justify-end gap-2 mt-4">
+            <button className="btn btn-light" onClick={() => setDeleteModal({ open: false, key: null, name: '' })}>Cancel</button>
+            <button className="btn btn-danger" onClick={confirmDelete}>Delete</button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

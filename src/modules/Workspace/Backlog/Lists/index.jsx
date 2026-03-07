@@ -3,7 +3,7 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import { moveItemWithinArray, insertItemIntoArray } from '../../../../utils/javascript';
 import List from './List';
 import EmptyBacklog from '../../../../components/common/emptyStates/emptyBacklog';
-import { Modal } from 'react-bootstrap';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useEffect, useState } from 'react';
 import CreateSprint from '../sprintForm';
 import { useGetSprints, useAddTicketToSprint, useRemoveTicketFromSprint } from '../../../../services/sprintServices';
@@ -56,8 +56,8 @@ const ProjectBoardLists = ({ project, filters, updateLocalProjectIssues }) => {
 
     const issueId = Number(draggableId);
     const issue = project.issues.find(issue => issue.id === issueId);
-  
-      // Update ticket status and position
+
+    // Update ticket status and position
     const updatedFields = {
       status: destination.droppableId,
       listPosition: calculateIssueListPosition(project.issues, destination, source, issueId),
@@ -73,7 +73,7 @@ const ProjectBoardLists = ({ project, filters, updateLocalProjectIssues }) => {
     try {
       if (sprintId === 0) {
         await removeTicketFromSprint.mutateAsync({
-          sprintId : issue.sprintId,
+          sprintId: issue.sprintId,
           spaceId: project.spaceId,
           orgId: currentUser?.all?.currentOrg,
           ticketId: issueId
@@ -141,17 +141,16 @@ const ProjectBoardLists = ({ project, filters, updateLocalProjectIssues }) => {
       </DragDropContext>
       {(project.issues && project.issues.length > 0) ? <></> : <><EmptyBacklog /></>
       }
-      <Modal show={showModal} onHide={handleCloseModal} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <CreateSprint modalClose={handleCloseModal} />
-        </Modal.Body>
-        <Modal.Footer>
-        </Modal.Footer>
-      </Modal>
+      <Dialog open={showModal} onOpenChange={(open) => !open && handleCloseModal()}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Create Sprint</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <CreateSprint modalClose={handleCloseModal} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

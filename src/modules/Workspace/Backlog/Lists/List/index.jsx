@@ -8,7 +8,7 @@ import { useWorkspace } from '../../../../../contexts/WorkspaceProvider';
 import classNames from 'classnames';
 import { filterIssues } from '../../../../../utils/issueFilterUtils';
 import CreateSprint from '../../sprintForm';
-import { Modal } from 'react-bootstrap';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 
 const ProjectBoardList = ({ status, project, filters, currentUserId, isCollapsed, color, isSprint, sprint }) => {
@@ -51,7 +51,7 @@ const ProjectBoardList = ({ status, project, filters, currentUserId, isCollapsed
                 <Header className="mb-0 kanban-column-title">
                   <div>
                     <>
-                      <span 
+                      <span
                         onClick={isSprint ? handleShowModal : undefined}
                         style={isSprint ? { cursor: 'pointer' } : {}}
                         className={isSprint ? "text-primary" : ""}
@@ -74,17 +74,16 @@ const ProjectBoardList = ({ status, project, filters, currentUserId, isCollapsed
                 </Header>
                 {isSprint && (
                   <>
-                    <Modal show={showModal} onHide={handleCloseModal} centered>
-                      <Modal.Header closeButton>
-                        <Modal.Title>
-                        </Modal.Title>
-                      </Modal.Header>
-                      <Modal.Body>
-                        <CreateSprint modalClose={handleCloseModal} sprintData={sprint} />
-                      </Modal.Body>
-                      <Modal.Footer>
-                      </Modal.Footer>
-                    </Modal>
+                    <Dialog open={showModal} onOpenChange={(open) => !open && handleCloseModal()}>
+                      <DialogContent className="sm:max-w-[500px]">
+                        <DialogHeader>
+                          <DialogTitle>Edit Sprint</DialogTitle>
+                        </DialogHeader>
+                        <div className="py-4">
+                          <CreateSprint modalClose={handleCloseModal} sprintData={sprint} />
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </>
                 )}
                 <a
@@ -105,12 +104,12 @@ const ProjectBoardList = ({ status, project, filters, currentUserId, isCollapsed
                   <span className='badge badge-secondary'>{new Date(sprint.startDate).toLocaleDateString()} - {new Date(sprint.endDate).toLocaleDateString()}</span>
                 </div>
               )}
-              <AddItem 
-                status={status} 
-                currentUserId={currentUserId} 
-                spaceId={project.spaceId} 
-                lastIssue={firstIssue(allListIssues)} 
-                isSprint={isSprint} 
+              <AddItem
+                status={status}
+                currentUserId={currentUserId}
+                spaceId={project.spaceId}
+                lastIssue={firstIssue(allListIssues)}
+                isSprint={isSprint}
                 sprintId={sprint?.id}
               />
               <Issues

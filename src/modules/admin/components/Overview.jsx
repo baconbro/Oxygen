@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 
-import { Modal } from 'react-bootstrap'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Avatar } from '../../../components/common';
 import { formatDateTime } from '../../../utils/dateTime';
 
 // Import services from userServices
-import { 
-  getOrgUsers, 
-  inviteUserToOrganization, 
-  removeUserFromOrganization 
+import {
+    getOrgUsers,
+    inviteUserToOrganization,
+    removeUserFromOrganization
 } from '../../../services/userServices';
 
 import { useFormik } from 'formik'
@@ -36,7 +36,7 @@ const AdminOverview = () => {
                 setUsers(response.users);
                 setOrg({ users: response.users });
             })
-            .catch(() => {});
+            .catch(() => { });
     }
 
     const [show, setShow] = useState(false);
@@ -129,11 +129,11 @@ const AdminOverview = () => {
                                         <rect x="4.36396" y="11.364" width="16" height="2" rx="1" fill="black" />
                                     </svg>
                                 </span>Add User</button>
-                            <Modal show={show} onHide={handleClose}>
-                                <Modal.Header closeButton>
-                                    <Modal.Title>Add users to your team</Modal.Title>
-                                </Modal.Header>
-                                <Modal.Body>
+                            <Dialog open={show} onOpenChange={setShow}>
+                                <DialogContent className="sm:max-w-[500px]">
+                                    <DialogHeader>
+                                        <DialogTitle>Add users to your team</DialogTitle>
+                                    </DialogHeader>
                                     <form
                                         className='form w-100'
                                         onSubmit={formik.handleSubmit}
@@ -180,13 +180,13 @@ const AdminOverview = () => {
                                         </div>
                                     </form>
 
-                                </Modal.Body>
-                                <Modal.Footer>
-                                    <button className='btn btn-sm btn-light' onClick={handleClose}>
-                                        Close
-                                    </button>
-                                </Modal.Footer>
-                            </Modal>
+                                    <DialogFooter>
+                                        <button type="button" className='btn btn-sm btn-light' onClick={handleClose}>
+                                            Close
+                                        </button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
                         </div>
                         <div className="d-flex justify-content-end align-items-center d-none" data-xgn-user-table-toolbar="selected">
                             <div className="fw-bolder me-5">

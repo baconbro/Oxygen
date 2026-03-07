@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { useWorkspace } from '../../contexts/WorkspaceProvider';
 import { customStatus, getScoreColor, goalType } from '../../constants/custom';
 import { Avatar } from '../../components/common';
-import { Status } from '../IssueDetails/Status/Styles';
 
 const statusColumns = [
   { key: 'pending', label: 'Pending', colorClass: 'secondary' },

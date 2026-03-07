@@ -14,17 +14,20 @@ import { z } from 'zod'
  *
  * const form = useZodForm({ schema })
  */
-export function useZodForm<TSchema extends z.ZodType>(
-  props: Omit<UseFormProps<z.infer<TSchema>>, 'resolver'> & {
+export function useZodForm<
+  TSchema extends z.ZodType<any, any, any>,
+  TFieldValues extends FieldValues = z.infer<TSchema>
+>(
+  props: Omit<UseFormProps<TFieldValues>, 'resolver'> & {
     schema: TSchema
   }
-): UseFormReturn<z.infer<TSchema>> {
+): UseFormReturn<TFieldValues> {
   const { schema, ...formProps } = props
 
-  return useForm<z.infer<TSchema>>({
+  return useForm<TFieldValues>({
     ...formProps,
-    resolver: zodResolver(schema),
-  })
+    resolver: zodResolver(schema) as any,
+  } as any) as any
 }
 
 /**

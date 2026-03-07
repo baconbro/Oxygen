@@ -1,7 +1,7 @@
 import { sortByNewest } from '../../../utils/javascript';
 import UpdatesCreate from './Create';
 import DetailsUpdate from './Comment';
-import { Comments } from './Styles';
+
 
 
 const UpdatesComponent = ({ issue, updateIssue, object }) => {
@@ -9,7 +9,7 @@ const UpdatesComponent = ({ issue, updateIssue, object }) => {
   const hasUpdates = updates && updates.length > 0;
 
   return (
-    <Comments>
+    <div className="pt-[40px]">
       <UpdatesCreate issue={issue} updateIssue={updateIssue} object={object} />
 
       {hasUpdates && (
@@ -34,7 +34,7 @@ const UpdatesComponent = ({ issue, updateIssue, object }) => {
           <div className="text-gray-400 fs-7">Record your first check-in to start tracking progress over time.</div>
         </div>
       )}
-    </Comments>
+    </div>
   );
 };
 

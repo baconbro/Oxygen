@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useWorkspace } from '../../../contexts/WorkspaceProvider';
-import { Status } from '../../IssueDetails/Status/Styles';
 import EmptyList from '../../../components/common/emptyStates/emptyList';
 import { formatDate } from '../../../utils/dateTime';
 import {
@@ -12,7 +11,7 @@ import {
   getSortedRowModel,
 } from '@tanstack/react-table'
 import { useAuth } from '../../auth';
-import { Modal } from 'react-bootstrap';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import CreateWorkPackage from './createWorkPackage';
 import { useGetWorkPackages } from '../../../services/workPackageServices';
 
@@ -33,7 +32,7 @@ const WorkPackageList = () => {
   const { currentUser } = useAuth();
   const { project } = useWorkspace();
   const [refreshData, setRefreshData] = useState(true);
-  const {filters } = useWorkspace();
+  const { filters } = useWorkspace();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [wpData, setWpData] = useState(null);
   const { data: spaceData } = useGetWorkPackages(project.spaceId, currentUser?.all?.currentOrg);
@@ -92,7 +91,7 @@ const WorkPackageList = () => {
     }),
     columnHelper.accessor('status', {
       header: () => <span>Status</span>,
-      cell: info => <Status className={`btn`}>{info.renderValue()}</Status>,
+      cell: info => <div className="btn text-xs px-2 py-1">{info.renderValue()}</div>,
       //footer: info => info.column.id,
     }),
     columnHelper.accessor('startDate', {
@@ -125,50 +124,50 @@ const WorkPackageList = () => {
     return project.issues.find((issue) => issue.id === id);
   }
 
- /*  const Progress = ( {title} ) => {
-    return (
-      <div className="flex items-center gap-1 mb-1">
-        {title}
-        <div className='progress h-6px w-100'>
-          <div
-            className='progress-bar bg-primary'
-            role='progressbar'
-            style={{ width: '50%' }}
-          ></div>
-
-          {/*     Next it would be by status color ( new option to come )
- <div
-          className='progress-bar bg-warning'
-          role='progressbar'
-          style={{ width: '20%' }}
-        ></div>
-        <div
-          className='progress-bar bg-success'
-          role='progressbar'
-          style={{ width: '30%' }}
-        ></div> 
-
-        </div>
-      </div>
-    )
-
-
-  }; */
+  /*  const Progress = ( {title} ) => {
+     return (
+       <div className="flex items-center gap-1 mb-1">
+         {title}
+         <div className='progress h-6px w-100'>
+           <div
+             className='progress-bar bg-primary'
+             role='progressbar'
+             style={{ width: '50%' }}
+           ></div>
+ 
+           {/*     Next it would be by status color ( new option to come )
+  <div
+           className='progress-bar bg-warning'
+           role='progressbar'
+           style={{ width: '20%' }}
+         ></div>
+         <div
+           className='progress-bar bg-success'
+           role='progressbar'
+           style={{ width: '30%' }}
+         ></div> 
+ 
+         </div>
+       </div>
+     )
+ 
+ 
+   }; */
   const Progress = ({ title }) => {
-  
+
     // Get all issues with the given work package title
     const issues = project.issues.filter(issue => issue.wpkg === title);
-  
+
     // Total number of issues
     const totalIssues = issues.length || 1;
-  
+
     // Count issues by status
     const statusCounts = issues.reduce((counts, issue) => {
       const status = issue.status; // Adjust property name if different
       counts[status] = (counts[status] || 0) + 1;
       return counts;
     }, {});
-  
+
     // Define colors for each status
     const statusColors = {
       1: 'bg-warning',
@@ -179,7 +178,7 @@ const WorkPackageList = () => {
       6: 'bg-dark',
       // Add other statuses if needed
     };
-  
+
     // Generate progress bar segments
     const progressSegments = Object.keys(statusCounts).map(status => {
       const widthPercent = (statusCounts[status] / totalIssues) * 100;
@@ -193,7 +192,7 @@ const WorkPackageList = () => {
         ></div>
       );
     });
-  
+
     return (
       <div className="progress h-6px w-100">
         {progressSegments}
@@ -255,7 +254,7 @@ const WorkPackageList = () => {
                     </th>
                     {headerGroup.headers.map(header => (
                       <th key={header.id}
-                      style={{ minWidth: header.column.columnDef.minSize }}  // Set the min width of the column
+                        style={{ minWidth: header.column.columnDef.minSize }}  // Set the min width of the column
                       >
                         {header.isPlaceholder
                           ? null : (
@@ -341,17 +340,14 @@ const WorkPackageList = () => {
       {(!data || data.length === 0) ? <EmptyList /> : ('')}
 
       {isModalOpen &&
-        <Modal show={isModalOpen} onHide={handleCloseModal} centered>
-          <Modal.Header closeButton>
-            <Modal.Title>
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle></DialogTitle>
+            </DialogHeader>
             <CreateWorkPackage modalClose={handleCloseModal} wpgData={wpData} />
-          </Modal.Body>
-          <Modal.Footer>
-          </Modal.Footer>
-        </Modal>
+          </DialogContent>
+        </Dialog>
       }
     </>
   );

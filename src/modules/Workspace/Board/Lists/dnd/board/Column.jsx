@@ -7,7 +7,7 @@ import { useAuth } from "../../../../../auth";
 import { editSpace } from "../../../../../../services/firestore";
 import classNames from 'classnames';
 import { useWorkspace } from "../../../../../../contexts/WorkspaceProvider";
-import { Modal, Button } from 'react-bootstrap';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { findIdByName } from "../../../../../../utils/calculateIssueListPosition";
 import { Header } from "../styles/title";
 
@@ -31,12 +31,12 @@ const Column = (props) => {
   const [showModal, setShowModal] = useState(false);
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
-  
+
   // Add null checks to safely access borderColor
   const defaultBorderColor = "#FF5733";
   const [borderColor, setBorderColor] = useState(
-    workspaceConfig?.issueStatus?.[index]?.borderColor || 
-    (project?.config?.issueStatus?.[index]?.borderColor) || 
+    workspaceConfig?.issueStatus?.[index]?.borderColor ||
+    (project?.config?.issueStatus?.[index]?.borderColor) ||
     defaultBorderColor
   );
 
@@ -55,8 +55,8 @@ const Column = (props) => {
       // Save the changes
       // Find and update the status object with the matching ID
       const reorderedIssueStatus = project.config.issueStatus.map((status) =>
-        status.id === findIdByName(title, project.config.issueStatus) 
-          ? { ...status, name: currentTitle, borderColor: borderColor } 
+        status.id === findIdByName(title, project.config.issueStatus)
+          ? { ...status, name: currentTitle, borderColor: borderColor }
           : status
       );
 
@@ -118,90 +118,93 @@ const Column = (props) => {
                   </button>
                 )}
 
-                <Modal show={showModal} onHide={handleCloseModal} centered>
-                  <Modal.Header closeButton>
-                    <Modal.Title>
-                      {isEditing ? (
-                        <input
-                          ref={inputRef}
-                          value={currentTitle}
-                          onChange={(e) => setCurrentTitle(e.target.value)}
-                          onBlur={() => {
-                            setIsEditing(false);
-                          }}
-                          autoFocus
-                        />
-                      ) : (
-                        <span onClick={() => setIsEditing(true)}>
-                          {currentTitle}  <i className="bi bi-pencil"></i>
-                        </span>
-                      )}
-                    </Modal.Title>
-                  </Modal.Header>
-                  <Modal.Body>
-                    <div className="mb-3">
-                      <label htmlFor="borderColorPicker" className="form-label">Column Border Color</label>
-                      <div className="d-flex align-items-center mb-2">
-                        <input
-                          type="color"
-                          className="form-control form-control-color me-2"
-                          id="borderColorPicker"
-                          value={borderColor}
-                          onChange={(e) => setBorderColor(e.target.value)}
-                          title="Choose border color"
-                        />
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={borderColor}
-                          onChange={(e) => setBorderColor(e.target.value)}
-                          placeholder="Color hex code"
-                        />
-                      </div>
-                      <div className="d-flex justify-content-between mt-2">
-                        {['#EF476F', '#FFD166', '#06D6A0', '#118AB2', '#073B4C'].map((color) => (
-                          <div 
-                            key={color}
-                            onClick={() => setBorderColor(color)}
-                            style={{
-                              width: '40px',
-                              height: '40px',
-                              backgroundColor: color,
-                              cursor: 'pointer',
-                              borderRadius: '4px',
-                              border: borderColor === color ? '2px solid #000' : '1px solid #ddd'
+                <Dialog open={showModal} onOpenChange={(open) => !open && handleCloseModal()}>
+                  <DialogContent className="sm:max-w-[500px]">
+                    <DialogHeader>
+                      <DialogTitle>
+                        {isEditing ? (
+                          <input
+                            ref={inputRef}
+                            value={currentTitle}
+                            onChange={(e) => setCurrentTitle(e.target.value)}
+                            onBlur={() => {
+                              setIsEditing(false);
                             }}
-                            title={color}
+                            autoFocus
+                            className="bg-transparent border-none outline-none focus:ring-0 px-0 w-full text-xl"
                           />
-                        ))}
+                        ) : (
+                          <span onClick={() => setIsEditing(true)} className="cursor-pointer flex items-center gap-2 text-xl">
+                            {currentTitle} <i className="bi bi-pencil fs-6"></i>
+                          </span>
+                        )}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4">
+                      <div className="mb-3">
+                        <label htmlFor="borderColorPicker" className="form-label">Column Border Color</label>
+                        <div className="d-flex align-items-center mb-2">
+                          <input
+                            type="color"
+                            className="form-control form-control-color me-2"
+                            id="borderColorPicker"
+                            value={borderColor}
+                            onChange={(e) => setBorderColor(e.target.value)}
+                            title="Choose border color"
+                          />
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={borderColor}
+                            onChange={(e) => setBorderColor(e.target.value)}
+                            placeholder="Color hex code"
+                          />
+                        </div>
+                        <div className="d-flex justify-content-between mt-2">
+                          {['#EF476F', '#FFD166', '#06D6A0', '#118AB2', '#073B4C'].map((color) => (
+                            <div
+                              key={color}
+                              onClick={() => setBorderColor(color)}
+                              style={{
+                                width: '40px',
+                                height: '40px',
+                                backgroundColor: color,
+                                cursor: 'pointer',
+                                borderRadius: '4px',
+                                border: borderColor === color ? '2px solid #000' : '1px solid #ddd'
+                              }}
+                              title={color}
+                            />
+                          ))}
+                        </div>
                       </div>
+                      <button className="btn btn-danger" onClick={props.onDelete}>
+                        Delete status
+                      </button>
                     </div>
-                    <button className="flex-stack px-3 btn btn-danger" onClick={props.onDelete}>
-                      Delete status
-                    </button>
-                  </Modal.Body>
-                  <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseModal}>
-                      Close
-                    </Button>
-                    <Button 
-                      variant="primary" 
-                      onClick={() => {
-                        // Save both title and color changes when clicking Save
-                        const reorderedIssueStatus = project.config.issueStatus.map((status) =>
-                          status.id === findIdByName(title, project.config.issueStatus) 
-                            ? { ...status, name: currentTitle, borderColor: borderColor } 
-                            : status
-                        );
-                        const newConfig = { ...project.config, issueStatus: reorderedIssueStatus };
-                        editSpace({ config: newConfig }, project.spaceId, project.org);
-                        handleCloseModal();
-                      }}
-                    >
-                      Save changes
-                    </Button>
-                  </Modal.Footer>
-                </Modal>
+                    <div className="flex justify-end gap-2 mt-4">
+                      <button className="btn btn-secondary" onClick={handleCloseModal}>
+                        Close
+                      </button>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => {
+                          // Save both title and color changes when clicking Save
+                          const reorderedIssueStatus = project.config.issueStatus.map((status) =>
+                            status.id === findIdByName(title, project.config.issueStatus)
+                              ? { ...status, name: currentTitle, borderColor: borderColor }
+                              : status
+                          );
+                          const newConfig = { ...project.config, issueStatus: reorderedIssueStatus };
+                          editSpace({ config: newConfig }, project.spaceId, project.org);
+                          handleCloseModal();
+                        }}
+                      >
+                        Save changes
+                      </button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
                 <a
                   className="btn ms-auto kanban-collapse-icon p-0"
                   onClick={() => setCollapsed(!collapsed)}

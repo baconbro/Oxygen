@@ -1,9 +1,7 @@
 import { useRef } from 'react';
 import PropTypes from 'prop-types';
 
-import { Textarea } from '../../../../components/common';
-
-import { Actions, FormButton } from './Styles';
+import { Button } from '../../../../components/common';
 
 const propTypes = {
   value: PropTypes.string.isRequired,
@@ -37,14 +35,14 @@ const ProjectBoardIssueDetailsCommentsBodyForm = ({
         onChange={onChange}
         ref={$textareaRef}
       />
-      <Actions>
-        <FormButton variant="primary" isWorking={isWorking} onClick={handleSubmit} className="btn">
+      <div className="flex pt-[10px]">
+        <Button variant="primary" isWorking={isWorking} onClick={handleSubmit} className="btn mr-[6px]">
           Save
-        </FormButton>
-        <FormButton variant="empty" onClick={onCancel} className="btn">
+        </Button>
+        <Button variant="empty" onClick={onCancel} className="btn mr-[6px]">
           Cancel
-        </FormButton>
-      </Actions>
+        </Button>
+      </div>
     </>
   );
 };
