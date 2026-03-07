@@ -4,7 +4,6 @@ import Delete from './Delete';
 import Title from '../IssueDetails/Title';
 import Description from '../IssueDetails/Description';
 import Status from '../IssueDetails/Status';
-import ProjectBoardIssueDetailsReporter from '../IssueDetails/Reporter';
 import TagsComponent from '../IssueDetails/Tags';
 import KRTable from './krtables';
 import { useAuth } from '../auth';
@@ -709,7 +708,11 @@ const GoalDetails = () => {
               <div className="mb-5">
                 <label className="form-label fw-semibold text-gray-600 fs-7 mb-1">Owner</label>
                 <div>
-                  <ProjectBoardIssueDetailsReporter issue={issue} updateIssue={updateIssue} projectUsers={orgUsersArray} />
+                  <GoalOwnerSelect
+                    reporterId={issue.reporterId}
+                    orgUsersArray={orgUsersArray}
+                    onChange={(reporterId) => updateIssue({ reporterId })}
+                  />
                 </div>
               </div>
 
@@ -1076,6 +1079,45 @@ const DateSelector = ({ issue, updateIssue }) => {
         </div>
       )}
     </div>
+  );
+};
+
+const GoalOwnerSelect = ({ reporterId, orgUsersArray, onChange }) => {
+  const getUserById = (uid) => orgUsersArray.find(u => u.uid === uid) || null;
+
+  const userOptions = orgUsersArray.map(u => ({
+    value: u.uid,
+    label: u.name || u.displayName || u.fName || u.email || u.uid,
+  }));
+
+  return (
+    <Select
+      variant="empty"
+      dropdownWidth={343}
+      withClearValue={true}
+      name="reporter"
+      value={reporterId}
+      options={userOptions}
+      onChange={val => onChange(val || 0)}
+      renderValue={({ value: uid }) => {
+        const user = getUserById(uid);
+        return (
+          <User isSelectValue>
+            <Avatar avatarUrl={user?.photoURL || user?.avatarUrl || ''} name={user?.name || user?.fName || ''} size={25} />
+            <Username>{user?.name || user?.displayName || user?.fName || 'Select owner'}</Username>
+          </User>
+        );
+      }}
+      renderOption={({ value: uid }) => {
+        const user = getUserById(uid);
+        return (
+          <User>
+            <Avatar avatarUrl={user?.photoURL || user?.avatarUrl || ''} name={user?.name || user?.fName || ''} size={25} />
+            <Username>{user?.name || user?.displayName || user?.fName || uid}</Username>
+          </User>
+        );
+      }}
+    />
   );
 };
 
