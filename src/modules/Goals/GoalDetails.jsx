@@ -47,7 +47,7 @@ const GoalDetails = () => {
   const [isEditingScore, setIsEditingScore] = useState(false);
   const [showUpdateComposer, setShowUpdateComposer] = useState(false);
 
-  const orgUsersArray = Object.values(orgUsers?.users || {}).map((user) => ({ ...user }));
+  const orgUsersArray = Object.entries(orgUsers?.users || {}).map(([uid, user]) => ({ ...user, uid, id: uid }));
 
   const queryParams = new URLSearchParams(search);
   const goalId = queryParams.get('id');
