@@ -50,7 +50,22 @@ const GoalDetails = () => {
   // Fetch org users directly via React Query (context orgUsers may not be loaded on Goals page)
   const { data: fetchedOrgUsers } = useGetOrgUsers(currentUser?.all?.currentOrg);
   const resolvedOrgUsers = (fetchedOrgUsers?.users) || (orgUsers?.users) || {};
-  const orgUsersArray = Object.entries(resolvedOrgUsers).map(([uid, user]) => ({ ...user, uid, id: uid }));
+  const orgUsersFromDb = Object.entries(resolvedOrgUsers).map(([uid, user]) => ({ ...user, uid, id: uid }));
+
+  // Ensure the current user is always in the list (org owner may not be in the users subcollection)
+  const currentUid = currentUser?.all?.uid;
+  const currentUserInList = currentUid && orgUsersFromDb.some(u => u.uid === currentUid);
+  const orgUsersArray = currentUserInList ? orgUsersFromDb : [
+    ...orgUsersFromDb,
+    ...(currentUid ? [{
+      uid: currentUid,
+      id: currentUid,
+      name: currentUser.all.fName || currentUser.all.displayName || currentUser.all.email,
+      displayName: currentUser.all.displayName || currentUser.all.fName || '',
+      email: currentUser.all.email || '',
+      photoURL: currentUser.all.photoURL || '',
+    }] : []),
+  ];
 
   const queryParams = new URLSearchParams(search);
   const goalId = queryParams.get('id');

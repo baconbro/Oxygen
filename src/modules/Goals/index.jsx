@@ -17,6 +17,7 @@ import {
 } from '@tanstack/react-table'
 import { useAuth } from '../auth';
 import { useFetchOKRs, useFetchSavedViews, useAddSavedView, useDeleteSavedView } from '../../services/okrServices'
+import { useGetOrgUsers } from '../../services/userServices'
 import GoalFilter from './goalFilter';
 import CreateGoal from './createGoal';
 import GoalBoardView from './GoalBoardView';
@@ -34,6 +35,25 @@ const Goals = () => {
   const deleteSavedViewMutation = useDeleteSavedView();
   const navigate = useNavigate();
   const { setCurrentGoal, orgUsers, filters, setGoals, mergeFilters } = useWorkspace();
+  const { data: fetchedOrgUsers } = useGetOrgUsers(orgId);
+
+  // Build orgUsers with current user always included (org owner may not be in users subcollection)
+  const resolvedOrgUsersMap = (fetchedOrgUsers?.users) || (orgUsers?.users) || {};
+  const currentUid = currentUser?.all?.uid;
+  const resolvedOrgUsers = {
+    users: {
+      ...resolvedOrgUsersMap,
+      ...(currentUid && !resolvedOrgUsersMap[currentUid] ? {
+        [currentUid]: {
+          uid: currentUid,
+          name: currentUser.all.fName || currentUser.all.displayName || currentUser.all.email,
+          displayName: currentUser.all.displayName || '',
+          email: currentUser.all.email || '',
+          photoURL: currentUser.all.photoURL || '',
+        }
+      } : {}),
+    }
+  };
   const [filteredIssues, setFilteredIssues] = useState([]);
   const [data, setData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -134,7 +154,7 @@ const Goals = () => {
     }),
     columnHelper.accessor('reporterId', {
       id: 'Owner',
-      cell: info => <OwnerName reporterId={info.getValue()} orgUsers={orgUsers} />,
+      cell: info => <OwnerName reporterId={info.getValue()} orgUsers={resolvedOrgUsers} />,
       header: () => <span>Owner</span>,
       enableSorting: false,
     }),
@@ -428,7 +448,7 @@ const Goals = () => {
 
       {/* Board View */}
       {viewMode === 'board' && (
-        <GoalBoardView goals={data} orgUsers={orgUsers} />
+        <GoalBoardView goals={data} orgUsers={resolvedOrgUsers} />
       )}
 
       {/* List / Tree View */}
