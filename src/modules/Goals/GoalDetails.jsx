@@ -21,6 +21,7 @@ import {
   updateCadenceCopy,
 } from '../../constants/custom';
 import { useUpdateOKR, fetchSingleOKR } from '../../services/okrServices';
+import { useGetOrgUsers } from '../../services/userServices';
 import { Avatar, Select, Icon } from '../../components/common';
 import { User, Username } from '../IssueDetails/Reporter/Styles';
 import CreateGoal from './createGoal';
@@ -46,7 +47,10 @@ const GoalDetails = () => {
   const [isEditingScore, setIsEditingScore] = useState(false);
   const [showUpdateComposer, setShowUpdateComposer] = useState(false);
 
-  const orgUsersArray = Object.entries(orgUsers?.users || {}).map(([uid, user]) => ({ ...user, uid, id: uid }));
+  // Fetch org users directly via React Query (context orgUsers may not be loaded on Goals page)
+  const { data: fetchedOrgUsers } = useGetOrgUsers(currentUser?.all?.currentOrg);
+  const resolvedOrgUsers = (fetchedOrgUsers?.users) || (orgUsers?.users) || {};
+  const orgUsersArray = Object.entries(resolvedOrgUsers).map(([uid, user]) => ({ ...user, uid, id: uid }));
 
   const queryParams = new URLSearchParams(search);
   const goalId = queryParams.get('id');
