@@ -37,27 +37,17 @@ export function FormInput<T extends FieldValues>({
       render={({ field }) => (
         <div className={cn('tw-space-y-2', className)}>
           {label && (
-            <Label htmlFor={name}>
+            <Label htmlFor={name} required={props.required}>
               {label}
-              {props.required && <span className="tw-text-destructive tw-ml-1">*</span>}
             </Label>
           )}
           <Input
             id={name}
-            aria-invalid={!!error}
+            error={!!error}
+            helperText={errorMessage || description}
             {...field}
             {...props}
           />
-          {(errorMessage || description) && (
-            <p
-              className={cn(
-                'tw-text-xs',
-                error ? 'tw-text-destructive' : 'tw-text-muted-foreground'
-              )}
-            >
-              {errorMessage || description}
-            </p>
-          )}
         </div>
       )}
     />
@@ -96,27 +86,17 @@ export function FormTextarea<T extends FieldValues>({
       render={({ field }) => (
         <div className={cn('tw-space-y-2', className)}>
           {label && (
-            <Label htmlFor={name}>
+            <Label htmlFor={name} required={props.required}>
               {label}
-              {props.required && <span className="tw-text-destructive tw-ml-1">*</span>}
             </Label>
           )}
           <Textarea
             id={name}
-            aria-invalid={!!error}
+            error={!!error}
+            helperText={errorMessage || description}
             {...field}
             {...props}
           />
-          {(errorMessage || description) && (
-            <p
-              className={cn(
-                'tw-text-xs',
-                error ? 'tw-text-destructive' : 'tw-text-muted-foreground'
-              )}
-            >
-              {errorMessage || description}
-            </p>
-          )}
         </div>
       )}
     />
@@ -160,9 +140,8 @@ export function FormSelect<T extends FieldValues>({
       render={({ field }) => (
         <div className={cn('tw-space-y-2', className)}>
           {label && (
-            <Label htmlFor={name}>
+            <Label htmlFor={name} required={required}>
               {label}
-              {required && <span className="tw-text-destructive tw-ml-1">*</span>}
             </Label>
           )}
           <select

@@ -1,5 +1,5 @@
 import { Form } from '../../../components/common';
-
+import { FormElement, FormHeading } from '../WorkspaceSettings/Styles';
 import { useFormikContext } from 'formik';
 import { useAddWorkPackage, useUpdateWorkPackage, useDeleteWorkPackage } from '../../../services/workPackageServices';
 import { useWorkspace } from '../../../contexts/WorkspaceProvider';
@@ -89,8 +89,8 @@ const CreateWorkPackage = ({ modalClose, wpgData }) => {
                     }
                 }}
             >
-                <div className="flex flex-col gap-4 w-full">
-                    <h2 className="text-xl font-bold mb-4">{wpgData ? 'Edit ' : 'Create'}</h2>
+                <FormElement>
+                    <FormHeading>{wpgData ? 'Edit ' : 'Create'}</FormHeading>
                     <Form.Field.Input
                         name="title"
                         label="Work package name"
@@ -135,7 +135,7 @@ const CreateWorkPackage = ({ modalClose, wpgData }) => {
                             </button>
                         )}
                     </div>
-                </div>
+                </FormElement>
             </Form>
         </>
     );

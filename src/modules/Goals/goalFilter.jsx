@@ -1,4 +1,8 @@
-import { InputDebounced } from '../../components/common';
+import {
+    Filters,
+    SearchInput,
+    ClearAll,
+} from '../Workspace/Board/Filters/Styles';
 import { useWorkspace } from '../../contexts/WorkspaceProvider';
 
 const GoalFilter = () => {
@@ -7,12 +11,12 @@ const GoalFilter = () => {
     const areFiltersCleared = !searchTerm && userIds.length === 0 && !myOnly && !recent && hideOld === 30;
 
     return (
-        <div data-testid="board-filters" style={{ display: 'contents' }}>
-            <InputDebounced
+        <Filters data-testid="board-filters" style={{ display: 'contents' }}>
+            <SearchInput
                 value={searchTerm}
                 onChange={value => mergeFilters({ searchTerm: value })}
                 placeholder="Search goals..."
-                className="form-control form-control-sm mr-[18px]"
+                className="form-control form-control-sm"
                 style={{ maxWidth: 200 }}
             />
 
@@ -29,14 +33,9 @@ const GoalFilter = () => {
                 My Goals
             </button>
             {!areFiltersCleared && (
-                <div
-                    className="h-[32px] leading-[32px] ml-[15px] pl-[12px] border-l border-gray-200 text-gray-700 text-[14.5px] cursor-pointer hover:text-gray-500 transition-colors"
-                    onClick={() => mergeFilters(defaultFilters)}
-                >
-                    Clear all
-                </div>
+                <ClearAll onClick={() => mergeFilters(defaultFilters)}>Clear all</ClearAll>
             )}
-        </div>
+        </Filters>
     );
 };
 

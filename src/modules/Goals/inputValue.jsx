@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Input, TextEditedContent, Button } from '../../components/common';
-
+import { EmptyLabel, Actions } from '../IssueDetails/Description/Styles';
 
 const propTypes = {
   issue: PropTypes.object.isRequired,
@@ -30,24 +30,19 @@ const InputValue = ({ issue, updateIssue, fieldName }) => {
             onChange={setFieldNameValue}
             className="fs-2 fw-bold counted"
           />
-          <div className="flex pt-3 [&>button]:mr-1.5">
+          <Actions>
             <Button variant="primary" onClick={handleUpdate} className="btn">
               Save
             </Button>
-            <Button variant="empty" onClick={() => setEditing(false)} className="btn text-gray-600 hover:bg-gray-200">
+            <Button variant="empty" onClick={() => setEditing(false)} className="btn">
               Cancel
             </Button>
-          </div>
+          </Actions>
         </>
       ) : (
         <>
           {isValueEmpty ? (
-            <div
-              className="ml-[-7px] p-[7px] rounded-[3px] text-gray-500 transition-colors duration-100 text-[15px] cursor-pointer hover:bg-gray-100"
-              onClick={() => setEditing(true)}
-            >
-              Add a value
-            </div>
+            <EmptyLabel onClick={() => setEditing(true)}>Add a value</EmptyLabel>
           ) : (
             <TextEditedContent
               content={String(fieldNameValue)}

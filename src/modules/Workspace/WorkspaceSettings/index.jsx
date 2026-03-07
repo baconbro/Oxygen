@@ -3,7 +3,7 @@ import { Form } from '../../../components/common';
 import Avatar from '../../../components/common/Avatar';
 import { getWorkspaceAvatarSrcById } from '../../../utils/avatars';
 
-import { Button } from '../../../components/common';
+import { FormCont, FormElement, ActionButton } from './Styles';
 import ProjectMembers from './Members'
 
 import * as FirestoreService from '../../../services/firestore';
@@ -26,8 +26,8 @@ const ProjectSettings = ({ project, spaceId, updateLocalProjectConfig }) => {
 
   return (
     <>
-      <WorkspaceAvatar project={project} updateLocalProjectConfig={updateLocalProjectConfig} />
-      <div className='card mb-5 mb-xl-10'>
+  <WorkspaceAvatar project={project} updateLocalProjectConfig={updateLocalProjectConfig} />
+  <div className='card mb-5 mb-xl-10'>
         <div className="card-header border-0 ">
           <div className="card-title m-0">
             <h3 className="fw-bolder m-0">Issue Key (Acronym)</h3>
@@ -69,18 +69,18 @@ const ProjectSettings = ({ project, spaceId, updateLocalProjectConfig }) => {
               }
             }}
           >
-            <div className="flex justify-center">
-              <Form.Element className="w-full max-w-[640px]">
+            <FormCont>
+              <FormElement>
                 <Form.Field.Input name="acronym" label="Workspace acronym"
                   tip="Will prefix new issues, e.g. ABC-123. Permanent once saved."
                   disabled={!!project.acronym}
                   className="form-control"
                 />
-                <Button type="submit" variant="primary" className="form-control btn btn-primary mt-[30px]">
+                <ActionButton type="submit" variant="primary" className="form-control btn btn-primary">
                   {project.acronym ? 'Locked' : 'Save acronym'}
-                </Button>
-              </Form.Element>
-            </div>
+                </ActionButton>
+              </FormElement>
+            </FormCont>
           </Form>
         </div>
       </div>
@@ -116,19 +116,19 @@ const ProjectSettings = ({ project, spaceId, updateLocalProjectConfig }) => {
               }
             }}
           >
-            <div className="flex justify-center">
-              <Form.Element className="w-full max-w-[640px]">
+            <FormCont>
+              <FormElement>
                 <Form.Field.Input name="title" label="Title" className="form-control" />
                 <Form.Field.TextEditor
                   name="description"
                   label="Description"
                   tip="Describe the workspace in as much detail as you'd like."
                 />
-                <Button type="submit" variant="primary" className="form-control btn btn-primary mt-[30px]">
+                <ActionButton type="submit" variant="primary" className="form-control btn btn-primary">
                   Save changes
-                </Button>
-              </Form.Element>
-            </div>
+                </ActionButton>
+              </FormElement>
+            </FormCont>
           </Form>
         </div>
       </div>

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Avatar, Select, Icon } from '../../../components/common';
 import { useWorkspace } from '../../../contexts/WorkspaceProvider';
 import { SectionTitle } from '../Styles';
+import { User, Username } from './Styles';
 
 const propTypes = {
   issue: PropTypes.object.isRequired,
@@ -15,7 +16,7 @@ const ProjectBoardIssueDetailsReporter = ({ issue, updateIssue, projectUsers }) 
   const [loading, setLoading] = useState(true);
   const { orgUsers } = useWorkspace();
   const [standardizedProjectUsers, setStandardizedProjectUsers] = useState([]);
-
+  
   useEffect(() => {
     if (orgUsers && orgUsers.users && projectUsers) {
       // Map project users to full user data from orgUsers
@@ -23,7 +24,7 @@ const ProjectBoardIssueDetailsReporter = ({ issue, updateIssue, projectUsers }) 
         const userId = typeof projectUser.id === "number" ? projectUser.id.toString() : projectUser.uid;
         // Find matching user in orgUsers by uid
         const orgUserData = orgUsers.users[userId];
-
+        
         if (orgUserData) {
           return {
             ...projectUser,
@@ -40,7 +41,7 @@ const ProjectBoardIssueDetailsReporter = ({ issue, updateIssue, projectUsers }) 
           };
         }
       });
-
+      
       setStandardizedProjectUsers(mappedUsers);
     }
   }, [orgUsers, projectUsers]);
@@ -49,7 +50,7 @@ const ProjectBoardIssueDetailsReporter = ({ issue, updateIssue, projectUsers }) 
   if (!issue.reporterId) {
     issue.reporterId = '';
   }
-
+  
   // Ensure reporter object is initialized
   if (!issue.reporter) {
     issue.reporter = null;
@@ -69,7 +70,7 @@ const ProjectBoardIssueDetailsReporter = ({ issue, updateIssue, projectUsers }) 
     }
     return user;
   };
-
+  
   const userOptions = standardizedProjectUsers.map(user => ({ value: user.uid, label: user.name }));
 
   const handleReporterChange = reporterId => {
@@ -77,7 +78,7 @@ const ProjectBoardIssueDetailsReporter = ({ issue, updateIssue, projectUsers }) 
     if (reporterId) {
       const reporterUser = getUserById(reporterId);
       updateIssue({
-        reporterId,
+        reporterId, 
       });
     } else {
       // Clear both reporterId and reporter when selection is cleared
@@ -90,25 +91,25 @@ const ProjectBoardIssueDetailsReporter = ({ issue, updateIssue, projectUsers }) 
   return (
     <>
       {loading && <p>Loading...</p>}
-      {!loading &&
-        <Select
-          variant="empty"
-          dropdownWidth={343}
-          withClearValue={true}
-          name="reporter"
-          value={issue.reporterId}
-          options={userOptions}
-          onChange={handleReporterChange}
-          renderValue={({ value: userId }) => renderUser(getUserById(userId), true)}
-          renderOption={({ value: userId }) => renderUser(getUserById(userId))}
-        />}
+      {!loading && 
+      <Select
+        variant="empty"
+        dropdownWidth={343}
+        withClearValue={true}
+        name="reporter"
+        value={issue.reporterId}
+        options={userOptions}
+        onChange={handleReporterChange}
+        renderValue={({ value: userId }) => renderUser(getUserById(userId), true)}
+        renderOption={({ value: userId }) => renderUser(getUserById(userId))}
+      />}
     </>
   );
 };
 
 const renderUser = (user, isSelectValue, removeOptionValue) => {
   // Provide a fallback user if none is found
-  if (!user) {
+  if(!user){  
     user = {
       avatarUrl: "",
       photoURL: "",
@@ -120,14 +121,15 @@ const renderUser = (user, isSelectValue, removeOptionValue) => {
   }
 
   return (
-    <div
+    <User
       key={user.id}
-      className={`flex items-center cursor-pointer ${isSelectValue ? `mr-2.5 ${removeOptionValue ? 'mb-1.5' : 'mb-0'} py-1 px-2 rounded bg-gray-100 hover:bg-gray-200 transition-colors duration-100` : ''}`}
+      isSelectValue={isSelectValue}
+      withBottomMargin={!!removeOptionValue} 
     >
       <Avatar avatarUrl={user.photoURL || user.avatarUrl} name={user.name} size={25} />
-      <div className="px-1 pr-0.5 text-[14.5px]">{user.name}</div>
+      <Username>{user.name}</Username>
       {removeOptionValue && <Icon type="close" top={1} onClick={() => removeOptionValue && removeOptionValue()} />}
-    </div>
+    </User>
   );
 }
 

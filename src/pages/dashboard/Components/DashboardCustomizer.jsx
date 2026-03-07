@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Modal } from "react-bootstrap";
 import { useAuth } from "../../../modules/auth";
 import { useGetDashboardConfig, useSaveDashboardConfig } from "../../../services/dashboardServices";
 
@@ -94,113 +94,115 @@ export const DashboardCustomizer = ({ onConfigChange }) => {
       </button>
 
       {/* Customization Modal */}
-      <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="sm:max-w-[800px] p-0 gap-0">
-          <DialogHeader className="px-6 pt-6 pb-2 border-b">
-            <DialogTitle className="text-xl fw-bold">Customize Dashboard</DialogTitle>
-          </DialogHeader>
+      <Modal show={showModal} onHide={handleClose} centered size="lg">
+        <Modal.Header closeButton className="border-0 pb-0">
+          <Modal.Title className="fw-bold">Customize Dashboard</Modal.Title>
+        </Modal.Header>
 
-          <div className="px-6 pt-4 pb-6 max-h-[70vh] overflow-y-auto">
-            <p className="text-muted mb-4">
-              Toggle widgets to show or hide them on your dashboard.
-            </p>
+        <Modal.Body className="pt-3">
+          <p className="text-muted mb-4">
+            Toggle widgets to show or hide them on your dashboard.
+          </p>
 
-            {/* Compact Mode Toggle */}
-            <div className="d-flex align-items-center justify-content-between p-3 bg-light rounded mb-4">
-              <div>
-                <span className="fw-semibold">Compact Mode</span>
-                <p className="text-muted fs-7 mb-0">Show smaller widget cards</p>
-              </div>
-              <div className="form-check form-switch">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  role="switch"
-                  checked={localConfig?.compactMode || false}
-                  onChange={handleToggleCompact}
-                />
-              </div>
+          {/* Compact Mode Toggle */}
+          <div className="d-flex align-items-center justify-content-between p-3 bg-light rounded mb-4">
+            <div>
+              <span className="fw-semibold">Compact Mode</span>
+              <p className="text-muted fs-7 mb-0">Show smaller widget cards</p>
             </div>
-
-            {/* Widget Toggles */}
-            <div className="row g-3">
-              {WIDGETS.map((widget) => {
-                const isVisible = isWidgetVisible(widget.id);
-                return (
-                  <div key={widget.id} className="col-md-6">
-                    <div
-                      className={`d-flex align-items-center p-3 rounded cursor-pointer border ${isVisible ? "border-primary bg-light-primary" : "border-secondary bg-light"
-                        }`}
-                      onClick={() => handleToggleWidget(widget.id)}
-                      style={{ transition: "all 0.15s ease" }}
-                    >
-                      <div
-                        className={`symbol symbol-40px me-3 ${isVisible ? "" : "opacity-50"
-                          }`}
-                      >
-                        <span
-                          className={`symbol-label ${isVisible ? "bg-primary" : "bg-secondary"
-                            }`}
-                        >
-                          <i className={`bi ${widget.icon} text-white fs-5`}></i>
-                        </span>
-                      </div>
-                      <div className="flex-grow-1">
-                        <span
-                          className={`fw-semibold d-block ${isVisible ? "text-primary" : "text-muted"
-                            }`}
-                        >
-                          {widget.name}
-                        </span>
-                        <span className="text-muted fs-7">{widget.description}</span>
-                      </div>
-                      <div className="form-check form-switch">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          role="switch"
-                          checked={isVisible}
-                          onChange={() => { }}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="form-check form-switch">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                role="switch"
+                checked={localConfig?.compactMode || false}
+                onChange={handleToggleCompact}
+              />
             </div>
           </div>
 
-          <DialogFooter className="px-6 py-4 bg-gray-50/50 sm:justify-end border-t">
-            <button className="btn btn-light me-auto" onClick={handleReset}>
-              Reset to Default
-            </button>
-            <button className="btn btn-light" onClick={handleClose}>
-              Cancel
-            </button>
-            <button
-              className="btn btn-primary"
-              onClick={handleSave}
-              disabled={saveMutation.isPending}
-            >
-              {saveMutation.isPending ? (
-                <>
-                  <span
-                    className="spinner-border spinner-border-sm me-2"
-                    role="status"
-                  ></span>
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <i className="bi bi-check-lg me-2"></i>
-                  Save Changes
-                </>
-              )}
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          {/* Widget Toggles */}
+          <div className="row g-3">
+            {WIDGETS.map((widget) => {
+              const isVisible = isWidgetVisible(widget.id);
+              return (
+                <div key={widget.id} className="col-md-6">
+                  <div
+                    className={`d-flex align-items-center p-3 rounded cursor-pointer border ${
+                      isVisible ? "border-primary bg-light-primary" : "border-secondary bg-light"
+                    }`}
+                    onClick={() => handleToggleWidget(widget.id)}
+                    style={{ transition: "all 0.15s ease" }}
+                  >
+                    <div
+                      className={`symbol symbol-40px me-3 ${
+                        isVisible ? "" : "opacity-50"
+                      }`}
+                    >
+                      <span
+                        className={`symbol-label ${
+                          isVisible ? "bg-primary" : "bg-secondary"
+                        }`}
+                      >
+                        <i className={`bi ${widget.icon} text-white fs-5`}></i>
+                      </span>
+                    </div>
+                    <div className="flex-grow-1">
+                      <span
+                        className={`fw-semibold d-block ${
+                          isVisible ? "text-primary" : "text-muted"
+                        }`}
+                      >
+                        {widget.name}
+                      </span>
+                      <span className="text-muted fs-7">{widget.description}</span>
+                    </div>
+                    <div className="form-check form-switch">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        checked={isVisible}
+                        onChange={() => {}}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Modal.Body>
+
+        <Modal.Footer className="border-0 pt-0">
+          <button className="btn btn-light" onClick={handleReset}>
+            Reset to Default
+          </button>
+          <button className="btn btn-light" onClick={handleClose}>
+            Cancel
+          </button>
+          <button
+            className="btn btn-primary"
+            onClick={handleSave}
+            disabled={saveMutation.isPending}
+          >
+            {saveMutation.isPending ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                ></span>
+                Saving...
+              </>
+            ) : (
+              <>
+                <i className="bi bi-check-lg me-2"></i>
+                Save Changes
+              </>
+            )}
+          </button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import BodyForm from '../BodyForm';
-import { Avatar } from '../../../../components/common';
+import { Create, UserAvatar, Right } from './Styles';
 import { useAuth } from "../../../auth"
 
 const UpdatesCreate = ({ issue, updateIssue, object }) => {
@@ -33,9 +33,9 @@ const UpdatesCreate = ({ issue, updateIssue, object }) => {
   };
 
   return (
-    <div className="relative mt-[25px] text-[15px]">
-      {currentUser && <Avatar className="absolute top-0 left-0" name={currentUser.all.fName} avatarUrl={currentUser.all.photoURL} />}
-      <div className="pl-[64px]">
+    <Create>
+      {currentUser && <UserAvatar name={currentUser.all.fName} avatarUrl={currentUser.all.photoURL} />}
+      <Right>
         {isFormOpen ? (
           <BodyForm
             newStatus={issue.status}
@@ -52,8 +52,8 @@ const UpdatesCreate = ({ issue, updateIssue, object }) => {
             <span>Add a check-in</span>
           </button>
         )}
-      </div>
-    </div>
+      </Right>
+    </Create>
   );
 };
 

@@ -1,5 +1,5 @@
 import { Form } from '../../../components/common';
-
+import { FormElement, FormHeading } from '../WorkspaceSettings/Styles';
 import { useFormikContext } from 'formik';
 import { useEffect } from 'react';
 import { useAddSprint, useUpdateSprint, useDeleteSprint } from '../../../services/sprintServices';
@@ -105,8 +105,8 @@ const CreateSprint = ({ modalClose, sprintData }) => {
                     }
                 }}
             >
-                <div className="flex flex-col gap-4 w-full">
-                    <h2 className="text-xl font-bold mb-4">{sprintData ? 'Edit Sprint' : 'Create a Sprint'}</h2>
+                <FormElement>
+                    <FormHeading>{sprintData ? 'Edit Sprint' : 'Create a Sprint'}</FormHeading>
                     <Form.Field.Input
                         name="name"
                         label="Sprint name"
@@ -154,7 +154,7 @@ const CreateSprint = ({ modalClose, sprintData }) => {
 
                     </div>
 
-                </div>
+                </FormElement>
             </Form>
         </>
     );

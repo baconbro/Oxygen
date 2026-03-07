@@ -29,7 +29,7 @@ import { streamSubItem } from '../../services/itemServices';
 
 import { useAuth } from '../auth';
 import { useParams } from 'react-router-dom';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useUpdateItem } from '../../services/itemServices';
 import { Breadcrumbs } from '../../components/common';
 import { getParentIssueIds } from '../../utils/getIssueX';
@@ -69,7 +69,7 @@ const ProjectBoardIssueDetails = ({
             setData({
               issue: {
                 ...singleItem[0],
-                users: initUsers,
+                users: initUsers, 
                 comments: singleItem[0]?.comments || []
               }
             });
@@ -213,43 +213,45 @@ const ProjectBoardIssueDetails = ({
           </div>
           <div className='d-flex'>
             {/* Vote controls */}
-            <TooltipProvider>
-              <div className='me-3 d-flex align-items-center gap-2'>
-                <Tooltip delayDuration={0}>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      className={`btn btn-sm ${Array.isArray(issue?.votesUp) && issue.votesUp.includes(currentUser?.all?.uid) ? 'btn-primary' : 'btn-light'}`}
-                      onClick={() => toggleVote('up')}
-                      aria-label="Vote up"
-                    >
-                      <i className={`bi ${Array.isArray(issue?.votesUp) && issue.votesUp.includes(currentUser?.all?.uid) ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'}`}></i>
-                      <span className='ms-2'>{Array.isArray(issue?.votesUp) ? issue.votesUp.length : 0}</span>
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-[300px]">
+            <div className='me-3 d-flex align-items-center gap-2'>
+              <OverlayTrigger
+                placement="bottom"
+                overlay={(props) => (
+                  <Tooltip {...props} style={{ ...props.style, maxWidth: 300 }}>
                     {renderVoters(issue?.votesUp)}
-                  </TooltipContent>
-                </Tooltip>
+                  </Tooltip>
+                )}
+              >
+                <button
+                  type="button"
+                  className={`btn btn-sm ${Array.isArray(issue?.votesUp) && issue.votesUp.includes(currentUser?.all?.uid) ? 'btn-primary' : 'btn-light'}`}
+                  onClick={() => toggleVote('up')}
+                  aria-label="Vote up"
+                >
+                  <i className={`bi ${Array.isArray(issue?.votesUp) && issue.votesUp.includes(currentUser?.all?.uid) ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'}`}></i>
+                  <span className='ms-2'>{Array.isArray(issue?.votesUp) ? issue.votesUp.length : 0}</span>
+                </button>
+              </OverlayTrigger>
 
-                <Tooltip delayDuration={0}>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      className={`btn btn-sm ${Array.isArray(issue?.votesDown) && issue.votesDown.includes(currentUser?.all?.uid) ? 'btn-primary' : 'btn-light'}`}
-                      onClick={() => toggleVote('down')}
-                      aria-label="Vote down"
-                    >
-                      <i className={`bi ${Array.isArray(issue?.votesDown) && issue.votesDown.includes(currentUser?.all?.uid) ? 'bi-hand-thumbs-down-fill' : 'bi-hand-thumbs-down'}`}></i>
-                      <span className='ms-2'>{Array.isArray(issue?.votesDown) ? issue.votesDown.length : 0}</span>
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-[300px]">
+              <OverlayTrigger
+                placement="bottom"
+                overlay={(props) => (
+                  <Tooltip {...props} style={{ ...props.style, maxWidth: 300 }}>
                     {renderVoters(issue?.votesDown)}
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            </TooltipProvider>
+                  </Tooltip>
+                )}
+              >
+                <button
+                  type="button"
+                  className={`btn btn-sm ${Array.isArray(issue?.votesDown) && issue.votesDown.includes(currentUser?.all?.uid) ? 'btn-primary' : 'btn-light'}`}
+                  onClick={() => toggleVote('down')}
+                  aria-label="Vote down"
+                >
+                  <i className={`bi ${Array.isArray(issue?.votesDown) && issue.votesDown.includes(currentUser?.all?.uid) ? 'bi-hand-thumbs-down-fill' : 'bi-hand-thumbs-down'}`}></i>
+                  <span className='ms-2'>{Array.isArray(issue?.votesDown) ? issue.votesDown.length : 0}</span>
+                </button>
+              </OverlayTrigger>
+            </div>
             <div className='me-3'>
               <CopyLinkButton variant="empty" className="btn" />
             </div>
@@ -272,7 +274,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Description</label>
@@ -281,7 +283,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Checklist</label>
@@ -290,7 +292,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Sub-Issues</label>
@@ -299,7 +301,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Dependencies</label>
@@ -308,7 +310,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Status</label>
@@ -317,7 +319,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Priority</label>
@@ -326,7 +328,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Assignees</label>
@@ -335,7 +337,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Reporter</label>
@@ -344,7 +346,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Tags</label>
@@ -362,7 +364,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Dates</label>
@@ -371,7 +373,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         {showPrioritization && (
           <div className='px-4 mb-5'>
             <div className="mb-3 row">
@@ -382,7 +384,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         )}
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Progress</label>
@@ -391,7 +393,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Estimate & Tracking</label>
@@ -400,7 +402,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Budget Tracking</label>
@@ -409,7 +411,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Story Points</label>
@@ -418,7 +420,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">T-shirt Size</label>
@@ -427,7 +429,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Work Package</label>
@@ -436,7 +438,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Goal Link</label>
@@ -445,7 +447,7 @@ const ProjectBoardIssueDetails = ({
             </div>
           </div>
         </div>
-
+        
         <div className='px-4 mb-5'>
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label fw-bold">Comments</label>

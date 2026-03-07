@@ -1,5 +1,8 @@
 import { Avatar } from '../index';
-
+import { Status } from '../../../modules/IssueDetails/Status/Styles';
+import { Type, TypeLabel } from '../../../modules/IssueDetails/Type/Styles';
+import { User } from '../../../modules/IssueDetails/Reporter/Styles';
+import { Priority, Label } from '../../../modules/IssueDetails/Priority/Styles';
 import { IssueTypeIcon, IssuePriorityIcon } from '../index';
 import { IconComponent, IconText } from '../IssueIconComponent';
 import { formatDate } from '../../../utils/dateTime';
@@ -11,44 +14,45 @@ export const TruncatedCellRenderer = ({ value }) => {
 
 export const TypeCellRenderer = ({ value, projectConfig }) => {
   return (
-    <div className="flex items-center gap-2">
+    <Type>
       <IssueTypeIcon type={value} top={1} />
       <IconComponent typeId={value} projectConfig={projectConfig} />
-      <span className="text-sm">
+      <TypeLabel>
         <IconText typeId={value} projectConfig={projectConfig} />
-      </span>
-    </div>
+      </TypeLabel>
+    </Type>
   );
 };
 
 export const StatusCellRenderer = ({ value, statusMapping, statusColors }) => {
   const borderColor = statusColors && statusColors[value] ? statusColors[value] : '#FF5733';
-
+  
   return (
-    <div
-      className={`inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded btn btn-${statusMapping[value]}`}
+    <Status 
+      className={`btn btn-${statusMapping[value]}`} 
+      color={value}
       style={{ borderLeft: `3px solid ${borderColor}` }}
     >
       {statusMapping[value]}
-    </div>
+    </Status>
   );
 };
 
 export const DateCellRenderer = ({ value }) => {
   if (!value) return '';
-
+  
   // Calculate date status
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
+  
   const dueDateObj = new Date(value);
   dueDateObj.setHours(0, 0, 0, 0);
-
+  
   const nextWeek = new Date(today);
   nextWeek.setDate(today.getDate() + 7);
-
+  
   let statusClass = 'badge-light'; // default styling
-
+  
   if (dueDateObj < today) {
     statusClass = 'badge-danger'; // overdue - red
   } else if (dueDateObj.getTime() === today.getTime()) {
@@ -56,23 +60,23 @@ export const DateCellRenderer = ({ value }) => {
   } else if (dueDateObj < nextWeek) {
     statusClass = 'badge-success'; // due this week - green
   }
-
+  
   return <span className={`badge ${statusClass}`}>{formatDate(value)}</span>;
 };
 
 export const PriorityCellRenderer = ({ value, priorityMapping }) => {
   return (
-    <div className="flex items-center gap-2">
+    <Priority isValue={true}>
       <IssuePriorityIcon priority={value} />
-      <span className="text-sm">{priorityMapping[value]}</span>
-    </div>
+      <Label>{priorityMapping[value]}</Label>
+    </Priority>
   );
 };
 
 export const UserCellRenderer = ({ value, users, orgUsers }) => {
   let name = '';
   let avatarUrl = '';
-
+  
   if (orgUsers && value) {
     const orgUser = orgUsers.users ? orgUsers.users[value] : null;
     if (orgUser) {
@@ -85,11 +89,11 @@ export const UserCellRenderer = ({ value, users, orgUsers }) => {
     name = user ? user.name : '';
     avatarUrl = user ? user.photoURL : '';
   }
-
+  
   return (
-    <div className="flex items-center">
+    <User isSelectValue={false} withBottomMargin={false}>
       <Avatar avatarUrl={avatarUrl} name={name} size={25} className='avatar-circle' />
-    </div>
+    </User>
   );
 };
 
@@ -104,7 +108,7 @@ export const DotsRenderer = ({ count }) => {
   const dots = new Array(10).fill(null).map((_, index) => (
     <Dot key={index} active={index < count} />
   ));
-
+  
   return (
     <div className="d-flex flex-column flex-row-fluid">
       <div className="d-flex flex-column-auto h-25px flex-center">{dots}</div>

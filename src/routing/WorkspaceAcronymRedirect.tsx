@@ -10,7 +10,7 @@ const WorkspaceAcronymRedirect: React.FC = () => {
   const { data, status } = useGetSpaceByAcronym(acronym as string, orgId);
 
   if (!acronym) return <Navigate to='/error/404' />;
-  if (status === 'pending') return null; // Let MasterLayout progress bar show
+  if (status === 'loading') return null; // Let MasterLayout progress bar show
   if (!data) return <Navigate to='/error/404' />;
 
   // Navigate to the workspace board by default

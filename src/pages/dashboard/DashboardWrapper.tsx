@@ -34,22 +34,23 @@ const DashboardWrapper = () => {
   const { data: orgUsers } = useGetOrgUsers(orgId)
 
   // Fetch assigned tasks for dashboard widgets
-  const { data: assignedTasks = [] as any[], isLoading: tasksLoading } = useGetAssignedTasks(
+  const { data: assignedTasks = [], isLoading: tasksLoading } = useGetAssignedTasks(
     userId || "",
-    orgId || ""
+    orgId || "",
+    { enabled: !!userId && !!orgId }
   )
 
   // Fetch active sprints
-  const { data: activeSprints = [] as any[], isLoading: sprintsLoading } = useGetActiveSprints(orgId)
+  const { data: activeSprints = [], isLoading: sprintsLoading } = useGetActiveSprints(orgId)
 
   // Fetch dashboard configuration
   const { data: savedConfig } = useGetDashboardConfig(userId)
-  const [dashboardConfig, setDashboardConfig] = useState<{ hiddenWidgets: string[], compactMode: boolean }>({ hiddenWidgets: [], compactMode: false })
+  const [dashboardConfig, setDashboardConfig] = useState({ hiddenWidgets: [], compactMode: false })
 
   // Update config when saved config loads
   useEffect(() => {
     if (savedConfig) {
-      setDashboardConfig(savedConfig as { hiddenWidgets: string[], compactMode: boolean })
+      setDashboardConfig(savedConfig)
     }
   }, [savedConfig])
 
@@ -130,7 +131,7 @@ const DashboardWrapper = () => {
       {isVisible('focusToday') && (
         <div className="row g-5 g-xl-8 mb-5">
           <div className="col-12">
-            <FocusToday tasks={assignedTasks as any} isLoading={tasksLoading} />
+            <FocusToday tasks={assignedTasks} isLoading={tasksLoading} />
           </div>
         </div>
       )}
@@ -141,9 +142,9 @@ const DashboardWrapper = () => {
           {isVisible('sprintProgress') && (
             <div className="col-xl-4 col-lg-6">
               <SprintProgress
-                tasks={assignedTasks as any}
-                sprints={activeSprints as any}
-                workspaceId={activeSprints[0]?.workspaceId as any}
+                tasks={assignedTasks}
+                sprints={activeSprints}
+                workspaceId={activeSprints[0]?.workspaceId}
                 isLoading={sprintsLoading}
               />
             </div>

@@ -5,8 +5,7 @@ import { useWorkspace } from '../../../contexts/WorkspaceProvider';
 import { Select, IssueTypeIcon } from '../../../components/common';
 import { useAuth } from '../../auth';
 import { useUpdateItem } from '../../../services/itemServices';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Modal, Button } from 'react-bootstrap'; // Import Modal and Button from react-bootstrap
 
 const TaskDependencies = ({ issue, updateIssue, modalClose, scope }) => {
   const [dependencies, setDependencies] = useState(issue.dependencies || []);
@@ -263,24 +262,22 @@ const TaskDependencies = ({ issue, updateIssue, modalClose, scope }) => {
           );
         })}
       {/* Modal for confirming deletion */}
-      <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            Are you sure you want to delete this dependency?
-          </div>
-          <DialogFooter>
-            <Button variant="secondary" onClick={handleCancelDelete}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleConfirmDelete}>
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <Modal show={showModal} onHide={handleCancelDelete}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this dependency?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCancelDelete}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleConfirmDelete}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };

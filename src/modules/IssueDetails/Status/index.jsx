@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { Select } from '../../../components/common';
+import { Status } from './Styles';
 import { useWorkspace } from '../../../contexts/WorkspaceProvider';
 
 const propTypes = {
@@ -9,7 +10,7 @@ const propTypes = {
 
 const ProjectBoardIssueDetailsStatus = ({ issue, updateIssue, customStatus, fieldName }) => {
   const { project } = useWorkspace()
-
+  
   // Find border color for a status
   const getBorderColor = (statusId) => {
     // Try to find the status in project configuration
@@ -37,17 +38,17 @@ const ProjectBoardIssueDetailsStatus = ({ issue, updateIssue, customStatus, fiel
             updateIssue({ [updateField]: status });
           }}
           renderValue={({ value: status }) => (
-            <div color={status} className={`btn btn-${customStatus.IssueStatusClass[status]} uppercase transition-all duration-100 overflow-hidden whitespace-nowrap text-ellipsis px-3 h-8 hover:scale-105`}
+            <Status isValue color={status} className={`btn btn-${customStatus.IssueStatusClass[status]}`}
               style={{ borderLeft: `3px solid ${customStatus.IssueStatusClass[status] || '#FF5733'}` }}>
               <div>{customStatus.IssueStatusCopy[status]}</div>
               <i className='bi bi-chevron-down'></i>
-            </div>
+            </Status>
           )}
           renderOption={({ value: status }) => (
-            <div className={`btn btn-${customStatus.IssueStatusClass[status]} uppercase transition-all duration-100 overflow-hidden whitespace-nowrap text-ellipsis`} color={status}
+            <Status className={`btn btn-${customStatus.IssueStatusClass[status]}`} color={status}
               style={{ borderLeft: `3px solid ${customStatus.IssueStatusClass[status] || '#FF5733'}` }}>
               {customStatus.IssueStatusCopy[status]}
-            </div>
+            </Status>
           )}
         />) : (<Select
           variant="empty"
@@ -65,17 +66,17 @@ const ProjectBoardIssueDetailsStatus = ({ issue, updateIssue, customStatus, fiel
             const statusConfig = project.config.issueStatus.find(s => s.id === status);
             const borderColor = statusConfig?.borderColor || '#FF5733';
             return (
-              <div color={status} className="uppercase transition-all duration-100 overflow-hidden whitespace-nowrap text-ellipsis px-3 h-8 hover:scale-105"
+              <Status isValue color={status} 
                 style={{ borderLeft: `3px solid ${borderColor}` }}>
                 <div>{statusConfig?.name}</div>
                 <i className='bi bi-chevron-down'></i>
-              </div>
+              </Status>
             );
           }}
           renderOption={({ value, label, borderColor }) => (
-            <div color={value} className="uppercase transition-all duration-100 overflow-hidden whitespace-nowrap text-ellipsis" style={{ borderLeft: `3px solid ${borderColor || '#FF5733'}` }}>
+            <Status color={value} style={{ borderLeft: `3px solid ${borderColor || '#FF5733'}` }}>
               {label}
-            </div>
+            </Status>
           )}
         />)}
 

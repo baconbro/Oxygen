@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 
 import Header from './Header';
 import Sidebar from './Sidebar';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Modal } from 'react-bootstrap'
 import { Avatar } from '../../../components/common';
 import { formatDateTime } from '../shared/utils/dateTime';
 
@@ -40,10 +40,10 @@ const AdminPage = () => {
           return () => {
               document.body.removeChild(script);
           } */
-
+        
     }, []);
 
-    const refreshData = () => {
+    const refreshData = () =>{
         FirestoreService.getOrgUsers(orgId)
             .then(getOrg => {
                 if (getOrg.exists()) {
@@ -53,7 +53,7 @@ const AdminPage = () => {
                     // No document found
                 }
             })
-            .catch(() => { });
+            .catch(() => {});
 
     }
 
@@ -113,20 +113,20 @@ const AdminPage = () => {
     }
 
 
-    const removeUser = (user) => {
-        FirestoreService.editUsers(user, orgId)
-            .then((userCredential) => {
-                handleClose()
-                setLoading(false)
-                refreshData()
-            })
-            .catch((Error) => {
-                handleClose()
-                toast.error(Error.message);
-                setLoading(false)
+const removeUser = (user) =>{
+    FirestoreService.editUsers(user, orgId)
+    .then((userCredential) => {
+        handleClose()
+        setLoading(false)
+        refreshData()
+    })
+    .catch((Error) => {
+        handleClose()
+        toast.error(Error.message);
+        setLoading(false)
 
-            })
-    }
+    })
+}
 
     return (
         <div className="page d-flex flex-row flex-column-fluid">
@@ -164,65 +164,64 @@ const AdminPage = () => {
                                                         <rect x="4.36396" y="11.364" width="16" height="2" rx="1" fill="black" />
                                                     </svg>
                                                 </span>Add User</button>
-                                            <Dialog open={show} onOpenChange={(open) => !open && handleClose()}>
-                                                <DialogContent className="sm:max-w-[500px]">
-                                                    <DialogHeader>
-                                                        <DialogTitle>Add users to your team</DialogTitle>
-                                                    </DialogHeader>
-                                                    <div className="py-4">
-                                                        <form
-                                                            className='form w-100'
-                                                            onSubmit={formik.handleSubmit}
-                                                            noValidate
-                                                            id='xgn_login_signin_form'
-                                                        >
-                                                            <div className='fv-row mb-10'>
-                                                                <label className='form-label fs-6 fw-bolder text-dark'>Add a member</label>
-                                                                <input
-                                                                    placeholder='Email'
-                                                                    {...formik.getFieldProps('email')}
-                                                                    className={clsx(
-                                                                        'form-control form-control-lg form-control-solid',
-                                                                        { 'is-invalid': formik.touched.email && formik.errors.email },
-                                                                        {
-                                                                            'is-valid': formik.touched.email && !formik.errors.email,
-                                                                        }
-                                                                    )}
-                                                                    type='email'
-                                                                    name='email'
-                                                                    autoComplete='off'
-                                                                />
-                                                                {formik.touched.email && formik.errors.email && (
-                                                                    <div className='fv-plugins-message-container'>
-                                                                        <span role='alert'>{formik.errors.email}</span>
-                                                                    </div>
+                                            <Modal show={show} onHide={handleClose}>
+                                                <Modal.Header closeButton>
+                                                    <Modal.Title>Add users to your team</Modal.Title>
+                                                </Modal.Header>
+                                                <Modal.Body>
+                                                    <form
+                                                        className='form w-100'
+                                                        onSubmit={formik.handleSubmit}
+                                                        noValidate
+                                                        id='xgn_login_signin_form'
+                                                    >
+                                                        <div className='fv-row mb-10'>
+                                                            <label className='form-label fs-6 fw-bolder text-dark'>Add a member</label>
+                                                            <input
+                                                                placeholder='Email'
+                                                                {...formik.getFieldProps('email')}
+                                                                className={clsx(
+                                                                    'form-control form-control-lg form-control-solid',
+                                                                    { 'is-invalid': formik.touched.email && formik.errors.email },
+                                                                    {
+                                                                        'is-valid': formik.touched.email && !formik.errors.email,
+                                                                    }
                                                                 )}
-                                                            </div>
-                                                            <div className='text-center'>
-                                                                <button
-                                                                    type='submit'
-                                                                    id='xgn_sign_in_submit'
-                                                                    className='btn btn-lg btn-primary w-100 mb-5'
-                                                                    disabled={formik.isSubmitting || !formik.isValid}
-                                                                >
-                                                                    {!loading && <span className='indicator-label'>Add member</span>}
-                                                                    {loading && (
-                                                                        <span className='indicator-progress' style={{ display: 'block' }}>
-                                                                            Please wait...
-                                                                            <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
-                                                                        </span>
-                                                                    )}
-                                                                </button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                    <div className="flex justify-end gap-2 mt-4">
-                                                        <button className='btn btn-sm btn-light' onClick={handleClose}>
-                                                            Close
-                                                        </button>
-                                                    </div>
-                                                </DialogContent>
-                                            </Dialog>
+                                                                type='email'
+                                                                name='email'
+                                                                autoComplete='off'
+                                                            />
+                                                            {formik.touched.email && formik.errors.email && (
+                                                                <div className='fv-plugins-message-container'>
+                                                                    <span role='alert'>{formik.errors.email}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className='text-center'>
+                                                            <button
+                                                                type='submit'
+                                                                id='xgn_sign_in_submit'
+                                                                className='btn btn-lg btn-primary w-100 mb-5'
+                                                                disabled={formik.isSubmitting || !formik.isValid}
+                                                            >
+                                                                {!loading && <span className='indicator-label'>Add member</span>}
+                                                                {loading && (
+                                                                    <span className='indicator-progress' style={{ display: 'block' }}>
+                                                                        Please wait...
+                                                                        <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
+                                                                    </span>
+                                                                )}
+                                                            </button>
+                                                        </div>
+                                                    </form>
+
+                                                </Modal.Body>
+                                                <Modal.Footer>
+                                                    <button className='btn btn-sm btn-light' onClick={handleClose}>
+                                                        Close
+                                                    </button>
+                                                </Modal.Footer>
+                                            </Modal>
                                         </div>
                                         <div className="d-flex justify-content-end align-items-center d-none" data-xgn-user-table-toolbar="selected">
                                             <div className="fw-bolder me-5">
@@ -299,7 +298,7 @@ const AdminPage = () => {
                                                         <td className="text-end">
 
                                                             {user.role == 'owner' ? null : <button className="btn btn-sm btn-icon btn-bg-light btn-active-color-primary" >
-                                                                <i className="bi bi-trash fs-3" onClick={() => removeUser(user)}></i>
+                                                                <i className="bi bi-trash fs-3" onClick={ () => removeUser(user)}></i>
                                                             </button>
                                                             }
                                                         </td>

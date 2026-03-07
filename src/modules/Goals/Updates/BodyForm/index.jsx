@@ -1,5 +1,9 @@
-import { Form, Button } from '../../../../components/common';
+import { Actions, FormButton } from './Styles';
+import { Form } from '../../../../components/common';
+import { FormElement } from '../../../Workspace/WorkspaceSettings/Styles';
+import { useFormikContext } from 'formik';
 import { customStatus } from '../../../../constants/custom';
+import { Status } from '../../../IssueDetails/Status/Styles';
 
 const UpdatesBodyForm = ({
   newStatus,
@@ -48,7 +52,7 @@ const UpdatesBodyForm = ({
         }
       }}
     >
-      <div className="mt-4">
+      <FormElement>
         <div className="d-flex align-items-center mb-4">
           <i className="bi bi-graph-up-arrow fs-4 text-primary me-2"></i>
           <h5 className="fw-bold text-gray-800 m-0">New Check-in</h5>
@@ -77,13 +81,13 @@ const UpdatesBodyForm = ({
                 label: customStatus.IssueStatusCopy[newStatus],
               }))}
               renderValue={({ value: newStatus }) => (
-                <div className={`btn btn-${customStatus.IssueStatusClass[newStatus]}`}>
+                <Status isValue color={newStatus} className={`btn btn-${customStatus.IssueStatusClass[newStatus]}`}>
                   <div>{customStatus.IssueStatusCopy[newStatus]}</div>
                   <i className='bi bi-chevron-down'></i>
-                </div>
+                </Status>
               )}
               renderOption={({ value: statusVal }) => (
-                <div className={`btn btn-${customStatus.IssueStatusClass[statusVal]}`}>{customStatus.IssueStatusCopy[statusVal]}</div>
+                <Status className={`btn btn-${customStatus.IssueStatusClass[statusVal]}`} color={statusVal}>{customStatus.IssueStatusCopy[statusVal]}</Status>
               )}
             />
           </div>
@@ -100,15 +104,15 @@ const UpdatesBodyForm = ({
         <div className="mb-4">
           <FormikDatePickerField name="date" label="Date" />
         </div>
-        <div className="flex pt-[10px]">
-          <Button variant="primary" isWorking={isWorking} type="submit" className="btn btn-primary btn-sm mr-[6px]">
+        <Actions>
+          <FormButton variant="primary" isWorking={isWorking} type="submit" className="btn btn-primary btn-sm">
             <i className="bi bi-check2 me-1"></i> Save Check-in
-          </Button>
-          <Button variant="empty" onClick={onCancel} className="btn btn-light btn-sm mr-[6px]">
+          </FormButton>
+          <FormButton variant="empty" onClick={onCancel} className="btn btn-light btn-sm">
             Cancel
-          </Button>
-        </div>
-      </div>
+          </FormButton>
+        </Actions>
+      </FormElement>
     </Form>
   );
 };

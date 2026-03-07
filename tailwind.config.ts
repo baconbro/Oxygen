@@ -6,7 +6,8 @@ const config: Config = {
     './index.html',
     './src/**/*.{js,ts,jsx,tsx}',
   ],
-  // Prefix to avoid conflicts with Bootstrap during migration (Removed to allow Shadcn UI base styles)
+  // Prefix to avoid conflicts with Bootstrap during migration
+  prefix: 'tw-',
   theme: {
     extend: {
       colors: {

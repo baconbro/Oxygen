@@ -234,7 +234,7 @@ function KanbanColumn<T extends KanbanItem>({
       )}
     >
       {/* Column Header */}
-      <div className="tw-p-3 tw-border-b tw-border-[var(--border)]">
+      <div className="tw-p-3 tw-border-b tw-border-border">
         {renderColumnHeader ? (
           renderColumnHeader(column, items.length)
         ) : (

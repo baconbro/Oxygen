@@ -2,7 +2,7 @@ import React, { FC, useEffect, useRef, useState } from 'react'
 import { SearchComponent } from '../../../../components/common'
 import { InlineSVG } from '../../../../utils'
 import { useWorkspace } from '../../../../contexts/WorkspaceProvider'
-
+import { Status } from '../../../../modules/IssueDetails/Status/Styles'
 
 interface SearchProps {
   orgId: any;
@@ -144,11 +144,11 @@ const SearchReturn: React.FC<SearchProps> = ({ orgId, scope, onAction }) => {
 
         </div>
         <div className='d-flex flex-column'>
-          <div className="px-2 py-1 text-[11px] font-bold uppercase rounded bg-gray-100 text-gray-600">
+          <Status color={issue.status}>
             {project.config.issueStatus.find((statusName: any) => statusName.id === issue.status)?.name
               || 'Status Not Found' // Provide a default value
             }
-          </div>
+          </Status>
         </div>
       </div>
     )
@@ -182,11 +182,11 @@ const SearchReturn: React.FC<SearchProps> = ({ orgId, scope, onAction }) => {
 
         </div>
         <div className='d-flex flex-column'>
-          <div className="px-2 py-1 text-[11px] font-bold uppercase rounded bg-gray-100 text-gray-600">
+          <Status color={issue.status}>
             {project.config.issueStatus.find((statusName: any) => statusName.id === issue.status)?.name
               || 'Status Not Found' // Provide a default value
             }
-          </div>
+          </Status>
         </div>
       </div>
     )

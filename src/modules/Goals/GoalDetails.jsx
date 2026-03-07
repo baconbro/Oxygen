@@ -23,8 +23,9 @@ import {
 import { useUpdateOKR, fetchSingleOKR } from '../../services/okrServices';
 import { useGetOrgUsers } from '../../services/userServices';
 import { Avatar, Select, Icon } from '../../components/common';
+import { User, Username } from '../IssueDetails/Reporter/Styles';
 import CreateGoal from './createGoal';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Modal } from 'react-bootstrap';
 import InputValue from './inputValue';
 import CommentsComponent from './Comments';
 import UpdatesComponent from './Updates';
@@ -946,20 +947,20 @@ const GoalDetails = () => {
       </div>
 
       {isModalOpen && (
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="sm:max-w-3xl">
-            <DialogHeader>
-              <DialogTitle>
-                {isObjective ? 'Add to Objective' : 'New Goal'}
-              </DialogTitle>
-            </DialogHeader>
+        <Modal show={isModalOpen} onHide={handleCloseModal} centered size="lg">
+          <Modal.Header closeButton>
+            <Modal.Title>
+              {isObjective ? 'Add to Objective' : 'New Goal'}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
             <CreateGoal
               modalClose={handleCloseModal}
               parent={isObjective ? issue.id : undefined}
               defaultType={isObjective ? 'kr' : undefined}
             />
-          </DialogContent>
-        </Dialog>
+          </Modal.Body>
+        </Modal>
       )}
     </>
   );
@@ -1120,19 +1121,19 @@ const GoalOwnerSelect = ({ reporterId, orgUsersArray, onChange }) => {
       renderValue={({ value: uid }) => {
         const user = getUserById(uid);
         return (
-          <div className="flex items-center cursor-pointer mr-2.5 mb-0 py-1 px-2 rounded bg-gray-100 hover:bg-gray-200 transition-colors duration-100">
+          <User isSelectValue>
             <Avatar avatarUrl={user?.photoURL || user?.avatarUrl || ''} name={user?.name || user?.fName || ''} size={25} />
-            <div className="px-1 pr-0.5 text-[14.5px]">{user?.name || user?.displayName || user?.fName || 'Select owner'}</div>
-          </div>
+            <Username>{user?.name || user?.displayName || user?.fName || 'Select owner'}</Username>
+          </User>
         );
       }}
       renderOption={({ value: uid }) => {
         const user = getUserById(uid);
         return (
-          <div className="flex items-center cursor-pointer">
+          <User>
             <Avatar avatarUrl={user?.photoURL || user?.avatarUrl || ''} name={user?.name || user?.fName || ''} size={25} />
-            <div className="px-1 pr-0.5 text-[14.5px]">{user?.name || user?.displayName || user?.fName || uid}</div>
-          </div>
+            <Username>{user?.name || user?.displayName || user?.fName || uid}</Username>
+          </User>
         );
       }}
     />
@@ -1149,14 +1150,15 @@ const renderGoalOption = (goal, isSelectValue, removeOptionValue) => {
   }
 
   return (
-    <div
+    <User
       key={goal.id}
-      className={`flex items-center cursor-pointer ${isSelectValue ? `mr-2.5 ${removeOptionValue ? 'mb-1.5' : 'mb-0'} py-1 px-2 rounded bg-gray-100 hover:bg-gray-200 transition-colors duration-100` : ''}`}
+      isSelectValue={isSelectValue}
+      withBottomMargin={!!removeOptionValue}
     >
       <Avatar avatarUrl={goal.avatarUrl} name={goal.title} size={25} />
-      <div className="px-1 pr-0.5 text-[14.5px]">{goal.title}</div>
+      <Username>{goal.title}</Username>
       {removeOptionValue && <Icon type="close" top={1} onClick={() => removeOptionValue()} />}
-    </div>
+    </User>
   );
 };
 

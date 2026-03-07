@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import BodyForm from '../BodyForm';
 
-import { Avatar } from '../../../../components/common';
+import { Create, UserAvatar, Right, FakeTextarea } from './Styles';
 
 import * as FirestoreService from '../../../../services/firestore';
 import { useAuth } from "../../../auth"
@@ -41,9 +41,9 @@ const CommentsCreate = ({ issue, updateIssue, object }) => {
   };
 
   return (
-    <div className="relative mt-[25px] text-[15px]">
-      {currentUser && <Avatar className="absolute top-0 left-0" name={currentUser.all.fName} avatarUrl={currentUser.all.photoURL} />}
-      <div className="pl-[64px]">
+    <Create>
+      {currentUser && <UserAvatar name={currentUser.all.fName} avatarUrl={currentUser.all.photoURL} />}
+      <Right>
         {isFormOpen ? (
           <BodyForm
             value={body}
@@ -54,11 +54,11 @@ const CommentsCreate = ({ issue, updateIssue, object }) => {
           />
         ) : (
           <>
-            <div className="p-[12px_16px] rounded-[4px] border border-gray-200 text-gray-400 cursor-pointer hover:border-gray-300" onClick={() => setFormOpen(true)}>Add a new...</div>
+            <FakeTextarea onClick={() => setFormOpen(true)}>Add a new...</FakeTextarea>
           </>
         )}
-      </div>
-    </div>
+      </Right>
+    </Create>
   );
 };
 

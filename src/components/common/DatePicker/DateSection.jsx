@@ -6,7 +6,15 @@ import { times, range } from 'lodash';
 import { formatDate, formatDateTimeForAPI } from '../../../utils/dateTime';
 import Icon from '../Icon';
 
-
+import {
+  DateSection,
+  YearSelect,
+  SelectedMonthYear,
+  Grid,
+  PrevNextIcons,
+  DayName,
+  Day,
+} from './Styles';
 
 const propTypes = {
   withTime: PropTypes.bool,
@@ -47,48 +55,41 @@ const DatePickerDateSection = ({ withTime, value, onChange, setDropdownOpen }) =
   };
 
   return (
-    <div className="relative p-5">
+    <DateSection>
       <Icon type="arrow-left" onClick={() => handleMonthChange('subtract')} />
-      <div className="inline-block pl-[7px] font-bold text-[16px]">{formatDate(selectedMonth, 'MMM YYYY')}</div>
+      <SelectedMonthYear>{formatDate(selectedMonth, 'MMM YYYY')}</SelectedMonthYear>
 
-      <select
-        className="ml-[5px] w-[60px] h-[22px] text-[13px] bg-transparent border-transparent text-gray-500"
-        onChange={event => handleYearChange(event.target.value)}
-      >
+      <YearSelect onChange={event => handleYearChange(event.target.value)}>
         {generateYearOptions().map(option => (
           <option key={option.label} value={option.value}>
             {option.label}
           </option>
         ))}
-      </select>
-      <Icon type="arrow-right" onClick={() => handleMonthChange('add')} />
+      </YearSelect>
+        <Icon type="arrow-right" onClick={() => handleMonthChange('add')} />
 
-      <div className="flex flex-wrap pt-[15px] text-center">
+      <Grid>
         {generateWeekDayNames().map(name => (
-          <div className="w-[14.28%] h-[30px] leading-[30px] text-gray-400 text-[13px]" key={name}>{name}</div>
+          <DayName key={name}>{name}</DayName>
         ))}
         {generateFillerDaysBeforeMonthStart(selectedMonth).map(i => (
-          <div className="w-[14.28%] h-[30px] leading-[30px] rounded-[0.475rem] text-[15px]" key={`before-${i}`} />
+          <Day key={`before-${i}`} isFiller />
         ))}
-        {generateMonthDays(selectedMonth).map(date => {
-          const isToday = moment().isSame(date, 'day');
-          const isSelected = moment(value).isSame(date, 'day');
-
-          return (
-            <div
-              key={date}
-              className={`w-[14.28%] h-[30px] leading-[30px] rounded-[0.475rem] text-[15px] cursor-pointer hover:bg-[#f1faff] hover:text-[#009ef7] ${isToday ? 'bg-[#f1faff] text-[#009ef7]' : ''} ${isSelected ? 'bg-[#009ef7] text-white !hover:text-white' : ''}`}
-              onClick={() => handleDayChange(date)}
-            >
-              {formatDate(date, 'D')}
-            </div>
-          );
-        })}
+        {generateMonthDays(selectedMonth).map(date => (
+          <Day
+            key={date}
+            isToday={moment().isSame(date, 'day')}
+            isSelected={moment(value).isSame(date, 'day')}
+            onClick={() => handleDayChange(date)}
+          >
+            {formatDate(date, 'D')}
+          </Day>
+        ))}
         {generateFillerDaysAfterMonthEnd(selectedMonth).map(i => (
-          <div className="w-[14.28%] h-[30px] leading-[30px] rounded-[0.475rem] text-[15px]" key={`after-${i}`} />
+          <Day key={`after-${i}`} isFiller />
         ))}
-      </div>
-    </div>
+      </Grid>
+    </DateSection>
   );
 };
 

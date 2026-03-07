@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Modal } from "react-bootstrap";
 import { useAuth } from "../../../modules/auth";
 import { useAddItem } from "../../../services/itemServices";
 import { useGetSpaces } from "../../../services/workspaceServices";
@@ -109,124 +109,122 @@ export const QuickCreate = () => {
       </button>
 
       {/* Quick Create Modal */}
-      <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="sm:max-w-[800px] p-0 gap-0">
-          <form onSubmit={handleSubmit}>
-            <DialogHeader className="px-6 pt-6 pb-2">
-              <DialogTitle className="text-xl fw-bold">Quick Create Task</DialogTitle>
-            </DialogHeader>
+      <Modal show={showModal} onHide={handleClose} centered size="lg">
+        <form onSubmit={handleSubmit}>
+          <Modal.Header closeButton className="border-0 pb-0">
+            <Modal.Title className="fw-bold">Quick Create Task</Modal.Title>
+          </Modal.Header>
 
-            <div className="px-6 pt-3 pb-6 border-b">
-              {/* Title Input */}
-              <div className="mb-4">
-                <input
-                  type="text"
-                  className="form-control form-control-lg border-0 bg-light px-0 fs-3 fw-semibold"
-                  placeholder="What needs to be done?"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  autoFocus
-                  style={{ boxShadow: "none" }}
-                />
+          <Modal.Body className="pt-3">
+            {/* Title Input */}
+            <div className="mb-4">
+              <input
+                type="text"
+                className="form-control form-control-lg border-0 bg-light px-0 fs-3 fw-semibold"
+                placeholder="What needs to be done?"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                autoFocus
+                style={{ boxShadow: "none" }}
+              />
+            </div>
+
+            {/* Description */}
+            <div className="mb-4">
+              <textarea
+                className="form-control border-0 bg-light"
+                placeholder="Add a description (optional)"
+                rows={3}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                style={{ resize: "none" }}
+              />
+            </div>
+
+            {/* Project & Priority Row */}
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label className="form-label text-muted fs-7 fw-semibold">
+                  Project
+                </label>
+                <select
+                  className="form-select"
+                  value={selectedProject}
+                  onChange={(e) => setSelectedProject(e.target.value)}
+                  disabled={spacesLoading}
+                >
+                  {spacesLoading ? (
+                    <option>Loading projects...</option>
+                  ) : (
+                    spaces.map((space) => (
+                      <option key={space.id} value={space.id}>
+                        {space.title || space.name || "Untitled Project"}
+                      </option>
+                    ))
+                  )}
+                </select>
               </div>
 
-              {/* Description */}
-              <div className="mb-4">
-                <textarea
-                  className="form-control border-0 bg-light"
-                  placeholder="Add a description (optional)"
-                  rows={3}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  style={{ resize: "none" }}
-                />
-              </div>
-
-              {/* Project & Priority Row */}
-              <div className="row g-3">
-                <div className="col-md-6">
-                  <label className="form-label text-muted fs-7 fw-semibold">
-                    Project
-                  </label>
-                  <select
-                    className="form-select"
-                    value={selectedProject}
-                    onChange={(e) => setSelectedProject(e.target.value)}
-                    disabled={spacesLoading}
-                  >
-                    {spacesLoading ? (
-                      <option>Loading projects...</option>
-                    ) : (
-                      spaces.map((space) => (
-                        <option key={space.id} value={space.id}>
-                          {space.title || space.name || "Untitled Project"}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </div>
-
-                <div className="col-md-6">
-                  <label className="form-label text-muted fs-7 fw-semibold">
-                    Priority
-                  </label>
-                  <select
-                    className="form-select"
-                    value={priority}
-                    onChange={(e) => setPriority(e.target.value)}
-                  >
-                    <option value="highest">Highest</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
-                    <option value="lowest">Lowest</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Keyboard hint */}
-              <div className="mt-4 pt-3 border-top">
-                <span className="text-muted fs-7">
-                  <kbd className="bg-light text-muted border px-2">Ctrl</kbd> +{" "}
-                  <kbd className="bg-light text-muted border px-2">K</kbd> to
-                  open from anywhere
-                </span>
+              <div className="col-md-6">
+                <label className="form-label text-muted fs-7 fw-semibold">
+                  Priority
+                </label>
+                <select
+                  className="form-select"
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                >
+                  <option value="highest">Highest</option>
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                  <option value="lowest">Lowest</option>
+                </select>
               </div>
             </div>
 
-            <DialogFooter className="px-6 py-4 bg-gray-50/50 sm:justify-end">
-              <button
-                type="button"
-                className="btn btn-light"
-                onClick={handleClose}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={!title.trim() || !selectedProject || isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <span
-                      className="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <i className="bi bi-plus-lg me-2"></i>
-                    Create Task
-                  </>
-                )}
-              </button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+            {/* Keyboard hint */}
+            <div className="mt-4 pt-3 border-top">
+              <span className="text-muted fs-7">
+                <kbd className="bg-light text-muted border px-2">Ctrl</kbd> +{" "}
+                <kbd className="bg-light text-muted border px-2">K</kbd> to
+                open from anywhere
+              </span>
+            </div>
+          </Modal.Body>
+
+          <Modal.Footer className="border-0 pt-0">
+            <button
+              type="button"
+              className="btn btn-light"
+              onClick={handleClose}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={!title.trim() || !selectedProject || isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-plus-lg me-2"></i>
+                  Create Task
+                </>
+              )}
+            </button>
+          </Modal.Footer>
+        </form>
+      </Modal>
     </>
   );
 };

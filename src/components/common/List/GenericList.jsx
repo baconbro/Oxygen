@@ -6,14 +6,13 @@ import {
   getExpandedRowModel,
   getSortedRowModel,
 } from '@tanstack/react-table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Modal, Button } from 'react-bootstrap';
 
-const GenericList = ({
-  data,
-  columns,
-  onRowClick,
-  emptyComponent: EmptyComponent,
+const GenericList = ({ 
+  data, 
+  columns, 
+  onRowClick, 
+  emptyComponent: EmptyComponent, 
   headerActions,
   getSubRows = row => row.subRows,
 }) => {
@@ -82,21 +81,19 @@ const GenericList = ({
                   ))}
                   <th key={'actions'} className="max-w-50px min-w-25px">
                     <div className="m-0">
-                      <Dialog open={showModal} onOpenChange={setShowModal}>
-                        <DialogTrigger asChild>
-                          <a
-                            href="#"
-                            className="btn btn-sm btn-flex bg-body btn-color-gray-700 btn-active-color-primary fw-bold"
-                            onClick={(e) => { e.preventDefault(); handleShowModal(); }}
-                          >
-                            <i className="bi bi-plus fs-6 text-muted me-1"></i>
-                          </a>
-                        </DialogTrigger>
-                        {headerActions}
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Columns</DialogTitle>
-                          </DialogHeader>
+                      <a
+                        href="#"
+                        className="btn btn-sm btn-flex bg-body btn-color-gray-700 btn-active-color-primary fw-bold"
+                        onClick={handleShowModal}
+                      >
+                        <i className="bi bi-plus fs-6 text-muted me-1"></i>
+                      </a>
+                      {headerActions}
+                      <Modal show={showModal} onHide={handleCloseModal}>
+                        <Modal.Header closeButton>
+                          <Modal.Title>Columns</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
                           <div className="w-250px w-md-300px">
                             <div className="separator border-gray-200"></div>
                             <div className="px-7 py-5">
@@ -128,13 +125,13 @@ const GenericList = ({
                               </div>
                             </div>
                           </div>
-                          <DialogFooter>
-                            <Button variant="secondary" onClick={handleCloseModal}>
-                              Close
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                        </Modal.Body>
+                        <Modal.Footer>
+                          <Button variant="secondary" onClick={handleCloseModal}>
+                            Close
+                          </Button>
+                        </Modal.Footer>
+                      </Modal>
                     </div>
                   </th>
                 </tr>
@@ -149,15 +146,15 @@ const GenericList = ({
                         className='btn btn-icon btn-light btn-active-light-primary toggle h-25px w-25px me-1'
                         onClick={row.getToggleExpandedHandler()}
                       >
-                        {row.getIsExpanded() ?
-                          <span className="bi bi-dash fs-3 m-0"></span> :
+                        {row.getIsExpanded() ? 
+                          <span className="bi bi-dash fs-3 m-0"></span> : 
                           <span className="bi bi-plus fs-3 m-0"></span>}
                       </button>
                     ) : ''}
                   </td>
                   {row.getVisibleCells().map(cell => (
-                    <td
-                      key={cell.id}
+                    <td 
+                      key={cell.id} 
                       onClick={() => onRowClick && onRowClick(row, cell)}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

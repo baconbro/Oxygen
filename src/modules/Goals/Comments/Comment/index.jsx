@@ -2,7 +2,12 @@ import { useState } from 'react';
 import { formatDateTimeConversational } from '../../../../utils/dateTime';
 import { ConfirmModal } from '../../../../components/common';
 import BodyForm from '../BodyForm';
-import { Avatar } from '../../../../components/common';
+import {
+  Comment,
+  UserAvatar,
+  EditLink,
+  DeleteLink,
+} from './Styles';
 import { useWorkspace } from '../../../../contexts/WorkspaceProvider';
 
 
@@ -46,11 +51,11 @@ const DetailsComment = ({ comment, issue, updateIssue, object }) => {
   };
 
   return (
-    <div className="relative mt-[25px] text-[15px]" data-testid="issue-comment">
+    <Comment data-testid="issue-comment">
       <div className="mb-7">
         <div className="d-flex mb-5">
           <div className="avatar avatar-45px me-5">
-            <Avatar className="relative top-0 left-0" name={user?.name} avatarUrl={user?.avatarUrl} />
+            <UserAvatar name={user?.name} avatarUrl={user?.avatarUrl} />
           </div>
 
           <div className="d-flex flex-column flex-row-fluid">
@@ -69,10 +74,10 @@ const DetailsComment = ({ comment, issue, updateIssue, object }) => {
                     confirmText="Delete comment"
                     onConfirm={handleCommentDelete}
                     className="card card-flush border-0 h-md-100"
-                    renderLink={modal => <div className="inline-block py-[2px] text-gray-500 text-[14.5px] cursor-pointer hover:underline pl-[10px]" onClick={modal.open}>Delete</div>}
+                    renderLink={modal => <DeleteLink onClick={modal.open}>Delete</DeleteLink>}
                   />
                   {' - '}
-                  <div className="mr-[12px] inline-block py-[2px] text-gray-500 text-[14.5px] cursor-pointer hover:underline" onClick={() => setFormOpen(true)}>Edit</div>
+                  <EditLink onClick={() => setFormOpen(true)}>Edit</EditLink>
                 </span>
               )}
             </div>
@@ -87,13 +92,13 @@ const DetailsComment = ({ comment, issue, updateIssue, object }) => {
                   onCancel={() => setFormOpen(false)}
                 />
               ) : (
-                <p className="pb-[10px] whitespace-pre-wrap">{comment.body}</p>
+                comment.body
               )}
             </span>
           </div>
         </div>
       </div>
-    </div>
+    </Comment>
   );
 };
 

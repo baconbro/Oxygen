@@ -5,8 +5,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { BaseI18nProvider } from './i18n/Basei18n'
 import { queryClient } from './lib/queryClient'
 
-import 'bootstrap-icons/font/bootstrap-icons.css'
-import 'animate.css/animate.css'
 import './styles/style.scss'
 import './styles/plugins.scss'
 import './styles/style.react.scss'

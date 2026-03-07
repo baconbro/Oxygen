@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { KeyCodes } from '../../../constants/keyCodes';
 import { is, generateErrors } from '../../../utils/validation';
 
-import { Textarea } from '../../../components/common';
+import { TitleTextarea, ErrorText } from './Styles';
 
 const propTypes = {
   issue: PropTypes.object.isRequired,
@@ -38,8 +38,7 @@ const ProjectBoardIssueDetailsTitle = ({ issue, updateIssue, InStyle }) => {
 
   return (
     <>
-      <Textarea style={InStyle}
-        className="ml-[-8px] h-[44px] w-full p-[7px_7px_8px] leading-[1.28] border-none resize-none bg-white shadow-none transition-colors text-[24px] font-medium hover:not(:focus):bg-gray-100 outline-none"
+      <TitleTextarea style={InStyle}
         minRows={1}
         placeholder="Short summary"
         defaultValue={issue.title}
@@ -51,7 +50,7 @@ const ProjectBoardIssueDetailsTitle = ({ issue, updateIssue, InStyle }) => {
           }
         }}
       />
-      {error && <div className="pt-1 text-red-500 text-[13px] font-medium">{error}</div>}
+      {error && <ErrorText>{error}</ErrorText>}
     </>
   );
 };

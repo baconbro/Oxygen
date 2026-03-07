@@ -1,18 +1,8 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
+import { StyledConfirmModal, Title, Message, Actions, StyledButton } from './Styles';
+
 const propTypes = {
   className: PropTypes.string,
   variant: PropTypes.oneOf(['primary', 'danger']),
@@ -57,26 +47,31 @@ const ConfirmModal = ({
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        {renderLink({ open: () => { } })}
-      </AlertDialogTrigger>
-      <AlertDialogContent className={className}>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          {message && <AlertDialogDescription>{message}</AlertDialogDescription>}
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => onConfirm({ close: () => { } })}>{cancelText}</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => handleConfirm({ close: () => { } })}
-            className={variant === 'danger' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}
-          >
-            {confirmText}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <StyledConfirmModal
+      className={className}
+      testid="modal:confirm"
+      withCloseIcon={false}
+      renderLink={renderLink}
+      renderContent={modal => (
+        <>
+          <Title>{title}</Title>
+          {message && <Message>{message}</Message>}
+          <Actions>
+            <button
+              variant={variant}
+              //isWorking={isWorking}
+              onClick={() => handleConfirm(modal)}
+              className="btn btn-danger"
+            >
+              {confirmText}
+            </button>
+            <button onClick={modal.close} className="btn">
+              {cancelText}
+            </button>
+          </Actions>
+        </>
+      )}
+    />
   );
 };
 

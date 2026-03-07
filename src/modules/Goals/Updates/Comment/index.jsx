@@ -1,8 +1,13 @@
 import { formatDateTimeConversational } from '../../../../utils/dateTime';
 import { ConfirmModal } from '../../../../components/common';
-import { Avatar } from '../../../../components/common';
+import {
+  Comment,
+  UserAvatar,
+  DeleteLink,
+} from './Styles';
 import { useWorkspace } from '../../../../contexts/WorkspaceProvider';
 import { customStatus, getScoreColor } from '../../../../constants/custom';
+import { Status } from '../../../IssueDetails/Status/Styles';
 
 
 const DetailsUpdate = ({ comment, issue, updateIssue, object }) => {
@@ -30,10 +35,10 @@ const DetailsUpdate = ({ comment, issue, updateIssue, object }) => {
   const hasStatusChange = comment.oldStatus && comment.oldStatus !== comment.newStatus;
 
   return (
-    <div className="relative mt-[25px] text-[15px]">
+    <Comment>
       <div className="d-flex mb-6">
         <div className="me-4">
-          <Avatar className="relative top-0 left-0" name={user?.name} avatarUrl={user?.avatarUrl} />
+          <UserAvatar name={user?.name} avatarUrl={user?.avatarUrl} />
         </div>
         <div className="flex-fill">
           {/* Header */}
@@ -51,9 +56,9 @@ const DetailsUpdate = ({ comment, issue, updateIssue, object }) => {
               onConfirm={handleCommentDelete}
               className="card card-flush border-0 h-md-100"
               renderLink={modal => (
-                <div onClick={modal.open} className="inline-block py-[2px] text-gray-400 text-[14.5px] cursor-pointer hover:underline pl-[10px] text-hover-danger">
+                <DeleteLink onClick={modal.open} className="text-gray-400 text-hover-danger">
                   <i className="bi bi-trash fs-7"></i>
-                </div>
+                </DeleteLink>
               )}
             />
           </div>
@@ -85,21 +90,23 @@ const DetailsUpdate = ({ comment, issue, updateIssue, object }) => {
                   <span className="text-gray-500 fs-7 fw-semibold">Status:</span>
                   {hasStatusChange && (
                     <>
-                      <div
+                      <Status
                         className={`btn btn-sm btn-${customStatus.IssueStatusClass[comment.oldStatus] || 'secondary'}`}
+                        color={comment.oldStatus}
                         style={{ fontSize: '0.7rem', padding: '1px 6px' }}
                       >
                         {customStatus.IssueStatusCopy[comment.oldStatus] || comment.oldStatus}
-                      </div>
+                      </Status>
                       <i className="bi bi-arrow-right text-gray-400 fs-8"></i>
                     </>
                   )}
-                  <div
+                  <Status
                     className={`btn btn-sm btn-${customStatus.IssueStatusClass[comment.newStatus] || 'secondary'}`}
+                    color={comment.newStatus}
                     style={{ fontSize: '0.7rem', padding: '1px 6px' }}
                   >
                     {customStatus.IssueStatusCopy[comment.newStatus] || comment.newStatus}
-                  </div>
+                  </Status>
                 </div>
               )}
             </div>
@@ -150,7 +157,7 @@ const DetailsUpdate = ({ comment, issue, updateIssue, object }) => {
           </div>
         </div>
       </div>
-    </div>
+    </Comment>
   );
 };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar } from '../../components/common';
 import { useWorkspace } from '../../contexts/WorkspaceProvider';
+import { Status } from '../IssueDetails/Status/Styles';
 import { customStatus, getScoreColor, goalType } from '../../constants/custom';
 import EmptyGoals from '../../components/common/emptyStates/emptyGoals';
 import { filterIssues } from '../../utils/issueFilterUtils';
@@ -20,7 +21,7 @@ import { useGetOrgUsers } from '../../services/userServices'
 import GoalFilter from './goalFilter';
 import CreateGoal from './createGoal';
 import GoalBoardView from './GoalBoardView';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Modal } from 'react-bootstrap';
 import { groupTasksByParent } from '../../utils/itemManipulation';
 import { Progress, WorkProgress } from './UtilProgress';
 
@@ -160,23 +161,23 @@ const Goals = () => {
     columnHelper.accessor('type', {
       header: () => <span>Type</span>,
       cell: info => (
-        <div
-          className={`btn btn-sm btn-${goalType.IssueStatusClass[info.renderValue()] || 'light-primary'} uppercase transition-all duration-100 overflow-hidden whitespace-nowrap text-ellipsis`}
+        <Status
+          className={`btn btn-sm btn-${goalType.IssueStatusClass[info.renderValue()] || 'light-primary'}`}
           color={info.renderValue()}
         >
           {goalType.IssueStatusCopy[info.renderValue()] || info.renderValue()}
-        </div>
+        </Status>
       ),
     }),
     columnHelper.accessor('status', {
       header: () => <span>Status</span>,
       cell: info => (
-        <div
-          className={`btn btn-sm btn-${customStatus.IssueStatusClass[info.renderValue()] || 'secondary'} uppercase transition-all duration-100 overflow-hidden whitespace-nowrap text-ellipsis`}
+        <Status
+          className={`btn btn-sm btn-${customStatus.IssueStatusClass[info.renderValue()] || 'secondary'}`}
           color={info.renderValue()}
         >
           {customStatus.IssueStatusCopy[info.renderValue()] || info.renderValue()}
-        </div>
+        </Status>
       ),
     }),
     columnHelper.accessor('score', {
@@ -280,14 +281,14 @@ const Goals = () => {
         </div>
         <EmptyGoals />
         {isModalOpen && (
-          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <DialogContent className="sm:max-w-3xl">
-              <DialogHeader>
-                <DialogTitle>New Goal</DialogTitle>
-              </DialogHeader>
+          <Modal show={isModalOpen} onHide={handleCloseModal} centered size="lg">
+            <Modal.Header closeButton>
+              <Modal.Title>New Goal</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
               <CreateGoal modalClose={handleCloseModal} />
-            </DialogContent>
-          </Dialog>
+            </Modal.Body>
+          </Modal>
         )}
       </>
     );
@@ -534,14 +535,14 @@ const Goals = () => {
       )}
 
       {isModalOpen && (
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="sm:max-w-3xl">
-            <DialogHeader>
-              <DialogTitle>New Goal</DialogTitle>
-            </DialogHeader>
+        <Modal show={isModalOpen} onHide={handleCloseModal} centered size="lg">
+          <Modal.Header closeButton>
+            <Modal.Title>New Goal</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
             <CreateGoal modalClose={handleCloseModal} />
-          </DialogContent>
-        </Dialog>
+          </Modal.Body>
+        </Modal>
       )}
     </>
   );

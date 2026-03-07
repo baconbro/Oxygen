@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../auth';
 import { customStatus } from '../../constants/custom';
+import { Status } from '../IssueDetails/Status/Styles';
+
 const StatusUpdateComposer = ({ issue, updateIssue, onCancel }) => {
   const { currentUser } = useAuth();
   const [newStatus, setNewStatus] = useState(issue.status || 'pending');
@@ -101,7 +103,7 @@ const StatusUpdateComposer = ({ issue, updateIssue, onCancel }) => {
                     className={`btn btn-sm ${newStatus === statusVal
                       ? `btn-${customStatus.IssueStatusClass[statusVal]}`
                       : `btn-outline btn-outline-${customStatus.IssueStatusClass[statusVal]} btn-active-light-${customStatus.IssueStatusClass[statusVal]}`
-                      }`}
+                    }`}
                     onClick={() => setNewStatus(statusVal)}
                   >
                     {customStatus.IssueStatusCopy[statusVal]}

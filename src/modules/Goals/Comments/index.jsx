@@ -1,17 +1,17 @@
 import { sortByNewest } from '../../../utils/javascript';
 import CommentsCreate from './Create';
 import DetailsComment from './Comment';
-
+import { Comments } from './Styles';
 
 
 
 const CommentsComponent = ({ issue, updateIssue, object }) => (
-  <div className="pt-[40px]">
+  <Comments>
     <CommentsCreate issue={issue} updateIssue={updateIssue} object={object} />
     {issue[object] && sortByNewest(issue[object], 'createdAt').map(comment => (
       <DetailsComment key={comment.id} comment={comment} issue={issue} updateIssue={updateIssue} object={object} />
     ))}
-  </div>
+  </Comments>
 );
 
 
