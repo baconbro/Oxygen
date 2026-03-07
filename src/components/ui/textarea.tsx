@@ -1,18 +1,41 @@
-import * as React from "react"
+import * as React from 'react'
+import { cn } from '../../lib/utils'
 
-import { cn } from "@/lib/utils"
-
-function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
-  return (
-    <textarea
-      data-slot="textarea"
-      className={cn(
-        "flex field-sizing-content min-h-16 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
-        className
-      )}
-      {...props}
-    />
-  )
+export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  error?: boolean
+  helperText?: string
 }
+
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className, error, helperText, ...props }, ref) => {
+    return (
+      <div className="tw-w-full">
+        <textarea
+          className={cn(
+            'tw-flex tw-min-h-[80px] tw-w-full tw-rounded-md tw-border tw-border-input tw-bg-background tw-px-3 tw-py-2 tw-text-sm tw-ring-offset-background',
+            'placeholder:tw-text-muted-foreground',
+            'focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-ring focus-visible:tw-ring-offset-2',
+            'disabled:tw-cursor-not-allowed disabled:tw-opacity-50',
+            error && 'tw-border-danger focus-visible:tw-ring-danger',
+            className
+          )}
+          ref={ref}
+          {...props}
+        />
+        {helperText && (
+          <p
+            className={cn(
+              'tw-mt-1 tw-text-xs',
+              error ? 'tw-text-danger' : 'tw-text-muted-foreground'
+            )}
+          >
+            {helperText}
+          </p>
+        )}
+      </div>
+    )
+  }
+)
+Textarea.displayName = 'Textarea'
 
 export { Textarea }
